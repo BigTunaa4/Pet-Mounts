@@ -29,7 +29,6 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.gameval.AnimationID;
-import net.runelite.api.gameval.SpotanimID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.callback.RenderCallback;
 import net.runelite.client.callback.RenderCallbackManager;
@@ -39,7 +38,6 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.Text;
 
@@ -60,12 +58,12 @@ public class PetMountsPlugin extends Plugin
 	private static final int WINDUP_MS = 1200;
 	/** The player beckons their pet over while climbing on. */
 	private static final int WINDUP_ANIMATION = AnimationID.EMOTE_BECKON;
-	/** Key for the smoke spotanim we attach to the player (any unused number). */
-	private static final int POOF_SPOTANIM_KEY = 0x5E7A;
 	/** Floating pets are lowered so their underside hovers no more than this above the ground. */
 	private static final int MAX_HOVER = 12;
 	/** Rider never sits higher than this (local units; a player is ~200 tall). */
 	private static final int MAX_SEAT_HEIGHT = 150;
+	/** Pets at least this wide (local units, after enlarging) get the legs-apart Wide pose. */
+	private static final int WIDE_POSE_WIDTH = 90;
 
 	@Inject
 	private Client client;
@@ -83,10 +81,7 @@ public class PetMountsPlugin extends Plugin
 	private PetMountsConfig config;
 
 	@Inject
-	private OverlayManager overlayManager;
-
-	@Inject
-	private MountEffectsOverlay effects;
+	private MountEffects effects;
 
 	// ----- state -----
 	/** Whether the player wants to be riding. */
@@ -95,8 +90,14 @@ public class PetMountsPlugin extends Plugin
 	private boolean mountedVisible;
 	/** When the climb-on animation started (System.nanoTime), or 0 when not climbing on. */
 	private long mountingSince;
+	/** Hidden for an action (skilling, combat, teleport) and waiting to climb back on. */
+	private boolean pausedForAction;
 	/** Colours taken from the current pet, for the effects. */
 	private Color[] petPalette = PetPalette.DEFAULT;
+	/** Pose picked from the current pet's shape, used when Riding pose is Automatic. */
+	private RiderPose autoPose = RiderPose.SADDLE;
+	/** Follows the mount's back so the rider moves with it. */
+	private final SeatAnchor seatAnchor = new SeatAnchor();
 
 	private RuneLiteObject mount;
 	private RiderController rider;
@@ -151,7 +152,7 @@ public class PetMountsPlugin extends Plugin
 	{
 		renderCallbackManager.register(renderCallback);
 		keyManager.registerKeyListener(hotkeyListener);
-		overlayManager.add(effects);
+
 		riding = config.remountOnLogin() && config.wasMounted();
 	}
 
@@ -160,10 +161,9 @@ public class PetMountsPlugin extends Plugin
 	{
 		keyManager.unregisterKeyListener(hotkeyListener);
 		renderCallbackManager.unregister(renderCallback);
-		overlayManager.remove(effects);
-		effects.clear();
 		clientThread.invoke(() ->
 		{
+			effects.clear();
 			cancelMounting(null);
 			hideMount();
 			mount = null;
@@ -237,7 +237,7 @@ public class PetMountsPlugin extends Plugin
 		mountingSince = System.nanoTime();
 		me.setAnimation(WINDUP_ANIMATION);
 		me.setAnimationFrame(0);
-		effects.windup(effectPalette(), WINDUP_MS, seatLift());
+		effects.windup(effectColor());
 	}
 
 	private void finishMounting(boolean announce)
@@ -254,8 +254,7 @@ public class PetMountsPlugin extends Plugin
 
 		if (config.mountEffects() && me != null)
 		{
-			effects.poof(effectPalette(), seatLift());
-			me.createSpotAnim(POOF_SPOTANIM_KEY, SpotanimID.SMOKEPUFF_LARGE, 0, 0);
+			effects.poof(effectColor(), seatLift() / 3);
 		}
 		if (announce)
 		{
@@ -274,7 +273,7 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 		mountingSince = 0;
-		effects.cancelWindup();
+		effects.endWindup();
 		Player me = client.getLocalPlayer();
 		if (me != null && me.getAnimation() == WINDUP_ANIMATION)
 		{
@@ -306,8 +305,7 @@ public class PetMountsPlugin extends Plugin
 		Player me = client.getLocalPlayer();
 		if (wasVisible && config.mountEffects() && me != null)
 		{
-			effects.poof(effectPalette(), 60);
-			me.createSpotAnim(POOF_SPOTANIM_KEY, SpotanimID.SMOKEPUFF_LARGE, 0, 0);
+			effects.poof(effectColor(), 0);
 		}
 		if (announce)
 		{
@@ -321,14 +319,10 @@ public class PetMountsPlugin extends Plugin
 		return pet != null && pet.getName() != null ? Text.removeTags(pet.getName()) : "your pet";
 	}
 
-	private Color[] effectPalette()
+	/** Colour for the effects: the pet's main colour, or the colour chosen in settings. */
+	private Color effectColor()
 	{
-		if (config.matchPetColors())
-		{
-			return petPalette;
-		}
-		Color c = config.effectColor();
-		return new Color[]{c, MountEffectsOverlay.lighten(c, 0.35f), MountEffectsOverlay.lighten(c, 0.6f)};
+		return config.matchPetColors() ? petPalette[0] : config.effectColor();
 	}
 
 	private int seatLift()
@@ -338,7 +332,7 @@ public class PetMountsPlugin extends Plugin
 
 	private void message(String text)
 	{
-		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "<col=a64dff>" + text + "</col>", null);
+		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", text, null);
 	}
 
 	@Subscribe
@@ -419,6 +413,7 @@ public class PetMountsPlugin extends Plugin
 		{
 			cancelMounting(null);
 			effects.clear();
+			pausedForAction = false;
 			hideMount();
 			mount = null;
 			rider = null;
@@ -479,6 +474,7 @@ public class PetMountsPlugin extends Plugin
 		}
 
 		trackSpeed(me);
+		effects.tick();
 
 		if (mountingSince != 0)
 		{
@@ -497,8 +493,21 @@ public class PetMountsPlugin extends Plugin
 		}
 
 		boolean busy = config.hopOffForActions() && tickCount - lastBusyTick < ACTION_GRACE_TICKS;
+		if (riding && busy && mountedVisible)
+		{
+			// Hopping off to do something: a small puff hides the mount leaving.
+			pausedForAction = true;
+			if (config.mountEffects())
+			{
+				effects.puff(effectColor(), 0);
+			}
+		}
 		if (!riding || pet == null || busy)
 		{
+			if (!riding)
+			{
+				pausedForAction = false;
+			}
 			hideMount();
 			return;
 		}
@@ -543,6 +552,15 @@ public class PetMountsPlugin extends Plugin
 		if (!client.isRuneLiteObjectRegistered(rider))
 		{
 			client.registerRuneLiteObject(rider);
+		}
+		if (pausedForAction)
+		{
+			// Climbing back on after an action.
+			pausedForAction = false;
+			if (config.mountEffects())
+			{
+				effects.puff(effectColor(), seatLift() / 3);
+			}
 		}
 		mountedVisible = true;
 	}
@@ -723,11 +741,17 @@ public class PetMountsPlugin extends Plugin
 		// Floating pets: bring them down to a gentle hover so the rider isn't up in the air.
 		// Model Y points down, so a negative lowest point means the model floats above the ground.
 		float lowest = maxY(md);
-		if (lowest < -MAX_HOVER)
+		boolean floating = lowest < -MAX_HOVER;
+		if (floating)
 		{
 			md.translate(0, Math.round(-lowest - MAX_HOVER), 0);
 		}
 		mountHeight = Math.max(1, Math.round(-minY(md)));
+
+		// Choose a natural riding pose for this pet's shape.
+		autoPose = floating ? RiderPose.CROSS_LEGGED
+			: width(md) >= WIDE_POSE_WIDTH ? RiderPose.WIDE
+			: RiderPose.SADDLE;
 
 		petPalette = PetPalette.fromModel(md.getFaceColors(), md.getFaceTextures());
 
@@ -746,10 +770,24 @@ public class PetMountsPlugin extends Plugin
 		mount.setShouldLoop(true);
 		mountAnimId = -2;
 		builtForNpcId = comp.getId();
+		seatAnchor.select(model, seatLift(), config.seatForward(), mountHeight);
 
-		log.debug("Built mount for npc {} ({}): natural height {}, growth {}x, mount height {}",
-			comp.getId(), comp.getName(), naturalHeight, growth, mountHeight);
+		log.debug("Built mount for npc {} ({}): natural height {}, growth {}x, mount height {}, auto pose {}",
+			comp.getId(), comp.getName(), naturalHeight, growth, mountHeight, autoPose);
 		return true;
+	}
+
+	/** Side-to-side width of the model. */
+	private static float width(ModelData md)
+	{
+		float[] xs = md.getVerticesX();
+		float min = 0, max = 0;
+		for (int i = 0; i < md.getVerticesCount(); i++)
+		{
+			min = Math.min(min, xs[i]);
+			max = Math.max(max, xs[i]);
+		}
+		return max - min;
 	}
 
 	private static float maxY(ModelData md)
@@ -809,34 +847,46 @@ public class PetMountsPlugin extends Plugin
 		mount.setOrientation(orientation);
 		mount.setLocation(lp, plane);
 
-		// Slide the rider along the direction the mount is facing.
-		// Orientation 0 faces south (-y), 512 faces west (-x).
+		// Follow the mount's back as it animates.
+		seatAnchor.update(mount.getModel());
+
+		// Seat offset in the mount's own frame, turned to face the way the mount faces.
+		// Model x is sideways and model z points toward the tail; orientation 0 faces south.
+		int sideways = seatAnchor.sideways;
+		int back = -(config.seatForward() + seatAnchor.forward);
 		double rad = orientation * Math.PI / 1024.0;
-		int fwd = config.seatForward();
-		int dx = (int) Math.round(-Math.sin(rad) * fwd);
-		int dy = (int) Math.round(-Math.cos(rad) * fwd);
+		double sin = Math.sin(rad);
+		double cos = Math.cos(rad);
+		int dx = (int) Math.round(sideways * cos + back * sin);
+		int dy = (int) Math.round(back * cos - sideways * sin);
 
 		LocalPoint seat = new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView());
 		rider.setLocation(seat, plane);
 		rider.setOrientation(orientation);
 		int ground = Perspective.getTileHeight(client, lp, plane);
-		rider.setZ(ground - seatLift()); // negative Z is up
+		// Put the rider's hips (not feet) on the seat: chair-style poses already raise the hips.
+		int riderLift = seatLift() + seatAnchor.height - resolvedPose().getHipHeight();
+		rider.setZ(ground - riderLift); // negative Z is up
 	}
 
 	// ------------------------------------------------------------------
 	// Rider pose
 	// ------------------------------------------------------------------
 
+	private RiderPose resolvedPose()
+	{
+		RiderPose pose = config.riderPose();
+		return pose == null || pose == RiderPose.AUTO ? autoPose : pose;
+	}
+
 	private int poseAnimation(Player me)
 	{
-		switch (config.riderPose())
+		RiderPose pose = resolvedPose();
+		if (pose == RiderPose.STANDING || pose.getAnimationId() == -1)
 		{
-			case STANDING:
-				return savedPose != null ? savedPose[0] : me.getIdlePoseAnimation();
-			case SEATED:
-			default:
-				return RiderPose.SEATED.getAnimationId();
+			return savedPose != null ? savedPose[0] : me.getIdlePoseAnimation();
 		}
+		return pose.getAnimationId();
 	}
 
 	private void applyRiderPose(Player me)
@@ -868,10 +918,22 @@ public class PetMountsPlugin extends Plugin
 		me.setWalkRotateLeft(pose);
 		me.setWalkRotateRight(pose);
 		me.setWalkRotate180(pose);
+		RiderPose rp = resolvedPose();
 		if (me.getPoseAnimation() != pose)
 		{
 			me.setPoseAnimation(pose);
-			me.setPoseAnimationFrame(0);
+			me.setPoseAnimationFrame(rp.controlsFrames() ? rp.getLoopStart() : 0);
+		}
+
+		// Some seated poses come from one-off emotes: hold one frame, or loop just the settled part.
+		if (rp.controlsFrames())
+		{
+			int frame = me.getPoseAnimationFrame();
+			boolean hold = rp.getLoopStart() == rp.getLoopEnd();
+			if (hold ? frame != rp.getLoopStart() : frame < rp.getLoopStart() || frame >= rp.getLoopEnd())
+			{
+				me.setPoseAnimationFrame(rp.getLoopStart());
+			}
 		}
 	}
 

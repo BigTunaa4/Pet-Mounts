@@ -68,7 +68,7 @@ final class PetPalette
 			}
 			// A grey pet (e.g. rock golem): silvery smoke with a gold sparkle.
 			Color grey = hslToColor(0, 0, Math.max(0.55f, greyLum / greyWeight / 127f));
-			return new Color[]{grey, new Color(0xFFD24D), MountEffectsOverlay.lighten(grey, 0.5f)};
+			return new Color[]{grey, new Color(0xFFD24D), lighten(grey, 0.5f)};
 		}
 
 		// Second colour: the strongest hue that isn't right next to the first one.
@@ -82,8 +82,8 @@ final class PetPalette
 		Color main = colourFor(first, weight, satSum, lumSum);
 		Color other = second >= 0 && masked[second] > weight[first] * 0.15f
 			? colourFor(second, weight, satSum, lumSum)
-			: MountEffectsOverlay.lighten(main, 0.35f);
-		return new Color[]{main, other, MountEffectsOverlay.lighten(main, 0.6f)};
+			: lighten(main, 0.35f);
+		return new Color[]{main, other, lighten(main, 0.6f)};
 	}
 
 	private static Color colourFor(int hue, float[] weight, float[] satSum, float[] lumSum)
@@ -110,6 +110,14 @@ final class PetPalette
 			}
 		}
 		return best;
+	}
+
+	static Color lighten(Color c, float amount)
+	{
+		return new Color(
+			Math.round(c.getRed() + (255 - c.getRed()) * amount),
+			Math.round(c.getGreen() + (255 - c.getGreen()) * amount),
+			Math.round(c.getBlue() + (255 - c.getBlue()) * amount));
 	}
 
 	/** Standard HSL to RGB, all inputs 0..1. */

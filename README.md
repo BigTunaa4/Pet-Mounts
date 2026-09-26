@@ -15,15 +15,15 @@ press **Alt + M** again, or type `::dismount`.
 
 ## Climbing on
 
-When you click **Ride**, your character beckons the pet for about a second while a glowing
-circle and sparkles swirl around you. Then the mount appears under you in a poof of smoke and
-sparkles. Getting off gives a poof too.
+When you click **Ride**, your character beckons the pet while the game's own sparkle effect
+plays around you. After about a second the mount appears under you in a puff of smoke.
+Getting off gives a puff too, and so does hopping off for an action and climbing back on.
 
-The circle, sparkles and poof are coloured to match the pet you're riding (a pink-red poof
-for the dark core, brown for the baby mole, silver and gold for the rock golem). You can turn
-that off and pick one colour instead, or turn the animation off entirely, under **Effects**.
+All effects are the game's own graphics drawn in the world, recoloured to match the pet you're
+riding (pink-red smoke for the dark core, brown for the baby mole, grey for the rock golem).
+Under **Effects** you can pick one colour instead, or turn the animation off.
 
-Moving during the climb-on cancels it, just like a mount cast in WoW.
+Moving during the climb-on cancels it.
 
 ## Which pets can be ridden
 
@@ -82,7 +82,7 @@ giants, and **Size tweak** scales everything up or down on top.
 | Hop off for actions | Step off while fighting, skilling or teleporting, then climb back on |
 | Stay mounted between sessions | Remount automatically after logging in |
 | Mount height / Max growth / Size tweak | Control how big pets get |
-| Riding pose | Seated (magic carpet pose) or Standing |
+| Riding pose | Automatic (picks Saddle, Wide for broad pets, or Cross-legged for floating pets), or choose one yourself |
 | Seat height / Seat forward-back | Line the rider up with each mount's back |
 
 ## Good to know
@@ -102,10 +102,20 @@ giants, and **Size tweak** scales everything up or down on top.
 ## How it works (for developers)
 
 - The real pet and the real player model are hidden with a `RenderCallback`.
+- Effects are the game's own graphics (spotanims), read from the client's cache, recoloured
+  and drawn as `RuneLiteObject`s.
 - The pet is rebuilt as a `RuneLiteObject` from its NPC definition (models, recolours,
   width/height scale), enlarged with `ModelData.scale`, and animated with the live
   follower's idle/walk/run animations.
 - The rider is a `RuneLiteObjectController` that draws the player's current animated
-  model at `ground - seatHeight`, following the player's position and facing each client tick.
+  model on the mount's back, following the player's position and facing each client tick.
+- The rider follows the mount's back as it walks: the vertices nearest the seat are tracked
+  on each animation frame and their movement is passed to the rider.
 - The player's movement animations are overridden with the riding pose while mounted and
   restored on dismount.
+
+## Credits
+
+The seat-following technique and the seated riding poses are adapted from
+[Rapid Mounts](https://github.com/RapidUrsa/RapidMounts) by RapidUrsa (BSD 2-Clause).
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

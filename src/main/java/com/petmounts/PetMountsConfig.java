@@ -201,13 +201,13 @@ public interface PetMountsConfig extends Config
 	@ConfigItem(
 		keyName = "riderPose",
 		name = "Riding pose",
-		description = "How your character looks while riding",
+		description = "How you sit. Automatic picks Saddle, Wide (broad pets) or Cross-legged (floating pets)",
 		position = 21,
 		section = riderSection
 	)
 	default RiderPose riderPose()
 	{
-		return RiderPose.SEATED;
+		return RiderPose.AUTO;
 	}
 
 	@Range(min = 20, max = 120)

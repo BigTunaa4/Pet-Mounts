@@ -60,10 +60,11 @@ public class PetMountsPlugin extends Plugin
 	private static final int WINDUP_ANIMATION = AnimationID.EMOTE_BECKON;
 	/** Floating pets are lowered so their underside hovers no more than this above the ground. */
 	private static final int MAX_HOVER = 12;
-	/** Rider never sits higher than this (local units; a player is ~200 tall). */
-	private static final int MAX_SEAT_HEIGHT = 150;
-	/** Pets at least this wide (local units, after enlarging) get the legs-apart Wide pose. */
-	private static final int WIDE_POSE_WIDTH = 90;
+	/** Untuned pets grow until the seat is about this high: horse height, so legs hang down naturally. */
+	private static final int TARGET_SEAT_HEIGHT = 105;
+	private static final float MAX_GROWTH = 4.5f;
+	/** Untuned pets at least this wide at the seat (half-width, after enlarging) get the Extra wide pose. */
+	private static final int EXTRA_WIDE_HALF_WIDTH = 40;
 
 	@Inject
 	private Client client;
@@ -94,10 +95,12 @@ public class PetMountsPlugin extends Plugin
 	private boolean pausedForAction;
 	/** Colours taken from the current pet, for the effects. */
 	private Color[] petPalette = PetPalette.DEFAULT;
-	/** Pose picked from the current pet's shape, used when Riding pose is Automatic. */
-	private RiderPose autoPose = RiderPose.SADDLE;
-	/** Follows the mount's back so the rider moves with it. */
-	private final SeatAnchor seatAnchor = new SeatAnchor();
+	/** Pose tuned for (or picked from the shape of) the current pet, used when Riding pose is Automatic. */
+	private RiderPose autoPose = RiderPose.WIDE;
+	/** Follows the spot on the mount's back where the rider sits. */
+	private final SeatTracker seat = new SeatTracker();
+	/** Frame counts of the rider pose animations, so held frames stay in range. */
+	private final Map<Integer, Integer> poseFrameCounts = new HashMap<>();
 
 	private RuneLiteObject mount;
 	private RiderController rider;
@@ -325,9 +328,11 @@ public class PetMountsPlugin extends Plugin
 		return config.matchPetColors() ? petPalette[0] : config.effectColor();
 	}
 
+	/** Height of the seat above the ground right now, including the player's adjustment. */
 	private int seatLift()
 	{
-		return Math.min(MAX_SEAT_HEIGHT, mountHeight * config.seatHeight() / 100);
+		float h = seat.isSet() ? -seat.y : mountHeight * 0.6f;
+		return Math.round(h) + config.seatHeightAdjust();
 	}
 
 	private void message(String text)
@@ -401,6 +406,7 @@ public class PetMountsPlugin extends Plugin
 		clientThread.invoke(() ->
 		{
 			builtForNpcId = -1;
+			seat.clear();
 			verdicts.clear();
 			restorePose();
 		});
@@ -614,7 +620,7 @@ public class PetMountsPlugin extends Plugin
 		{
 			ModelData md = loadPetModel(comp);
 			PetRules.Shape shape = md != null ? measure(md, comp) : null;
-			verdict = PetRules.check(comp.getName(), shape,
+			verdict = PetRules.check(comp.getId(), comp.getName(), shape,
 				PetRules.parseList(config.alwaysAllow()), PetRules.parseList(config.neverAllow()));
 			if (md != null)
 			{
@@ -727,16 +733,33 @@ public class PetMountsPlugin extends Plugin
 		int ws = comp.getWidthScale() > 0 ? comp.getWidthScale() : SCALE_BASE;
 		int hs = comp.getHeightScale() > 0 ? comp.getHeightScale() : SCALE_BASE;
 
-		// Height of the pet as the game normally draws it (model Y points down, so up is negative).
-		// Size by the body itself, ignoring any gap under a floating pet.
-		float gap = Math.max(0, -maxY(md));
-		int naturalHeight = Math.max(1, Math.round((-minY(md) - gap) * hs / (float) SCALE_BASE));
-		float growth = MountSizing.growthFactor(naturalHeight, config.targetHeight(),
-			config.maxGrowth() / 100f, config.sizeMultiplier() / 100f);
+		// A tuned seat is only valid for the exact model it was measured on.
+		MountFits.Fit fit = MountFits.get(comp.getId());
+		if (fit != null && fit.vertexCount != md.getVerticesCount())
+		{
+			log.debug("Pet {} model changed since tuning ({} vs {} vertices); finding a seat automatically",
+				comp.getId(), md.getVerticesCount(), fit.vertexCount);
+			fit = null;
+		}
 
-		int sx = Math.round(ws * growth);
-		int sy = Math.round(hs * growth);
-		md.scale(sx, sy, sx);
+		// How much to enlarge the pet: tuned, or grown until its back is about horse height.
+		float growth;
+		SeatFinder.Seat found = null;
+		if (fit != null)
+		{
+			growth = fit.growth;
+		}
+		else
+		{
+			md.scale(ws, hs, ws); // the pet at its normal in-game size, to measure it
+			found = findSeat(md);
+			float seatHeight = found != null ? found.height - Math.max(0, -maxY(md)) : -minY(md) * 0.6f;
+			growth = MountSizing.growthFactor(Math.round(seatHeight), TARGET_SEAT_HEIGHT, MAX_GROWTH, 1f);
+			ws = hs = SCALE_BASE; // already applied
+		}
+		growth *= config.sizeMultiplier() / 100f;
+
+		md.scale(Math.round(ws * growth), Math.round(hs * growth), Math.round(ws * growth));
 
 		// Floating pets: bring them down to a gentle hover so the rider isn't up in the air.
 		// Model Y points down, so a negative lowest point means the model floats above the ground.
@@ -748,10 +771,36 @@ public class PetMountsPlugin extends Plugin
 		}
 		mountHeight = Math.max(1, Math.round(-minY(md)));
 
-		// Choose a natural riding pose for this pet's shape.
-		autoPose = floating ? RiderPose.CROSS_LEGGED
-			: width(md) >= WIDE_POSE_WIDTH ? RiderPose.WIDE
-			: RiderPose.SADDLE;
+		// The seat and pose: tuned, or found on the enlarged model.
+		int sa, sb, sc;
+		float swa, swb, swc;
+		if (fit != null)
+		{
+			autoPose = fit.pose;
+			sa = fit.a;
+			sb = fit.b;
+			sc = fit.c;
+			swa = fit.wa;
+			swb = fit.wb;
+			swc = fit.wc;
+		}
+		else
+		{
+			found = findSeat(md);
+			if (found == null)
+			{
+				return false;
+			}
+			autoPose = floating ? RiderPose.CROSS_LEGGED
+				: halfWidthAt(md, found) >= EXTRA_WIDE_HALF_WIDTH ? RiderPose.EXTRA_WIDE
+				: RiderPose.WIDE;
+			sa = found.a;
+			sb = found.b;
+			sc = found.c;
+			swa = found.wa;
+			swb = found.wb;
+			swc = found.wc;
+		}
 
 		petPalette = PetPalette.fromModel(md.getFaceColors(), md.getFaceTextures());
 
@@ -770,24 +819,52 @@ public class PetMountsPlugin extends Plugin
 		mount.setShouldLoop(true);
 		mountAnimId = -2;
 		builtForNpcId = comp.getId();
-		seatAnchor.select(model, seatLift(), config.seatForward(), mountHeight);
+		if (model.getVerticesCount() != md.getVerticesCount())
+		{
+			// The lit model numbers its vertices differently: find the seat on it directly.
+			SeatFinder.Seat onModel = SeatFinder.find(model.getVerticesX(), model.getVerticesY(), model.getVerticesZ(),
+				model.getVerticesCount(), model.getFaceIndices1(), model.getFaceIndices2(), model.getFaceIndices3(),
+				model.getFaceTransparencies(), model.getFaceCount());
+			if (onModel == null)
+			{
+				return false;
+			}
+			sa = onModel.a;
+			sb = onModel.b;
+			sc = onModel.c;
+			swa = onModel.wa;
+			swb = onModel.wb;
+			swc = onModel.wc;
+		}
+		seat.set(sa, sb, sc, swa, swb, swc, model, mountHeight);
 
-		log.debug("Built mount for npc {} ({}): natural height {}, growth {}x, mount height {}, auto pose {}",
-			comp.getId(), comp.getName(), naturalHeight, growth, mountHeight, autoPose);
+		log.debug("Built mount for npc {} ({}): {}, growth {}x, seat height {}, pose {}",
+			comp.getId(), comp.getName(), fit != null ? "tuned" : "automatic", growth, -seat.y, autoPose);
 		return true;
 	}
 
-	/** Side-to-side width of the model. */
-	private static float width(ModelData md)
+	private static SeatFinder.Seat findSeat(ModelData md)
+	{
+		return SeatFinder.find(md.getVerticesX(), md.getVerticesY(), md.getVerticesZ(), md.getVerticesCount(),
+			md.getFaceIndices1(), md.getFaceIndices2(), md.getFaceIndices3(), md.getFaceTransparencies(), md.getFaceCount());
+	}
+
+	/** How far the body reaches to either side around the seat. */
+	private static float halfWidthAt(ModelData md, SeatFinder.Seat s)
 	{
 		float[] xs = md.getVerticesX();
-		float min = 0, max = 0;
-		for (int i = 0; i < md.getVerticesCount(); i++)
+		float[] zs = md.getVerticesZ();
+		float seatZ = s.wa * zs[s.a] + s.wb * zs[s.b] + s.wc * zs[s.c];
+		float seatX = s.wa * xs[s.a] + s.wb * xs[s.b] + s.wc * xs[s.c];
+		float half = 0;
+		for (int v = 0; v < md.getVerticesCount(); v++)
 		{
-			min = Math.min(min, xs[i]);
-			max = Math.max(max, xs[i]);
+			if (Math.abs(zs[v] - seatZ) < 12)
+			{
+				half = Math.max(half, Math.abs(xs[v] - seatX));
+			}
 		}
-		return max - min;
+		return half;
 	}
 
 	private static float maxY(ModelData md)
@@ -847,25 +924,27 @@ public class PetMountsPlugin extends Plugin
 		mount.setOrientation(orientation);
 		mount.setLocation(lp, plane);
 
-		// Follow the mount's back as it animates.
-		seatAnchor.update(mount.getModel());
+		// Follow the seat on the mount's back as it animates.
+		seat.update(mount.getModel());
+		RiderPose pose = resolvedPose();
 
-		// Seat offset in the mount's own frame, turned to face the way the mount faces.
-		// Model x is sideways and model z points toward the tail; orientation 0 faces south.
-		int sideways = seatAnchor.sideways;
-		int back = -(config.seatForward() + seatAnchor.forward);
+		// Where the rider's feet go, in the mount's own space: the seat, shifted so the pose's contact point
+		// lands on it, plus the player's forward adjustment. Model x is sideways and z points toward the tail.
+		float mx = seat.x;
+		float mz = seat.z - pose.getContactBack() - config.seatForwardAdjust();
+
+		// Turn that to face the way the mount faces (orientation 0 faces south).
 		double rad = orientation * Math.PI / 1024.0;
 		double sin = Math.sin(rad);
 		double cos = Math.cos(rad);
-		int dx = (int) Math.round(sideways * cos + back * sin);
-		int dy = (int) Math.round(back * cos - sideways * sin);
+		int dx = (int) Math.round(mx * cos + mz * sin);
+		int dy = (int) Math.round(mz * cos - mx * sin);
 
-		LocalPoint seat = new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView());
-		rider.setLocation(seat, plane);
+		LocalPoint riderPoint = new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView());
+		rider.setLocation(riderPoint, plane);
 		rider.setOrientation(orientation);
 		int ground = Perspective.getTileHeight(client, lp, plane);
-		// Put the rider's hips (not feet) on the seat: chair-style poses already raise the hips.
-		int riderLift = seatLift() + seatAnchor.height - resolvedPose().getHipHeight();
+		int riderLift = seatLift() - pose.getContactHeight();
 		rider.setZ(ground - riderLift); // negative Z is up
 	}
 
@@ -919,22 +998,42 @@ public class PetMountsPlugin extends Plugin
 		me.setWalkRotateRight(pose);
 		me.setWalkRotate180(pose);
 		RiderPose rp = resolvedPose();
+		int start = 0, end = 0;
+		if (rp.controlsFrames())
+		{
+			int last = Math.max(0, poseFrameCount(pose) - 1);
+			start = Math.min(rp.getLoopStart(), last);
+			end = Math.min(rp.getLoopEnd(), last);
+		}
 		if (me.getPoseAnimation() != pose)
 		{
 			me.setPoseAnimation(pose);
-			me.setPoseAnimationFrame(rp.controlsFrames() ? rp.getLoopStart() : 0);
+			me.setPoseAnimationFrame(start);
 		}
 
 		// Some seated poses come from one-off emotes: hold one frame, or loop just the settled part.
 		if (rp.controlsFrames())
 		{
 			int frame = me.getPoseAnimationFrame();
-			boolean hold = rp.getLoopStart() == rp.getLoopEnd();
-			if (hold ? frame != rp.getLoopStart() : frame < rp.getLoopStart() || frame >= rp.getLoopEnd())
+			boolean hold = start >= end;
+			if (hold ? frame != start : frame < start || frame >= end)
 			{
-				me.setPoseAnimationFrame(rp.getLoopStart());
+				me.setPoseAnimationFrame(start);
 			}
 		}
+	}
+
+	private int poseFrameCount(int animationId)
+	{
+		return poseFrameCounts.computeIfAbsent(animationId, id ->
+		{
+			Animation a = client.loadAnimation(id);
+			if (a == null)
+			{
+				return 1;
+			}
+			return a.isMayaAnim() ? Math.max(1, a.getDuration()) : Math.max(1, a.getNumFrames());
+		});
 	}
 
 	private void restorePose()

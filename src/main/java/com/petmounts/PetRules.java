@@ -12,11 +12,13 @@ import java.util.stream.Collectors;
 /**
  * Decides which pets can be ridden.
  *
+ * Every ownable pet in the game was checked by looking at its model in its idle pose.
+ *
  * Order of checks:
  * 1. The player's own "always allow" / "never allow" lists from the config
- * 2. Pets we know are awkward or unrealistic to ride (objects, floating things, humanoids, fish...)
- * 3. Pets we know make good mounts
- * 4. For anything else (new or unlisted pets), the model's shape: tall-and-thin (humanoid) models are refused.
+ * 2. Pets that are awkward or unrealistic to ride (objects, pets standing on two legs, snakes, fish...)
+ * 3. Pets checked and tuned as mounts
+ * 4. For anything else (pets released later), the model's shape: tall-and-thin (upright) models are refused.
  *
  * Floating pets are allowed; the plugin lowers them so the rider doesn't hover unrealistically high.
  */
@@ -26,7 +28,7 @@ final class PetRules
 	{
 		OBJECT("isn't something you can ride."),
 		TOO_SMALL("is far too small and fragile to carry you."),
-		HUMANOID("walks on two legs and refuses to be ridden."),
+		HUMANOID("stands on two legs and refuses to be ridden."),
 		SLITHERS("slithers, so there's nowhere to sit."),
 		AQUATIC("can't carry you on dry land."),
 		SHAPE("isn't shaped for riding.");
@@ -58,66 +60,93 @@ final class PetRules
 		}
 	}
 
-	/** Pets that are awkward or unrealistic to ride. Names are lower case. */
+	/**
+	 * Pets that are awkward or unrealistic to ride, by their in-game name (lower case). Checked against
+	 * every ownable pet's model in its idle pose.
+	 */
 	private static final Map<String, Reason> NOT_RIDEABLE = ImmutableMap.<String, Reason>builder()
-		// Objects and oddities
-		.put("pet rock", Reason.OBJECT)
-		.put("toy cat", Reason.OBJECT)
-		.put("spooky chair", Reason.OBJECT)
-		.put("humphrey dumphrey", Reason.OBJECT)
+		// Objects
 		.put("smolcano", Reason.OBJECT)
 		.put("tangleroot", Reason.OBJECT)
-		// Too small / soft
+		.put("vanguard", Reason.OBJECT)
+		// Too small
 		.put("maggot marquess", Reason.TOO_SMALL)
-		// Humanoids
-		.put("pet general graardor", Reason.HUMANOID)
-		.put("pet k'ril tsutsaroth", Reason.HUMANOID)
-		.put("pet kree'arra", Reason.HUMANOID)
-		.put("pet zilyana", Reason.HUMANOID)
-		.put("vet'ion jr.", Reason.HUMANOID)
+		// Stand upright on two legs
+		.put("abyssal orphan", Reason.HUMANOID)
+		.put("abyssal protector", Reason.HUMANOID)
+		.put("aggy", Reason.HUMANOID)
+		.put("akkhito", Reason.HUMANOID)
+		.put("bran", Reason.HUMANOID)
+		.put("butch", Reason.HUMANOID)
+		.put("dagannoth prime jr.", Reason.HUMANOID)
+		.put("dagannoth rex jr.", Reason.HUMANOID)
+		.put("dagannoth supreme jr.", Reason.HUMANOID)
+		.put("elidinis' damaged guardian", Reason.HUMANOID)
+		.put("elidinis' guardian", Reason.HUMANOID)
+		.put("enraged tektiny", Reason.HUMANOID)
+		.put("general graardor jr.", Reason.HUMANOID)
+		.put("greatish guardian", Reason.HUMANOID)
+		.put("k'ril tsutsaroth jr.", Reason.HUMANOID)
+		.put("kree'arra jr.", Reason.HUMANOID)
+		.put("lil' bloat", Reason.HUMANOID)
+		.put("lil' creator", Reason.HUMANOID)
+		.put("lil' destructor", Reason.HUMANOID)
+		.put("lil' maiden", Reason.HUMANOID)
+		.put("lil' xarp", Reason.HUMANOID)
+		.put("little nightmare", Reason.HUMANOID)
+		.put("midnight", Reason.HUMANOID)
+		.put("moxi", Reason.HUMANOID)
 		.put("nexling", Reason.HUMANOID)
 		.put("noon", Reason.HUMANOID)
-		.put("midnight", Reason.HUMANOID)
-		.put("butch", Reason.HUMANOID)
+		.put("olmlet", Reason.HUMANOID)
+		.put("ric", Reason.HUMANOID)
+		.put("rift guardian", Reason.HUMANOID)
+		.put("rock golem", Reason.HUMANOID)
+		.put("skotos", Reason.HUMANOID)
 		.put("smol heredit", Reason.HUMANOID)
-		.put("yami", Reason.HUMANOID)
-		.put("bran", Reason.HUMANOID)
 		.put("tektiny", Reason.HUMANOID)
-		.put("vanguard", Reason.HUMANOID)
-		.put("lil' maiden", Reason.HUMANOID)
-		.put("lil' sot", Reason.HUMANOID)
-		.put("akkhito", Reason.HUMANOID)
+		.put("tumeken's damaged guardian", Reason.HUMANOID)
+		.put("tumeken's guardian", Reason.HUMANOID)
 		.put("tzrek-zuk", Reason.HUMANOID)
+		.put("vet'ion jr.", Reason.HUMANOID)
+		.put("yami", Reason.HUMANOID)
+		.put("zilyana jr.", Reason.HUMANOID)
 		// Snakes and worms
-		.put("pet snakeling", Reason.SLITHERS)
+		.put("huberte", Reason.SLITHERS)
 		.put("jal-nib-rek", Reason.SLITHERS)
+		.put("lil'viathan", Reason.SLITHERS)
+		.put("snakeling", Reason.SLITHERS)
 		// Water creatures
-		.put("pet kraken", Reason.AQUATIC)
+		.put("kraken", Reason.AQUATIC)
 		.put("tiny tempor", Reason.AQUATIC)
-		.put("pet fish", Reason.AQUATIC)
+		// Not shaped for riding
+		.put("baron", Reason.SHAPE)
+		.put("kephriti", Reason.SHAPE)
+		.put("muphin", Reason.SHAPE)
+		.put("smoke devil", Reason.SHAPE)
+		.put("vasa minirio", Reason.SHAPE)
 		.build();
 
-	/** Pets known to make sensible mounts. Names are lower case. */
-	private static final Set<String> RIDEABLE = ImmutableSet.of(
-		// Boss pets
-		"baby mole", "baby mole-rat", "callisto cub", "callisto cub (brown)", "hellpuppy", "ikkle hydra",
-		"kalphite princess", "lil' zik", "lil' nylo", "lil' xarp", "olmlet", "puppadile", "vespina",
-		"pet dagannoth prime", "pet dagannoth rex", "pet dagannoth supreme", "phoenix",
-		"prince black dragon", "scorpia's offspring", "sraracha", "tzrek-jad", "venenatis spiderling",
-		"vorki", "youngllef", "corrupted youngllef", "beef", "gull", "moxi", "nid", "scurry",
-		"babi", "kephriti", "zebo",
-		// Floating pets (lowered to a gentle hover when ridden)
-		"rift guardian", "greatish guardian", "pet dark core", "corporeal critter", "pet chaos elemental", "pet smoke devil", "abyssal protector", "wisp", "skotos", "little nightmare", "little parasite", "vasa minirio", "lil' bloat", "tumeken's guardian", "tumeken's damaged guardian", "elidinis' guardian", "elidinis' damaged guardian",
-		// Skilling pets
-		"baby chinchompa", "beaver", "giant squirrel", "heron", "rock golem", "rocky",
-		// Other
-		"bloodhound", "chompy chick", "herbi", "pet penance queen", "quetzin", "mr mcgroot", "broav",
-		"hellcat"
+	/** Pet forms refused even though other forms of the same pet can be ridden (by NPC id). */
+	private static final Map<Integer, Reason> NOT_RIDEABLE_FORMS = ImmutableMap.of(
+		6637, Reason.HUMANOID // Kalphite Princess, upright winged form (the crawling form can be ridden)
 	);
 
-	/** Words that mark a cat or dog pet (their names vary a lot). */
-	private static final Set<String> CAT_AND_DOG_WORDS = ImmutableSet.of(
-		"kitten", "cat", "puppy", "dog", "terrier", "labrador", "greyhound", "dalmatian", "sheepdog", "bulldog"
+	/** Pets checked and tuned as mounts, by their in-game name (lower case). */
+	private static final Set<String> RIDEABLE = ImmutableSet.of(
+		"babi", "baby chinchompa", "baby mole", "baby mole-rat", "beaver", "beef", "bernese mountain dog",
+		"bernese mountain dog puppy", "bloodhound", "bone squirrel", "border collie", "border collie puppy",
+		"broav", "callisto cub", "cat", "chaos elemental jr.", "chihuahua", "chihuahua puppy", "chompy chick",
+		"clockwork cat", "corgi", "corgi puppy", "corporeal critter", "corrupted youngllef", "dark core",
+		"dark squirrel", "dom", "flying vespina", "fox", "giant squirrel", "great blue heron", "greyhound",
+		"greyhound puppy", "gull", "gulliver", "hell-kitten", "hellcat", "hellpuppy", "herbi", "heron", "husky",
+		"husky puppy", "ikkle hydra", "jalrek-jad", "kalphite princess", "kitten", "labrador", "labrador puppy",
+		"lazy cat", "lazy hellcat", "lil' nylo", "lil' sot", "lil' zik", "little parasite", "mr mcgroot", "nid",
+		"overgrown cat", "overgrown hellcat", "penance pet", "pheasant", "phoenix", "prince black dragon", "pug",
+		"pug puppy", "puppadile", "quetzin", "rax", "red", "rocky", "samoyed", "samoyed puppy",
+		"scorpia's offspring", "scurry", "shiba", "shiba puppy", "soup", "spaniel", "spaniel puppy", "sraracha",
+		"tzrek-jad", "venenatis spiderling", "vespina", "vorki", "wily cat", "wily hellcat", "wisp", "yorkie",
+		"yorkie puppy", "youngllef", "zebo", "ziggy"
 	);
 
 	private PetRules()
@@ -150,12 +179,13 @@ final class PetRules
 	}
 
 	/**
+	 * @param npcId      the pet's NPC id (some pets have forms that differ)
 	 * @param name       pet name as shown in game
 	 * @param shape      the pet's model measurements, or null if not loaded yet
 	 * @param alwaysAllow names the player has chosen to allow
 	 * @param neverAllow  names the player has chosen to block
 	 */
-	static Verdict check(String name, Shape shape, Set<String> alwaysAllow, Set<String> neverAllow)
+	static Verdict check(int npcId, String name, Shape shape, Set<String> alwaysAllow, Set<String> neverAllow)
 	{
 		String n = normalize(name);
 
@@ -168,12 +198,12 @@ final class PetRules
 			return Verdict.no(Reason.SHAPE);
 		}
 
-		Reason known = NOT_RIDEABLE.get(n);
+		Reason known = NOT_RIDEABLE_FORMS.getOrDefault(npcId, NOT_RIDEABLE.get(n));
 		if (known != null)
 		{
 			return Verdict.no(known);
 		}
-		if (RIDEABLE.contains(n) || isCatOrDog(n))
+		if (RIDEABLE.contains(n))
 		{
 			return Verdict.RIDEABLE;
 		}
@@ -188,18 +218,6 @@ final class PetRules
 			return Verdict.no(Reason.HUMANOID);
 		}
 		return Verdict.RIDEABLE;
-	}
-
-	private static boolean isCatOrDog(String n)
-	{
-		for (String word : n.split("[\\s-]+"))
-		{
-			if (CAT_AND_DOG_WORDS.contains(word))
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/** Measurements of a pet model in local units, before any enlarging. Model Y points down. */

@@ -30,46 +30,42 @@ Moving during the climb-on cancels it.
 Only **your own pets** can be ridden: the pet has to be your follower and be a real pet
 you can pick up, so quest companions and other followers don't count.
 
-Pets that would be awkward or unrealistic are refused, with a chat message saying why:
+Every ownable pet in the game (145 pets, 291 in-game versions) was checked by looking at
+its model in its idle pose. 91 pets make sense to ride; the rest are refused with a chat
+message saying why:
 
-| Refused because | Examples |
+| Refused because | Pets |
 |---|---|
-| Objects | Pet rock, Toy cat, Spooky chair, Humphrey Dumphrey, Smolcano, Rift guardian, Tangleroot |
-| Humanoid | Pet General Graardor, Pet K'ril Tsutsaroth, Pet Kree'arra, Pet Zilyana, Vet'ion Jr., Nexling, Noon, Butch, Smol Heredit, Yami, Bran |
-| Slithers | Pet snakeling, Jal-Nib-Rek |
-| Water creatures | Pet kraken, Tiny tempor |
+| They stand on two legs | Abyssal orphan, Abyssal protector, Aggy, Akkhito, Bran, Butch, the Dagannoth Jr.s, Elidinis' and Tumeken's guardians, the God Wars Jr.s, Greatish guardian, Lil' Bloat, Lil' Creator, Lil' Destructor, Lil' Maiden, Lil' Xarp, Little Nightmare, Midnight, Moxi, Nexling, Noon, Olmlet, Ric, Rift guardian, Rock Golem, Skotos, Smol Heredit, Tektiny, TzRek-Zuk, Vet'ion Jr., Yami, the upright Kalphite Princess |
+| Snakes and worms | Huberte, Jal-Nib-Rek, Lil'viathan, Snakeling |
+| Water creatures | Kraken, Tiny Tempor |
+| Objects | Smolcano, Tangleroot, Vanguard |
+| Not shaped for riding | Baron, Kephriti, Muphin, Smoke Devil, Vasa Minirio |
 | Too small | Maggot marquess |
 
-Good mounts include Baby mole, Callisto cub, Hellpuppy, Ikkle Hydra, Kalphite Princess,
-Olmlet, the Dagannoth pets, Phoenix, Prince Black Dragon, Vorki, Youngllef, Beef, Gull,
-Beaver, Giant squirrel, Rock golem, Rocky, Herbi, Bloodhound, Mr McGroot, and all cats and dogs.
+**Floating pets can be ridden**, including the Corporeal Beast pet (Dark core and Corporeal
+Critter), Chaos Elemental Jr., Phoenix, Wisp, the herons and Quetzin. They're lowered to a
+gentle hover so you're never sitting unrealistically high.
 
-**Floating pets are rideable too**: Pet dark core (Corporeal Beast), Corporeal critter,
-Rift guardian, Pet chaos elemental, Pet smoke devil, Abyssal protector, Wisp, Skotos,
-Little Nightmare, Tumeken's guardian and others. While ridden they're lowered to a gentle
-hover just off the ground, so you're never sitting unrealistically high in the air.
-No rider ever sits higher than about three-quarters of a player's height.
-
-Pets not on either list (including new ones) are judged by their model's shape: pets that
-are much taller than they are long (like a person standing up) are refused.
+Pets released after this version are judged by their model's shape: pets much taller than
+they are long (standing upright) are refused.
 
 If you disagree with a call, add pet names to **Always allow** or **Never allow** in the
 "Which pets" settings section.
 
-## How sizing works
+## How each mount is fitted
 
-Each pet is measured when you mount up, then enlarged toward the **Mount height**
-setting (default 140 units; a player is about 200 units tall, a tile is 128).
+Every rideable pet has its own measured seat, found on the game's model in its idle pose:
 
-| Pet height | Growth | Result |
-|---|---|---|
-| Tiny (pet rock, ~20) | capped at 4.5x | ~90 |
-| Small (~40) | 3.5x | 140 |
-| Medium (~70) | 2x | 140 |
-| Already big (140+) | none | unchanged |
+- **Size:** each pet is enlarged until its back is about horse height, so your legs hang
+  down naturally. Big pets are never shrunk. The **Mount size** setting scales them all.
+- **Seat:** the exact spot on the pet's back where you sit. The plugin follows that spot
+  every frame, so you rise, dip and sway with the pet as it walks and idles.
+- **Pose:** Wide (legs down both sides, like a horse) for most pets, Extra wide (knees
+  spread) for broad pets like spiders, moles and dragons, and Cross-legged on top of
+  floating pets.
 
-Big pets are never shrunk. **Max growth** keeps tiny pets from turning into
-giants, and **Size tweak** scales everything up or down on top.
+**Seat height** and **Seat forward/back** are there for fine-tuning if a pet looks off.
 
 ## Settings
 
@@ -81,14 +77,13 @@ giants, and **Size tweak** scales everything up or down on top.
 | Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
 | Hop off for actions | Step off while fighting, skilling or teleporting, then climb back on |
 | Stay mounted between sessions | Remount automatically after logging in |
-| Mount height / Max growth / Size tweak | Control how big pets get |
-| Riding pose | Automatic (picks Saddle, Wide for broad pets, or Cross-legged for floating pets), or choose one yourself |
-| Seat height / Seat forward-back | Line the rider up with each mount's back |
+| Mount size | Make every mount bigger or smaller |
+| Riding pose | Automatic (the pose fitted to each pet), or choose one yourself |
+| Seat height / Seat forward-back | Fine-tune where you sit |
 
 ## Good to know
 
 - This is purely visual and client-side. Other players see you walking with your pet as normal.
-- Tall, thin or unusually shaped pets may need the seat sliders adjusted.
 - The mount uses the pet's own idle, walk and run animations. On heavily enlarged pets,
   animations that move body parts (not just rotate them) can look slightly exaggerated.
 
@@ -109,8 +104,10 @@ giants, and **Size tweak** scales everything up or down on top.
   follower's idle/walk/run animations.
 - The rider is a `RuneLiteObjectController` that draws the player's current animated
   model on the mount's back, following the player's position and facing each client tick.
-- The rider follows the mount's back as it walks: the vertices nearest the seat are tracked
-  on each animation frame and their movement is passed to the rider.
+- Each rideable pet's seat is stored as a triangle on its model plus a position inside it
+  (`MountFits.java`, measured offline from the game cache). Each frame the rider is placed on
+  that exact spot of the animated mount. Pets without a stored seat get one found at runtime
+  by ray-casting down onto the model (`SeatFinder.java`).
 - The player's movement animations are overridden with the riding pose while mounted and
   restored on dismount.
 

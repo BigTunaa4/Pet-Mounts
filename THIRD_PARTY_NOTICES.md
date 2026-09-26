@@ -3,12 +3,10 @@
 Pet Mounts adapts techniques from [Rapid Mounts](https://github.com/RapidUrsa/RapidMounts)
 by RapidUrsa (source revision `656a19f`):
 
-- The seat anchor in `SeatAnchor.java`: following the averaged movement of the mount
-  vertices nearest the seat so the separately drawn rider moves with the mount's back,
-  with the movement clamped to body-sized limits.
-- The riding poses in `RiderPose.java`: the stool-sit pose for Saddle, a held frame of
-  the Wide pose, the settled loop of the sit emote for Cross-legged, and the hip heights
-  estimated from Rapid Mounts' tuned rider heights.
+- In `SeatTracker.java`: moving the separately drawn rider by tracking vertices of the
+  animated mount model.
+- The riding poses in `RiderPose.java`: the stool-sit pose, a held frame of the Wide pose,
+  the toboggan crouch for Extra wide, and the settled loop of the sit emote for Cross-legged.
 - In `MountEffects.java`: building effects from the game's own graphics as
   `RuneLiteObject`s, and handling graphic definition opcode 10 as a flag with no data.
 

@@ -11,52 +11,55 @@ public class PetRulesTest
 {
 	private static final Set<String> NONE = Collections.emptySet();
 
-	private static PetRules.Verdict check(String name, PetRules.Shape shape)
+	private static PetRules.Verdict check(String name)
 	{
-		return PetRules.check(name, shape, NONE, NONE);
+		return PetRules.check(0, name, null, NONE, NONE);
 	}
 
 	@Test
 	public void goodMountsAreAllowed()
 	{
-		assertTrue(check("Baby mole", null).rideable);
-		assertTrue(check("Prince Black Dragon", null).rideable);
-		assertTrue(check("<col=ffff00>Olmlet</col>", null).rideable);
-		assertTrue(check("Overgrown cat", null).rideable);
-		assertTrue(check("Bulldog puppy", null).rideable);
-		// Floating pets are allowed, including the Corporeal Beast pet
-		assertTrue(check("Pet dark core", null).rideable);
-		assertTrue(check("Corporeal critter", null).rideable);
-		assertTrue(check("Rift guardian", null).rideable);
+		assertTrue(check("Baby Mole").rideable);
+		assertTrue(check("Prince Black Dragon").rideable);
+		assertTrue(check("<col=ffff00>Vorki</col>").rideable);
+		assertTrue(check("Overgrown cat").rideable);
+		assertTrue(check("Border Collie puppy").rideable);
+		// The Corporeal Beast pet, in both forms
+		assertTrue(check("Dark core").rideable);
+		assertTrue(check("Corporeal Critter").rideable);
 	}
 
 	@Test
 	public void awkwardPetsAreRefused()
 	{
-		assertEquals(PetRules.Reason.OBJECT, check("Pet rock", null).reason);
-		assertEquals(PetRules.Reason.OBJECT, check("Toy cat", null).reason);
-		assertEquals(PetRules.Reason.HUMANOID, check("Pet General Graardor", null).reason);
-		assertEquals(PetRules.Reason.SLITHERS, check("Pet snakeling", null).reason);
-		assertEquals(PetRules.Reason.AQUATIC, check("Pet kraken", null).reason);
+		assertEquals(PetRules.Reason.OBJECT, check("Tangleroot").reason);
+		assertEquals(PetRules.Reason.HUMANOID, check("General Graardor Jr.").reason);
+		assertEquals(PetRules.Reason.HUMANOID, check("Olmlet").reason);
+		assertEquals(PetRules.Reason.SLITHERS, check("Snakeling").reason);
+		assertEquals(PetRules.Reason.AQUATIC, check("Kraken").reason);
+	}
+
+	@Test
+	public void formsOfTheSamePetCanDiffer()
+	{
+		assertTrue(PetRules.check(6638, "Kalphite Princess", null, NONE, NONE).rideable);
+		assertFalse(PetRules.check(6637, "Kalphite Princess", null, NONE, NONE).rideable);
 	}
 
 	@Test
 	public void unlistedPetsAreJudgedByShape()
 	{
-		// solid four-legged creature: 80 tall, 120 long, on the ground
-		assertTrue(check("Brand new pet", new PetRules.Shape(80, 0, 120)).rideable);
-		// hovering orb: allowed (the gap underneath doesn't count as body height)
-		assertTrue(check("Brand new pet", new PetRules.Shape(120, 50, 60)).rideable);
-		// tall and thin, like a person
-		assertEquals(PetRules.Reason.HUMANOID, check("Brand new pet", new PetRules.Shape(150, 0, 60)).reason);
+		assertTrue(PetRules.check(0, "Brand new pet", new PetRules.Shape(80, 0, 120), NONE, NONE).rideable);
+		assertTrue(PetRules.check(0, "Brand new pet", new PetRules.Shape(120, 50, 60), NONE, NONE).rideable);
+		assertEquals(PetRules.Reason.HUMANOID, PetRules.check(0, "Brand new pet", new PetRules.Shape(150, 0, 60), NONE, NONE).reason);
 	}
 
 	@Test
 	public void playerListsWin()
 	{
-		Set<String> allow = PetRules.parseList("Pet rock, Nexling");
+		Set<String> allow = PetRules.parseList("Olmlet, Nexling");
 		Set<String> deny = PetRules.parseList("baby mole");
-		assertTrue(PetRules.check("Pet rock", null, allow, deny).rideable);
-		assertFalse(PetRules.check("Baby mole", null, allow, deny).rideable);
+		assertTrue(PetRules.check(0, "Olmlet", null, allow, deny).rideable);
+		assertFalse(PetRules.check(0, "Baby Mole", null, allow, deny).rideable);
 	}
 }

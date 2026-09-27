@@ -13,6 +13,50 @@ and turns with you.
 To get off: **right-click anywhere and choose "Dismount"** (always there while riding),
 press **Alt + M** again, or type `::dismount`.
 
+## Mount Stable
+
+Click the saddle icon in the RuneLite sidebar to open the **Mount Stable**:
+
+- Shows the pet following you and whether it can be ridden (and why not, if it can't)
+- A **Ride / Dismount** button
+- Switches for the saddle and blanket, reins, natural riding motion, hiding your weapon and shield, and
+  hiding your cape
+- **Adjustments for this pet**: riding pose, size, seat height and seat forward/back. These are
+  remembered for each pet, so every mount can be fitted exactly how you like it
+
+There's also a small **on-screen mount button** (Alt-drag to move it, or turn it off in settings).
+
+## Saddle and blanket
+
+Every mount gets a leather saddle with stirrups over a blanket in your pet's colours. The
+blanket is moulded to that pet's back, so it drapes over broad pets and fits snugly on thin ones.
+Floating pets get just the blanket, as a rug to sit on cross-legged.
+
+## Reins
+
+You hold a pair of leather reins that run from your hands to the corners of your pet's mouth. They hang
+with a little slack and follow both you and your pet's head every frame as it walks, runs and looks around.
+Pets you sit on cross-legged (the floating ones) have no reins, since your hands rest in your lap.
+
+## Natural riding motion
+
+You ride with your mount rather than sitting stiffly on top of it:
+
+- **Settling in:** after the poof you drop onto the saddle with a small bounce.
+- **Stride sway:** a gentle side-to-side sway in time with your pet's walk or run.
+- **Starting and stopping:** you rock back a little when your pet sets off and forward when it stops.
+- **Smooth back:** the steps between your pet's animation frames are smoothed, so you ride the motion
+  instead of jerking along with it.
+
+Turn it off with **Natural riding motion** if you'd rather sit perfectly still.
+
+## Riding in style
+
+- **Weapon, shield and cape are hidden while you ride**, so nothing pokes through your mount.
+  On your screen only; they come back the moment you get off or hop off to fight.
+- **Legs keep up with the ground**: pets without a run animation play their walk at running
+  pace when you run, instead of sliding along.
+
 ## Climbing on
 
 When you click **Ride**, your character beckons the pet while the game's own sparkle effect
@@ -77,13 +121,19 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 | Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
 | Hop off for actions | Step off while fighting, skilling or teleporting, then climb back on |
 | Stay mounted between sessions | Remount automatically after logging in |
+| On-screen mount button | Show or hide the button |
 | Mount size | Make every mount bigger or smaller |
 | Riding pose | Automatic (the pose fitted to each pet), or choose one yourself |
-| Seat height / Seat forward-back | Fine-tune where you sit |
+| Seat height / Seat forward-back | Fine-tune where you sit (per-pet adjustments are in the Mount Stable) |
+| Saddle and blanket | Show the saddle and blanket |
+| Reins | Hold reins running to your mount's mouth |
+| Natural riding motion | Settle in, sway with the stride and rock when starting and stopping |
+| Hide weapon and shield / Hide cape | Keep held items and capes from poking through the mount |
 
 ## Good to know
 
 - This is purely visual and client-side. Other players see you walking with your pet as normal.
+  Hiding your weapon and cape only changes what your own screen draws.
 - The mount uses the pet's own idle, walk and run animations. On heavily enlarged pets,
   animations that move body parts (not just rotate them) can look slightly exaggerated.
 
@@ -97,6 +147,10 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 ## How it works (for developers)
 
 - The real pet and the real player model are hidden with a `RenderCallback`.
+- The saddle is built by reshaping a spare game model into saddle geometry (`SaddleMesh.java`),
+  moulded to the pet's back by probing the model in its idle pose.
+- Weapon, shield and cape are hidden by changing the local appearance copy, like other appearance
+  plugins on the Plugin Hub (`RiderLook.java`), and restored on dismount.
 - Effects are the game's own graphics (spotanims), read from the client's cache, recoloured
   and drawn as `RuneLiteObject`s.
 - The pet is rebuilt as a `RuneLiteObject` from its NPC definition (models, recolours,
@@ -108,6 +162,11 @@ Every rideable pet has its own measured seat, found on the game's model in its i
   (`MountFits.java`, measured offline from the game cache). Each frame the rider is placed on
   that exact spot of the animated mount. Pets without a stored seat get one found at runtime
   by ray-casting down onto the model (`SeatFinder.java`).
+- The reins are rebuilt from a reshaped spare model whenever your hands or your pet's mouth move
+  (`ReinMesh.java`). The mouth corners are found once on the pet's idle pose: the lowest part of the
+  front tip of its head.
+- The rider follows the seat through springs for settling, sway and surge (`RiderMotion.java`), timed
+  to the mount's own animation cycle.
 - The player's movement animations are overridden with the riding pose while mounted and
   restored on dismount.
 

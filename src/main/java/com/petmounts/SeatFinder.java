@@ -99,6 +99,13 @@ final class SeatFinder
 	static Seat raycast(float[] xs, float[] ys, float[] zs, int[] f1, int[] f2, int[] f3,
 		byte[] alphas, int faceCount, float x, float z)
 	{
+		return raycast(xs, ys, zs, f1, f2, f3, alphas, faceCount, x, z, Float.MAX_VALUE);
+	}
+
+	/** The highest solid triangle directly under (x, z) that is no higher than maxHeight. */
+	static Seat raycast(float[] xs, float[] ys, float[] zs, int[] f1, int[] f2, int[] f3,
+		byte[] alphas, int faceCount, float x, float z, float maxHeight)
+	{
 		Seat best = null;
 		for (int f = 0; f < faceCount; f++)
 		{
@@ -121,6 +128,10 @@ final class SeatFinder
 				continue;
 			}
 			float height = -(wa * ys[a] + wb * ys[b] + wc * ys[c]);
+			if (height > maxHeight)
+			{
+				continue;
+			}
 			if (best == null || height > best.height)
 			{
 				best = new Seat(a, b, c, wa, wb, wc, height);

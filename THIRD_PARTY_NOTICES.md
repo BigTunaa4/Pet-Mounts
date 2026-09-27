@@ -7,6 +7,9 @@ by RapidUrsa (source revision `656a19f`):
   animated mount model.
 - The riding poses in `RiderPose.java`: the stool-sit pose, a held frame of the Wide pose,
   the toboggan crouch for Extra wide, and the settled loop of the sit emote for Cross-legged.
+- In `PetMountsPlugin.java` / `SaddleMesh.java`: building a custom saddle by reshaping a spare
+  model loaded from the game (merged so its arrays are fresh, with unused faces left empty). The
+  saddle's shape, fitting and colours are Pet Mounts' own.
 - In `MountEffects.java`: building effects from the game's own graphics as
   `RuneLiteObject`s, and handling graphic definition opcode 10 as a flag with no data.
 

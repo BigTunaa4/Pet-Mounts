@@ -63,10 +63,21 @@ public interface PetMountsConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "showMountButton",
+		name = "On-screen mount button",
+		description = "A small button to hop on and off. Hold Alt and drag to move it",
+		position = 3
+	)
+	default boolean showMountButton()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "hopOffForActions",
 		name = "Hop off for actions",
 		description = "Step off the mount while fighting, skilling or teleporting, then climb back on automatically",
-		position = 3
+		position = 4
 	)
 	default boolean hopOffForActions()
 	{
@@ -77,7 +88,7 @@ public interface PetMountsConfig extends Config
 		keyName = "remountOnLogin",
 		name = "Stay mounted between sessions",
 		description = "If you were riding when you logged out, climb back on when your pet appears",
-		position = 4
+		position = 5
 	)
 	default boolean remountOnLogin()
 	{
@@ -136,6 +147,66 @@ public interface PetMountsConfig extends Config
 	default int seatForwardAdjust()
 	{
 		return 0;
+	}
+
+	@ConfigItem(
+		keyName = "showSaddle",
+		name = "Saddle and blanket",
+		description = "Put a saddle and blanket on your mount, moulded to its back. The blanket matches your pet's colours",
+		position = 15,
+		section = riderSection
+	)
+	default boolean showSaddle()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showReins",
+		name = "Reins",
+		description = "Hold reins running to your mount's mouth. Pets you sit on top of, like floating ones, have none",
+		position = 16,
+		section = riderSection
+	)
+	default boolean showReins()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "hideHeldItems",
+		name = "Hide weapon and shield",
+		description = "Stops weapons and shields poking through your mount. On your screen only; they come back when you get off",
+		position = 17,
+		section = riderSection
+	)
+	default boolean hideHeldItems()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "hideCape",
+		name = "Hide cape",
+		description = "Stops capes hanging through your mount's back. On your screen only",
+		position = 18,
+		section = riderSection
+	)
+	default boolean hideCape()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "naturalMotion",
+		name = "Natural riding motion",
+		description = "Settle into the saddle, sway with your mount's stride and rock with it as it starts and stops",
+		position = 19,
+		section = riderSection
+	)
+	default boolean naturalMotion()
+	{
+		return true;
 	}
 
 	// ---------- Effects ----------

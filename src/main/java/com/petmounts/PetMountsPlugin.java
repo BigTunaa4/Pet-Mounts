@@ -38,6 +38,11 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.input.MouseManager;
+import net.runelite.client.ui.ClientToolbar;
+import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.Text;
 
@@ -84,6 +89,24 @@ public class PetMountsPlugin extends Plugin
 	@Inject
 	private MountEffects effects;
 
+	@Inject
+	private ConfigManager configManager;
+
+	@Inject
+	private ClientToolbar clientToolbar;
+
+	@Inject
+	private OverlayManager overlayManager;
+
+	@Inject
+	private MouseManager mouseManager;
+
+	private MountStablePanel panel;
+	private NavigationButton navButton;
+	private MountButtonOverlay mountButton;
+	private MountStablePanel.State panelState;
+	private int panelTicks;
+
 	// ----- state -----
 	/** Whether the player wants to be riding. */
 	private boolean riding;
@@ -97,6 +120,38 @@ public class PetMountsPlugin extends Plugin
 	private Color[] petPalette = PetPalette.DEFAULT;
 	/** Pose tuned for (or picked from the shape of) the current pet, used when Riding pose is Automatic. */
 	private RiderPose autoPose = RiderPose.WIDE;
+	/** Spare model reshaped into the saddle; any stable model with enough vertices and faces works. */
+	private static final int SADDLE_TEMPLATE_MODEL = 25754;
+
+	/** Saddle and blanket, built once the mount stands in its idle pose. */
+	private RuneLiteObject saddle;
+	private boolean saddleTried;
+	/** How far the saddle raises the rider above the pet's back. */
+	private float saddleLift;
+
+	/** Reins from the rider's hands to the corners of the mount's mouth, rebuilt as both move. */
+	private RuneLiteObject reins;
+	private final ReinMesh reinMesh = new ReinMesh();
+	private ModelData reinTemplate;
+	/** Mouth corners on the mount (left, right vertex), or null if it has none; found once in the idle pose. */
+	private int[] bit;
+	private boolean bitTried;
+	private int bitVertexCount;
+	/** The rein ends the current reins model was built for, so it's only rebuilt when they move. */
+	private final float[] reinEnds = new float[12];
+	/** Settling, stride sway and surge for the rider. */
+	private final RiderMotion motion = new RiderMotion();
+	/** The mount's idle animation, so the saddle is moulded to the pose you see most. */
+	private int idleAnimId = -1;
+	private PacedAnimationController mountAnimation;
+	/** Walk animation speed when running on a pet that has no run animation. */
+	private static final float RUN_PACE = 1.8f;
+	/** The player's saved adjustments for the pet being ridden. */
+	private PetTweaks tweaks = PetTweaks.NONE;
+	private String currentPetName;
+
+	/** Hides the rider's weapon, shield and cape while mounted. */
+	private final RiderLook riderLook = new RiderLook();
 	/** Follows the spot on the mount's back where the rider sits. */
 	private final SeatTracker seat = new SeatTracker();
 	/** Frame counts of the rider pose animations, so held frames stay in range. */
@@ -156,6 +211,42 @@ public class PetMountsPlugin extends Plugin
 		renderCallbackManager.register(renderCallback);
 		keyManager.registerKeyListener(hotkeyListener);
 
+		panel = new MountStablePanel(new MountStablePanel.Actions()
+		{
+			@Override
+			public void toggleRide()
+			{
+				clientThread.invoke(PetMountsPlugin.this::toggleRiding);
+			}
+
+			@Override
+			public void saveTweaks(PetTweaks t)
+			{
+				clientThread.invoke(() -> savePetTweaks(t));
+			}
+
+			@Override
+			public void setOption(String key, boolean value)
+			{
+				configManager.setConfiguration(PetMountsConfig.GROUP, key, value);
+			}
+		});
+		navButton = NavigationButton.builder()
+			.tooltip("Pet Mounts")
+			.icon(ImageUtil.loadImageResource(getClass(), "panel_icon.png"))
+			.priority(8)
+			.panel(panel)
+			.build();
+		clientToolbar.addNavigation(navButton);
+
+		mountButton = new MountButtonOverlay(this, ImageUtil.loadImageResource(getClass(), "button_icon.png"),
+			() -> config.showMountButton() && client.getGameState() == GameState.LOGGED_IN,
+			() -> riding || mountingSince != 0,
+			() -> panelState != null && panelState.canRide,
+			() -> clientThread.invoke(this::toggleRiding));
+		overlayManager.add(mountButton);
+		mouseManager.registerMouseListener(mountButton.mouse);
+
 		riding = config.remountOnLogin() && config.wasMounted();
 	}
 
@@ -164,9 +255,15 @@ public class PetMountsPlugin extends Plugin
 	{
 		keyManager.unregisterKeyListener(hotkeyListener);
 		renderCallbackManager.unregister(renderCallback);
+		clientToolbar.removeNavigation(navButton);
+		overlayManager.remove(mountButton);
+		mouseManager.unregisterMouseListener(mountButton.mouse);
+		panelState = null;
 		clientThread.invoke(() ->
 		{
 			effects.clear();
+			removeSaddle();
+			removeReins();
 			cancelMounting(null);
 			hideMount();
 			mount = null;
@@ -332,7 +429,11 @@ public class PetMountsPlugin extends Plugin
 	private int seatLift()
 	{
 		float h = seat.isSet() ? -seat.y : mountHeight * 0.6f;
-		return Math.round(h) + config.seatHeightAdjust();
+		if (saddle != null && saddle.isActive())
+		{
+			h += saddleLift;
+		}
+		return Math.round(h) + config.seatHeightAdjust() + tweaks.seatHeight;
 	}
 
 	private void message(String text)
@@ -421,6 +522,7 @@ public class PetMountsPlugin extends Plugin
 			effects.clear();
 			pausedForAction = false;
 			hideMount();
+			riderLook.forget();
 			mount = null;
 			rider = null;
 			builtForNpcId = -1;
@@ -481,6 +583,10 @@ public class PetMountsPlugin extends Plugin
 
 		trackSpeed(me);
 		effects.tick();
+		if (++panelTicks % 10 == 0) // about five times a second is plenty for the side panel
+		{
+			refreshPanel(pet);
+		}
 
 		if (mountingSince != 0)
 		{
@@ -549,11 +655,29 @@ public class PetMountsPlugin extends Plugin
 
 		updateMountAnimation(pet);
 		applyRiderPose(me);
+		riderLook.apply(me, config.hideHeldItems(), config.hideCape());
+		if (config.showSaddle() && !saddleTried && mountAnimId == idleAnimId)
+		{
+			buildSaddle();
+		}
+		if (!bitTried && mountAnimId == idleAnimId)
+		{
+			findBit();
+		}
+		if (!mountedVisible)
+		{
+			// Just appeared (after the poof, or climbing back on): drop into the saddle.
+			motion.reset(config.naturalMotion() && config.mountEffects());
+		}
 		positionObjects(me);
 
 		if (!mount.isActive())
 		{
 			mount.setActive(true);
+		}
+		if (saddle != null && saddle.isActive() != config.showSaddle())
+		{
+			saddle.setActive(config.showSaddle());
 		}
 		if (!client.isRuneLiteObjectRegistered(rider))
 		{
@@ -757,7 +881,9 @@ public class PetMountsPlugin extends Plugin
 			growth = MountSizing.growthFactor(Math.round(seatHeight), TARGET_SEAT_HEIGHT, MAX_GROWTH, 1f);
 			ws = hs = SCALE_BASE; // already applied
 		}
-		growth *= config.sizeMultiplier() / 100f;
+		currentPetName = comp.getName() == null ? null : Text.removeTags(comp.getName());
+		tweaks = currentPetName == null ? PetTweaks.NONE : PetTweaks.load(configManager, currentPetName);
+		growth *= config.sizeMultiplier() / 100f * tweaks.size / 100f;
 
 		md.scale(Math.round(ws * growth), Math.round(hs * growth), Math.round(ws * growth));
 
@@ -814,6 +940,8 @@ public class PetMountsPlugin extends Plugin
 		{
 			mount.setActive(false);
 		}
+		removeSaddle();
+		removeReins();
 		mount = client.createRuneLiteObject();
 		mount.setModel(model);
 		mount.setShouldLoop(true);
@@ -891,28 +1019,188 @@ public class PetMountsPlugin extends Plugin
 
 	private void updateMountAnimation(NPC pet)
 	{
+		boolean running = speed >= RUN_SPEED_THRESHOLD;
+		int walk = pet.getWalkAnimation();
+		int run = pet.getRunAnimation();
+		idleAnimId = pet.getIdlePoseAnimation();
+
 		int anim;
-		if (speed >= RUN_SPEED_THRESHOLD && pet.getRunAnimation() != -1)
+		float pace = 1f;
+		if (running && run != -1 && run != walk)
 		{
-			anim = pet.getRunAnimation();
+			anim = run;
 		}
-		else if (speed > 0 && pet.getWalkAnimation() != -1)
+		else if (speed > 0 && walk != -1)
 		{
-			anim = pet.getWalkAnimation();
+			anim = walk;
+			// No run animation: play the walk at running pace so the legs keep up with the ground.
+			pace = running ? RUN_PACE : 1f;
 		}
 		else
 		{
-			anim = pet.getIdlePoseAnimation();
+			anim = idleAnimId;
 		}
 
-		if (anim == mountAnimId)
+		if (anim != mountAnimId)
+		{
+			mountAnimId = anim;
+			Animation a = anim == -1 ? null : client.loadAnimation(anim);
+			mountAnimation = a == null ? null : new PacedAnimationController(client, a);
+			mount.setAnimationController(mountAnimation);
+			mount.setShouldLoop(true);
+		}
+		if (mountAnimation != null)
+		{
+			mountAnimation.setPace(pace);
+		}
+	}
+
+	// ------------------------------------------------------------------
+	// Mount Stable panel
+	// ------------------------------------------------------------------
+
+	/** Sends the panel what it should show, only when something changed. */
+	private void refreshPanel(NPC pet)
+	{
+		String name = null;
+		String status;
+		boolean canRide = false;
+		PetTweaks t = PetTweaks.NONE;
+		if (pet == null)
+		{
+			status = "Summon one of your pets to ride it.";
+		}
+		else
+		{
+			NPCComposition comp = compositionOf(pet);
+			name = comp != null && comp.getName() != null ? Text.removeTags(comp.getName()) : "Your pet";
+			String refusal = refusalFor(pet);
+			canRide = refusal == null;
+			t = PetTweaks.load(configManager, name);
+			status = riding ? "You're riding " + name + "."
+				: mountingSince != 0 ? "Climbing on..."
+				: canRide ? "Ready to ride."
+				: refusal;
+		}
+		MountStablePanel.State s = new MountStablePanel.State(name, status, canRide, riding || mountingSince != 0, t,
+			config.showSaddle(), config.showReins(), config.naturalMotion(), config.hideHeldItems(), config.hideCape());
+		if (!s.sameAs(panelState))
+		{
+			panelState = s;
+			MountStablePanel p = panel;
+			javax.swing.SwingUtilities.invokeLater(() -> p.show(s));
+		}
+	}
+
+	/** Saves the panel's adjustments for the pet following you and rebuilds the mount with them. */
+	private void savePetTweaks(PetTweaks t)
+	{
+		NPC pet = client.getFollower();
+		NPCComposition comp = pet == null ? null : compositionOf(pet);
+		if (comp == null || comp.getName() == null)
 		{
 			return;
 		}
-		mountAnimId = anim;
-		Animation a = anim == -1 ? null : client.loadAnimation(anim);
-		mount.setAnimation(a);
-		mount.setShouldLoop(true);
+		PetTweaks.save(configManager, Text.removeTags(comp.getName()), t);
+		builtForNpcId = -1;
+		seat.clear();
+		restorePose();
+	}
+
+	// ------------------------------------------------------------------
+	// Saddle
+	// ------------------------------------------------------------------
+
+	/** Builds the saddle and blanket moulded to the mount's back in its idle pose. Tried once per mount. */
+	private void buildSaddle()
+	{
+		saddleTried = true;
+		Model pose = mount.getModel();
+		if (pose == null || !seat.isSet())
+		{
+			return;
+		}
+		seat.update(pose);
+		final float seatX = seat.x, seatZ = seat.z, seatHeight = -seat.y;
+		final float[] xs = pose.getVerticesX(), ys = pose.getVerticesY(), zs = pose.getVerticesZ();
+		final int[] f1 = pose.getFaceIndices1(), f2 = pose.getFaceIndices2(), f3 = pose.getFaceIndices3();
+		final byte[] alphas = pose.getFaceTransparencies();
+		final int faces = pose.getFaceCount();
+		final float cap = seatHeight * 1.35f + 4; // ignore heads and necks rising above the back
+		SaddleMesh.Surface surface = (dx, dz) ->
+		{
+			SeatFinder.Seat hit = SeatFinder.raycast(xs, ys, zs, f1, f2, f3, alphas, faces, seatX + dx, seatZ + dz, cap);
+			return hit == null ? Float.NaN : hit.height - seatHeight;
+		};
+
+		ModelData template = client.loadModelData(SADDLE_TEMPLATE_MODEL);
+		if (template == null)
+		{
+			saddleTried = false; // not loaded yet: try again next tick
+			return;
+		}
+		// Merging gives the saddle its own arrays, so reshaping it never touches the game's cached model.
+		ModelData md = client.mergeModels(template, template.shallowCopy())
+			.cloneVertices()
+			.cloneColors()
+			.cloneTransparencies(true);
+
+		RiderPose pose0 = resolvedPose();
+		boolean onTop = pose0 == RiderPose.CROSS_LEGGED || pose0 == RiderPose.STANDING;
+		SaddleMesh mesh = SaddleMesh.build(surface, seatHeight, pose0 == RiderPose.EXTRA_WIDE, !onTop,
+			blanketColor(), SaddleMesh.GOLD, md.getVerticesCount(), md.getFaceCount());
+
+		float[] vx = md.getVerticesX(), vy = md.getVerticesY(), vz = md.getVerticesZ();
+		int[] i1 = md.getFaceIndices1(), i2 = md.getFaceIndices2(), i3 = md.getFaceIndices3();
+		short[] colors = md.getFaceColors();
+		byte[] trans = md.getFaceTransparencies();
+		java.util.Arrays.fill(vx, 0);
+		java.util.Arrays.fill(vy, 0);
+		java.util.Arrays.fill(vz, 0);
+		System.arraycopy(mesh.x, 0, vx, 0, mesh.vertexCount);
+		System.arraycopy(mesh.y, 0, vy, 0, mesh.vertexCount);
+		System.arraycopy(mesh.z, 0, vz, 0, mesh.vertexCount);
+		for (int f = 0; f < md.getFaceCount(); f++)
+		{
+			boolean used = f < mesh.faceCount;
+			i1[f] = used ? mesh.f1[f] : 0;
+			i2[f] = used ? mesh.f2[f] : 0;
+			i3[f] = used ? mesh.f3[f] : 0;
+			colors[f] = used ? mesh.color[f] : 0;
+			trans[f] = used ? 0 : (byte) 255; // spare faces stay invisible
+		}
+
+		Model model = md.light(64, 850, -30, -50, -30);
+		if (model == null)
+		{
+			return;
+		}
+		saddle = client.createRuneLiteObject();
+		saddle.setModel(model);
+		saddleLift = mesh.seatThickness;
+		saddle.setActive(config.showSaddle());
+	}
+
+	/** Blanket colour: from the pet's colours, deepened so it reads as cloth, or the colour from settings. */
+	private short blanketColor()
+	{
+		Color c = config.matchPetColors() ? petPalette[Math.min(1, petPalette.length - 1)] : config.effectColor();
+		short hsl = net.runelite.api.JagexColor.rgbToHSL(c.getRGB(), 1.0);
+		int hue = net.runelite.api.JagexColor.unpackHue(hsl);
+		int sat = Math.max(4, net.runelite.api.JagexColor.unpackSaturation(hsl));
+		int lum = Math.max(28, Math.min(52, net.runelite.api.JagexColor.unpackLuminance(hsl)));
+		return SaddleMesh.hsl(hue, sat, lum);
+	}
+
+	private void removeSaddle()
+	{
+		if (saddle != null)
+		{
+			saddle.setActive(false);
+		}
+		saddle = null;
+		saddleTried = false;
+		saddleLift = 0;
 	}
 
 	private void positionObjects(Player me)
@@ -928,10 +1216,15 @@ public class PetMountsPlugin extends Plugin
 		seat.update(mount.getModel());
 		RiderPose pose = resolvedPose();
 
+		// The rider follows the seat through a spring, with stride sway and surge (see RiderMotion).
+		int gait = speed == 0 ? 0 : speed >= RUN_SPEED_THRESHOLD ? 2 : 1;
+		float cycle = mountAnimation != null && gait > 0 ? mountAnimation.cycle() : 0;
+		motion.update(seat.x, seat.y, seat.z, gait, cycle, config.naturalMotion());
+
 		// Where the rider's feet go, in the mount's own space: the seat, shifted so the pose's contact point
 		// lands on it, plus the player's forward adjustment. Model x is sideways and z points toward the tail.
-		float mx = seat.x;
-		float mz = seat.z - pose.getContactBack() - config.seatForwardAdjust();
+		float mx = motion.x;
+		float mz = motion.z - pose.getContactBack() - config.seatForwardAdjust() - tweaks.seatForward;
 
 		// Turn that to face the way the mount faces (orientation 0 faces south).
 		double rad = orientation * Math.PI / 1024.0;
@@ -939,13 +1232,162 @@ public class PetMountsPlugin extends Plugin
 		double cos = Math.cos(rad);
 		int dx = (int) Math.round(mx * cos + mz * sin);
 		int dy = (int) Math.round(mz * cos - mx * sin);
+		int ground = Perspective.getTileHeight(client, lp, plane);
+
+		if (saddle != null && saddle.isActive())
+		{
+			// The saddle rides on the seat point, turned the way the mount faces.
+			int sdx = (int) Math.round(seat.x * cos + seat.z * sin);
+			int sdy = (int) Math.round(seat.z * cos - seat.x * sin);
+			saddle.setLocation(new LocalPoint(lp.getX() + sdx, lp.getY() + sdy, lp.getWorldView()), plane);
+			saddle.setOrientation(orientation);
+			saddle.setZ(ground + Math.round(seat.y));
+		}
 
 		LocalPoint riderPoint = new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView());
 		rider.setLocation(riderPoint, plane);
 		rider.setOrientation(orientation);
-		int ground = Perspective.getTileHeight(client, lp, plane);
-		int riderLift = seatLift() - pose.getContactHeight();
-		rider.setZ(ground - riderLift); // negative Z is up
+		// seatLift is measured from the resting seat; add how far the smoothed, settling rider is from it.
+		float riderLift = seatLift() - pose.getContactHeight() + (seat.y - motion.y);
+		rider.setZ(ground - Math.round(riderLift)); // negative Z is up
+
+		updateReins(pose, mx, riderLift, mz, lp, plane, orientation, ground);
+	}
+
+	// ------------------------------------------------------------------
+	// Reins
+	// ------------------------------------------------------------------
+
+	/** Finds the corners of the mount's mouth in its idle pose. Tried once per mount. */
+	private void findBit()
+	{
+		bitTried = true;
+		Model m = mount.getModel();
+		if (m == null || !seat.isSet())
+		{
+			bitTried = false;
+			return;
+		}
+		seat.update(m);
+		bit = ReinMesh.findBit(m.getVerticesX(), m.getVerticesY(), m.getVerticesZ(), m.getVerticesCount(),
+			m.getFaceIndices1(), m.getFaceIndices2(), m.getFaceIndices3(), m.getFaceTransparencies(),
+			m.getFaceCount(), seat.z, -seat.y);
+		bitVertexCount = m.getVerticesCount();
+	}
+
+	/**
+	 * Lays the reins from the rider's hands to the mount's mouth. The rider's feet are at (footX, footZ) in the
+	 * mount's space, {@code footLift} above the ground.
+	 */
+	private void updateReins(RiderPose pose, float footX, float footLift, float footZ, LocalPoint lp, int plane,
+		int orientation, int ground)
+	{
+		int[][] hands = ReinMesh.handsFor(pose);
+		Model m = mount.getModel();
+		if (!config.showReins() || hands == null || bit == null || m == null || m.getVerticesCount() != bitVertexCount)
+		{
+			if (reins != null && reins.isActive())
+			{
+				reins.setActive(false);
+			}
+			return;
+		}
+
+		float[] xs = m.getVerticesX(), ys = m.getVerticesY(), zs = m.getVerticesZ();
+		float[][] handPoints = new float[2][];
+		float[][] bitPoints = new float[2][];
+		boolean moved = reins == null;
+		for (int i = 0; i < 2; i++)
+		{
+			handPoints[i] = new float[]{footX + hands[i][0], -(footLift + hands[i][1]), footZ + hands[i][2]};
+			bitPoints[i] = new float[]{xs[bit[i]], ys[bit[i]], zs[bit[i]]};
+			for (int k = 0; k < 3; k++)
+			{
+				moved |= Math.abs(reinEnds[i * 6 + k] - handPoints[i][k]) > 0.3f
+					|| Math.abs(reinEnds[i * 6 + 3 + k] - bitPoints[i][k]) > 0.3f;
+			}
+		}
+
+		if (moved && !rebuildReins(handPoints, bitPoints))
+		{
+			return;
+		}
+		reins.setLocation(lp, plane);
+		reins.setOrientation(orientation);
+		reins.setZ(ground);
+		if (!reins.isActive())
+		{
+			reins.setActive(true);
+		}
+	}
+
+	private boolean rebuildReins(float[][] hands, float[][] bits)
+	{
+		if (reinTemplate == null)
+		{
+			reinTemplate = client.loadModelData(SADDLE_TEMPLATE_MODEL);
+			if (reinTemplate == null)
+			{
+				return false; // not loaded yet
+			}
+		}
+		// A fresh copy each time, so the lighting is worked out for the reins' new shape.
+		ModelData md = client.mergeModels(reinTemplate, reinTemplate.shallowCopy())
+			.cloneVertices()
+			.cloneColors()
+			.cloneTransparencies(true);
+		if (md.getVerticesCount() < reinMesh.vertexCount() || md.getFaceCount() < reinMesh.faceCount())
+		{
+			return false;
+		}
+		reinMesh.update(hands, bits);
+
+		float[] vx = md.getVerticesX(), vy = md.getVerticesY(), vz = md.getVerticesZ();
+		int[] i1 = md.getFaceIndices1(), i2 = md.getFaceIndices2(), i3 = md.getFaceIndices3();
+		short[] colors = md.getFaceColors();
+		byte[] trans = md.getFaceTransparencies();
+		java.util.Arrays.fill(vx, 0);
+		java.util.Arrays.fill(vy, 0);
+		java.util.Arrays.fill(vz, 0);
+		System.arraycopy(reinMesh.x, 0, vx, 0, reinMesh.vertexCount());
+		System.arraycopy(reinMesh.y, 0, vy, 0, reinMesh.vertexCount());
+		System.arraycopy(reinMesh.z, 0, vz, 0, reinMesh.vertexCount());
+		for (int f = 0; f < md.getFaceCount(); f++)
+		{
+			boolean used = f < reinMesh.faceCount();
+			i1[f] = used ? reinMesh.f1[f] : 0;
+			i2[f] = used ? reinMesh.f2[f] : 0;
+			i3[f] = used ? reinMesh.f3[f] : 0;
+			colors[f] = used ? ReinMesh.COLOR : 0;
+			trans[f] = used ? 0 : (byte) 255;
+		}
+		Model model = md.light(64, 850, -30, -50, -30);
+		if (model == null)
+		{
+			return false;
+		}
+		if (reins == null)
+		{
+			reins = client.createRuneLiteObject();
+		}
+		reins.setModel(model);
+		for (int i = 0; i < 2; i++)
+		{
+			System.arraycopy(hands[i], 0, reinEnds, i * 6, 3);
+			System.arraycopy(bits[i], 0, reinEnds, i * 6 + 3, 3);
+		}
+		return true;
+	}
+
+	private void removeReins()
+	{
+		if (reins != null)
+		{
+			reins.setActive(false);
+		}
+		reins = null;
+		bit = null;
+		bitTried = false;
 	}
 
 	// ------------------------------------------------------------------
@@ -954,6 +1396,10 @@ public class PetMountsPlugin extends Plugin
 
 	private RiderPose resolvedPose()
 	{
+		if (tweaks.pose != RiderPose.AUTO)
+		{
+			return tweaks.pose;
+		}
 		RiderPose pose = config.riderPose();
 		return pose == null || pose == RiderPose.AUTO ? autoPose : pose;
 	}
@@ -1064,6 +1510,14 @@ public class PetMountsPlugin extends Plugin
 		{
 			mount.setActive(false);
 		}
+		if (saddle != null && saddle.isActive())
+		{
+			saddle.setActive(false);
+		}
+		if (reins != null && reins.isActive())
+		{
+			reins.setActive(false);
+		}
 		if (rider != null && client.isRuneLiteObjectRegistered(rider))
 		{
 			client.removeRuneLiteObject(rider);
@@ -1071,6 +1525,7 @@ public class PetMountsPlugin extends Plugin
 		if (mountedVisible)
 		{
 			restorePose();
+			riderLook.restore(client.getLocalPlayer());
 		}
 		mountedVisible = false;
 	}

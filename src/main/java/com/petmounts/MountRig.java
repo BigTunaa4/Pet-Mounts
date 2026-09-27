@@ -73,6 +73,10 @@ final class MountRig
 
 	private boolean visible;
 	private NPC pet;
+	/** The mount's footprint in its own space, for the right-click area. */
+	private final float minX, maxX, minZ, maxZ;
+	/** How far the rider's head is above the ground, updated as they move. */
+	private int topHeight;
 
 	MountRig(Client client, Player player, PetModels.Built built)
 	{
@@ -80,11 +84,63 @@ final class MountRig
 		this.player = player;
 		this.built = built;
 		this.poser = new RiderPoser(client);
-		this.rider = new RiderController(player);
+		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = client.createRuneLiteObject();
 		mount.setModel(built.model);
 		mount.setShouldLoop(true);
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
+
+		float[] xs = built.model.getVerticesX(), zs = built.model.getVerticesZ();
+		float x0 = 0, x1 = 0, z0 = 0, z1 = 0;
+		for (int v = 0; v < built.model.getVerticesCount(); v++)
+		{
+			x0 = Math.min(x0, xs[v]);
+			x1 = Math.max(x1, xs[v]);
+			z0 = Math.min(z0, zs[v]);
+			z1 = Math.max(z1, zs[v]);
+		}
+		minX = x0;
+		maxX = x1;
+		minZ = z0;
+		maxZ = z1;
+	}
+
+	/** Rider height above the feet, to the top of the head. */
+	private static final int RIDER_HEIGHT = 200;
+
+	/**
+	 * The area on screen covered by the mount and its rider, or null if it's not shown. Used to put the rider's
+	 * right-click options back, since the real (hidden) player can't be clicked.
+	 */
+	java.awt.Shape screenArea()
+	{
+		LocalPoint lp = player.getLocalLocation();
+		if (!visible || lp == null)
+		{
+			return null;
+		}
+		int plane = player.getWorldView().getPlane();
+		double rad = player.getCurrentOrientation() * Math.PI / 1024.0;
+		double sin = Math.sin(rad), cos = Math.cos(rad);
+		java.util.List<java.awt.Point> points = new java.util.ArrayList<>();
+		for (float x : new float[]{minX, maxX})
+		{
+			for (float z : new float[]{minZ, maxZ})
+			{
+				int dx = (int) Math.round(x * cos + z * sin);
+				int dy = (int) Math.round(z * cos - x * sin);
+				LocalPoint corner = new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView());
+				for (int h : new int[]{0, topHeight})
+				{
+					net.runelite.api.Point p = Perspective.localToCanvas(client, corner, plane, h);
+					if (p != null)
+					{
+						points.add(new java.awt.Point(p.getX(), p.getY()));
+					}
+				}
+			}
+		}
+		return points.size() < 3 ? null : ScreenHull.of(points);
 	}
 
 	Player player()
@@ -298,6 +354,7 @@ final class MountRig
 		// seatLift is measured from the resting seat; add how far the smoothed, settling rider is from it.
 		float riderLift = seatLift(style) - pose.getContactHeight() + (seat.y - motion.y);
 		rider.setZ(ground - Math.round(riderLift)); // negative Z is up
+		topHeight = Math.max(built.mountHeight, Math.round(riderLift) + RIDER_HEIGHT);
 
 		updateReins(pose, style, mx, riderLift, mz, lp, plane, orientation, ground);
 	}

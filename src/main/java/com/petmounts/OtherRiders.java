@@ -35,6 +35,8 @@ final class OtherRiders
 	private static final int MAX_BUILD_TRIES = 5;
 	/** How close a player must be to a pet to be taken as its owner when the pet isn't facing anyone. */
 	private static final int OWNER_RANGE = 2 * 128;
+	/** How much nearer (in local units, 3 tiles) a rider already shown counts as, when picking who to show. */
+	private static final int KEEP_SHOWN_BONUS = 3 * 128;
 
 	private final Client client;
 	private final PetModels models;
@@ -71,6 +73,21 @@ final class OtherRiders
 	boolean hides(Renderable renderable)
 	{
 		return hidden.contains(renderable);
+	}
+
+	/** The players shown riding under this point on screen, nearest last (as the game lists them). */
+	List<Player> ridersAt(java.awt.Point mouse)
+	{
+		List<Player> found = new ArrayList<>();
+		for (MountRig rig : rigs.values())
+		{
+			java.awt.Shape area = rig.isVisible() ? rig.screenArea() : null;
+			if (area != null && area.contains(mouse))
+			{
+				found.add(rig.player());
+			}
+		}
+		return found;
 	}
 
 	/** Whether showing others riding makes sense here: never where players need to be clicked to fight. */
@@ -145,8 +162,10 @@ final class OtherRiders
 				owners.put(npc, owner);
 			}
 		}
+		// Nearest first. Riders already shown keep their place a little longer, so riders at the edge of the
+		// limit don't flicker on and off as people move around.
 		LocalPoint here = me.getLocalLocation();
-		pets.sort((a, b) -> Integer.compare(distance(here, a), distance(here, b)));
+		pets.sort((a, b) -> Integer.compare(rank(here, a, owners), rank(here, b, owners)));
 
 		Set<Player> shown = new HashSet<>();
 		hidden.clear();
@@ -293,6 +312,13 @@ final class OtherRiders
 			only = p;
 		}
 		return only;
+	}
+
+	private int rank(LocalPoint here, NPC pet, Map<NPC, Player> owners)
+	{
+		int d = distance(here, pet);
+		MountRig rig = rigs.get(owners.get(pet));
+		return rig != null && rig.isVisible() && d != Integer.MAX_VALUE ? d - KEEP_SHOWN_BONUS : d;
 	}
 
 	private static int distance(LocalPoint here, NPC npc)

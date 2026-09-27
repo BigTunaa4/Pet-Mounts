@@ -463,6 +463,7 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onMenuOpened(MenuOpened e)
 	{
+		addRiderOptions();
 		if (!riding && mountingSince == 0)
 		{
 			return;
@@ -475,6 +476,43 @@ public class PetMountsPlugin extends Plugin
 			.setType(MenuAction.RUNELITE)
 			.setDeprioritized(true)
 			.onClick(me -> setRiding(false, true));
+	}
+
+	/**
+	 * Players shown riding are hidden from the game, so the game can't list them when you right-click. Put their
+	 * usual options (Follow, Trade with, Report...) back for any rider under the mouse, exactly as the game would.
+	 */
+	private void addRiderOptions()
+	{
+		net.runelite.api.Point mouse = client.getMouseCanvasPosition();
+		String[] options = client.getPlayerOptions();
+		int[] types = client.getPlayerMenuTypes();
+		boolean[] lowered = client.getPlayerOptionsPriorities();
+		Player me = client.getLocalPlayer();
+		if (mouse == null || options == null || types == null || me == null)
+		{
+			return;
+		}
+		for (Player rider : others.ridersAt(new java.awt.Point(mouse.getX(), mouse.getY())))
+		{
+			String target = PlayerMenu.target(rider, me.getCombatLevel());
+			// Added last-option first, so the first option ends up on top as in the game's own menu.
+			for (int i = Math.min(options.length, types.length) - 1; i >= 0; i--)
+			{
+				MenuAction action = PlayerMenu.action(types[i]);
+				if (options[i] == null || options[i].isEmpty() || action == null)
+				{
+					continue;
+				}
+				client.getMenu().createMenuEntry(-1)
+					.setOption(options[i])
+					.setTarget(target)
+					.setType(action)
+					.setIdentifier(rider.getId())
+					.setDeprioritized(PlayerMenu.deprioritized(types[i])
+						|| lowered != null && i < lowered.length && lowered[i]);
+			}
+		}
 	}
 
 	@Subscribe

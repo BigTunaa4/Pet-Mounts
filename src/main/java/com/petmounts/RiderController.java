@@ -11,10 +11,13 @@ import net.runelite.api.RuneLiteObjectController;
 class RiderController extends RuneLiteObjectController
 {
 	private final Player player;
+	/** Run just before the player's model is taken, to put them in the riding pose for this frame. */
+	private final Runnable beforeDraw;
 
-	RiderController(Player player)
+	RiderController(Player player, Runnable beforeDraw)
 	{
 		this.player = player;
+		this.beforeDraw = beforeDraw;
 	}
 
 	boolean isFor(Player p)
@@ -25,6 +28,7 @@ class RiderController extends RuneLiteObjectController
 	@Override
 	public Model getModel()
 	{
+		beforeDraw.run();
 		return player.getModel();
 	}
 }

@@ -109,7 +109,7 @@ public interface PetMountsConfig extends Config
 	@ConfigItem(
 		keyName = "sizeMultiplier",
 		name = "Mount size",
-		description = "Every pet is sized so its back is about horse height. Make them all bigger or smaller here",
+		description = "Every pet is sized so its back is about pony height. Make them all bigger or smaller here",
 		position = 11,
 		section = riderSection
 	)
@@ -221,8 +221,8 @@ public interface PetMountsConfig extends Config
 	@ConfigItem(
 		keyName = "everyoneRides",
 		name = "Everyone rides",
-		description = "Show other players riding the pets following them, on your screen only. They can't be clicked while"
-			+ " shown riding: hold Shift to see everyone normally. Always off in the Wilderness and on PvP worlds",
+		description = "Show other players riding the pets following them, on your screen only. Right-click them as usual;"
+			+ " hold Shift to see everyone normally. Always off in the Wilderness and on PvP worlds",
 		position = 1,
 		section = othersSection
 	)

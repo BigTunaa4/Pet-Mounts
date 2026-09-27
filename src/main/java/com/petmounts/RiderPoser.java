@@ -18,6 +18,10 @@ final class RiderPoser
 	private final Client client;
 	/** The player's own movement animations while they're posed, or null. */
 	private int[] saved;
+	/** The pose animation last applied, and the frames it holds or loops, for {@link #hold}. */
+	private int heldAnimation = -1;
+	private int heldStart, heldEnd;
+	private boolean controlsFrames;
 
 	RiderPoser(Client client)
 	{
@@ -68,14 +72,37 @@ final class RiderPoser
 			player.setPoseAnimationFrame(start);
 		}
 
+		heldAnimation = anim;
+		heldStart = start;
+		heldEnd = end;
+		controlsFrames = pose.controlsFrames();
+		hold(player);
+	}
+
+	/**
+	 * Makes sure the player is in the pose right now. Called just before the rider is drawn, because the game
+	 * can move the player's animation on between ticks (for example when they start or stop walking), which
+	 * would otherwise show for a frame as a twitch.
+	 */
+	void hold(Player player)
+	{
+		if (saved == null || heldAnimation == -1)
+		{
+			return;
+		}
+		if (player.getPoseAnimation() != heldAnimation)
+		{
+			player.setPoseAnimation(heldAnimation);
+			player.setPoseAnimationFrame(heldStart);
+		}
 		// Some seated poses come from one-off emotes: hold one frame, or loop just the settled part.
-		if (pose.controlsFrames())
+		if (controlsFrames)
 		{
 			int frame = player.getPoseAnimationFrame();
-			boolean hold = start >= end;
-			if (hold ? frame != start : frame < start || frame >= end)
+			boolean single = heldStart >= heldEnd;
+			if (single ? frame != heldStart : frame < heldStart || frame >= heldEnd)
 			{
-				player.setPoseAnimationFrame(start);
+				player.setPoseAnimationFrame(heldStart);
 			}
 		}
 	}
@@ -99,12 +126,14 @@ final class RiderPoser
 		player.setPoseAnimation(moving ? saved[1] : saved[0]);
 		player.setPoseAnimationFrame(0);
 		saved = null;
+		heldAnimation = -1;
 	}
 
 	/** Forgets the saved animations without touching the player (after logout or a world hop). */
 	void forget()
 	{
 		saved = null;
+		heldAnimation = -1;
 	}
 
 	private int animationFor(Player player, RiderPose pose)

@@ -19,8 +19,19 @@ final class PetModels
 	static final int SCALE_BASE = 128;
 	/** Floating pets are lowered so their underside hovers no more than this above the ground. */
 	static final int MAX_HOVER = 12;
-	/** Untuned pets grow until the seat is about this high: horse height, so legs hang down naturally. */
-	static final int TARGET_SEAT_HEIGHT = 105;
+	/** Pets grow until the seat is about this high: pony height, so legs hang down naturally. */
+	static final int TARGET_SEAT_HEIGHT = 90;
+	/**
+	 * The biggest a mount may be (before the player's size settings): about 2.5 tiles long, 3 tiles wide and
+	 * 2 tiles tall. Long, wide and tall pets (wings, tails, legs, necks) are kept to this even if their back
+	 * ends up lower, so no mount towers over everything around it.
+	 */
+	static final int MAX_LENGTH = 320;
+	static final int MAX_WIDTH = 384;
+	static final int MAX_HEIGHT = 250;
+	/** The lowest seat each pose works on: below this the legs would go through the ground. */
+	private static final int MIN_WIDE_SEAT = 85;
+	private static final int MIN_EXTRA_WIDE_SEAT = 42;
 	static final float MAX_GROWTH = 4.5f;
 	/** Untuned pets at least this wide at the seat (half-width, after enlarging) get the Extra wide pose. */
 	static final int EXTRA_WIDE_HALF_WIDTH = 40;
@@ -187,7 +198,7 @@ final class PetModels
 			fit = null;
 		}
 
-		// How much to enlarge the pet: tuned, or grown until its back is about horse height.
+		// How much to enlarge the pet: tuned, or grown until its back is about pony height.
 		float growth;
 		if (fit != null)
 		{
@@ -213,6 +224,22 @@ final class PetModels
 		{
 			md.translate(0, Math.round(-lowest - MAX_HOVER), 0);
 		}
+
+		// Tuned pets were fitted for a seat at horse height: bring the seat down to pony height. And keep long,
+		// wide and tall pets to a sensible size. Never smaller than the pet itself.
+		float cap = capFactor(md, sizeScale);
+		if (fit != null)
+		{
+			float seat = seatHeight(md, fit.a, fit.b, fit.c, fit.wa, fit.wb, fit.wc);
+			cap = Math.min(cap, TARGET_SEAT_HEIGHT * sizeScale / Math.max(1f, seat));
+		}
+		float fitted = Math.max(cap, Math.min(1f, sizeScale / growth));
+		if (fitted < 1f)
+		{
+			int s = Math.max(1, Math.round(SCALE_BASE * fitted));
+			md.scale(s, s, s);
+			growth *= s / (float) SCALE_BASE;
+		}
 		int mountHeight = Math.max(1, Math.round(-minY(md)));
 
 		// The seat and pose: tuned, or found on the enlarged model.
@@ -221,7 +248,7 @@ final class PetModels
 		float swa, swb, swc;
 		if (fit != null)
 		{
-			autoPose = fit.pose;
+			autoPose = poseForSeat(fit.pose, seatHeight(md, fit.a, fit.b, fit.c, fit.wa, fit.wb, fit.wc));
 			sa = fit.a;
 			sb = fit.b;
 			sc = fit.c;
@@ -237,8 +264,9 @@ final class PetModels
 				return null;
 			}
 			autoPose = floating ? RiderPose.CROSS_LEGGED
-				: halfWidthAt(md, found) >= EXTRA_WIDE_HALF_WIDTH ? RiderPose.EXTRA_WIDE
-				: RiderPose.WIDE;
+				: poseForSeat(halfWidthAt(md, found) >= EXTRA_WIDE_HALF_WIDTH ? RiderPose.EXTRA_WIDE : RiderPose.WIDE,
+				-(found.wa * md.getVerticesY()[found.a] + found.wb * md.getVerticesY()[found.b]
+					+ found.wc * md.getVerticesY()[found.c]));
 			sa = found.a;
 			sb = found.b;
 			sc = found.c;
@@ -278,6 +306,59 @@ final class PetModels
 		log.debug("Built mount for npc {} ({}): {}, growth {}x, pose {}",
 			comp.getId(), comp.getName(), fit != null ? "tuned" : "automatic", growth, autoPose);
 		return new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose, palette);
+	}
+
+	/** How much to shrink this (enlarged) pet to keep it within the biggest mount size, or 1 if it fits. */
+	private static float capFactor(ModelData md, float sizeScale)
+	{
+		float[] xs = md.getVerticesX(), ys = md.getVerticesY(), zs = md.getVerticesZ();
+		int[] f1 = md.getFaceIndices1(), f2 = md.getFaceIndices2(), f3 = md.getFaceIndices3();
+		byte[] alphas = md.getFaceTransparencies();
+		float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE, top = 0;
+		for (int f = 0; f < md.getFaceCount(); f++)
+		{
+			if (alphas != null && (alphas[f] & 0xFF) >= 254)
+			{
+				continue; // invisible faces don't count
+			}
+			for (int v : new int[]{f1[f], f2[f], f3[f]})
+			{
+				minX = Math.min(minX, xs[v]);
+				maxX = Math.max(maxX, xs[v]);
+				minZ = Math.min(minZ, zs[v]);
+				maxZ = Math.max(maxZ, zs[v]);
+				top = Math.min(top, ys[v]);
+			}
+		}
+		if (minX > maxX)
+		{
+			return 1f;
+		}
+		float cap = 1f;
+		cap = Math.min(cap, MAX_LENGTH * sizeScale / Math.max(1f, maxZ - minZ));
+		cap = Math.min(cap, MAX_WIDTH * sizeScale / Math.max(1f, maxX - minX));
+		cap = Math.min(cap, MAX_HEIGHT * sizeScale / Math.max(1f, -top));
+		return cap;
+	}
+
+	/** The pose, or a lower one if the seat is too low for it. */
+	static RiderPose poseForSeat(RiderPose pose, float seatHeight)
+	{
+		if (pose == RiderPose.WIDE && seatHeight < MIN_WIDE_SEAT)
+		{
+			pose = RiderPose.EXTRA_WIDE;
+		}
+		if (pose == RiderPose.EXTRA_WIDE && seatHeight < MIN_EXTRA_WIDE_SEAT)
+		{
+			pose = RiderPose.CROSS_LEGGED;
+		}
+		return pose;
+	}
+
+	private static float seatHeight(ModelData md, int a, int b, int c, float wa, float wb, float wc)
+	{
+		float[] ys = md.getVerticesY();
+		return -(wa * ys[a] + wb * ys[b] + wc * ys[c]);
 	}
 
 	private static SeatFinder.Seat findSeat(ModelData md)

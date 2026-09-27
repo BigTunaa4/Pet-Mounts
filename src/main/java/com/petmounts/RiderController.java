@@ -5,8 +5,8 @@ import net.runelite.api.Player;
 import net.runelite.api.RuneLiteObjectController;
 
 /**
- * Draws the local player's current (animated) model at an arbitrary height.
- * The real player is hidden while mounted and this copy is drawn on the mount's back instead.
+ * Draws a player's current (animated) model at an arbitrary height.
+ * The real player is hidden while riding and this copy is drawn on the mount's back instead.
  */
 class RiderController extends RuneLiteObjectController
 {

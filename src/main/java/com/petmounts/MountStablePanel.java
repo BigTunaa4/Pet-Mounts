@@ -48,11 +48,12 @@ class MountStablePanel extends PluginPanel
 		final boolean saddle;
 		final boolean reins;
 		final boolean motion;
+		final boolean everyone;
 		final boolean hideHeld;
 		final boolean hideCape;
 
 		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks,
-			boolean saddle, boolean reins, boolean motion, boolean hideHeld, boolean hideCape)
+			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape)
 		{
 			this.petName = petName;
 			this.status = status;
@@ -62,6 +63,7 @@ class MountStablePanel extends PluginPanel
 			this.saddle = saddle;
 			this.reins = reins;
 			this.motion = motion;
+			this.everyone = everyone;
 			this.hideHeld = hideHeld;
 			this.hideCape = hideCape;
 		}
@@ -69,7 +71,7 @@ class MountStablePanel extends PluginPanel
 		boolean sameAs(State o)
 		{
 			return o != null && java.util.Objects.equals(petName, o.petName) && status.equals(o.status)
-				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && hideHeld == o.hideHeld
+				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
 				&& hideCape == o.hideCape && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
 				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
@@ -84,6 +86,7 @@ class MountStablePanel extends PluginPanel
 	private final JCheckBox saddleBox = new JCheckBox("Saddle and blanket");
 	private final JCheckBox reinsBox = new JCheckBox("Reins");
 	private final JCheckBox motionBox = new JCheckBox("Natural riding motion");
+	private final JCheckBox everyoneBox = new JCheckBox("Everyone rides (other players)");
 	private final JCheckBox heldBox = new JCheckBox("Hide weapon and shield");
 	private final JCheckBox capeBox = new JCheckBox("Hide cape");
 	private final JComboBox<RiderPose> poseBox = new JComboBox<>(RiderPose.values());
@@ -135,11 +138,13 @@ class MountStablePanel extends PluginPanel
 		checkbox(saddleBox, "showSaddle");
 		checkbox(reinsBox, "showReins");
 		checkbox(motionBox, "naturalMotion");
+		checkbox(everyoneBox, "everyoneRides");
 		checkbox(heldBox, "hideHeldItems");
 		checkbox(capeBox, "hideCape");
 		content.add(left(saddleBox));
 		content.add(left(reinsBox));
 		content.add(left(motionBox));
+		content.add(left(everyoneBox));
 		content.add(left(heldBox));
 		content.add(left(capeBox));
 		content.add(Box.createRigidArea(new Dimension(0, 12)));
@@ -168,13 +173,14 @@ class MountStablePanel extends PluginPanel
 
 		content.add(Box.createRigidArea(new Dimension(0, 10)));
 		JLabel tip = new JLabel("<html>Right-click your pet and choose <b>Ride</b>, or use the hotkey (Alt + M by default)."
-			+ " Right-click anywhere and choose <b>Dismount</b> to get off.</html>");
+			+ " Right-click anywhere and choose <b>Dismount</b> to get off. Hold <b>Shift</b> to see other players"
+			+ " normally.</html>");
 		tip.setFont(FontManager.getRunescapeSmallFont());
 		tip.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		content.add(left(tip));
 
 		add(content, BorderLayout.NORTH);
-		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true));
+		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true));
 	}
 
 	/** Shows the latest state. Call on the Swing thread. */
@@ -194,6 +200,7 @@ class MountStablePanel extends PluginPanel
 		saddleBox.setSelected(s.saddle);
 		reinsBox.setSelected(s.reins);
 		motionBox.setSelected(s.motion);
+		everyoneBox.setSelected(s.everyone);
 		heldBox.setSelected(s.hideHeld);
 		capeBox.setSelected(s.hideCape);
 		tweakTitle.setText(s.petName == null ? "Adjustments for your pet" : "Adjustments for " + s.petName);

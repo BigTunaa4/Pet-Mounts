@@ -9,6 +9,8 @@ import net.runelite.client.config.ConfigManager;
 final class PetTweaks
 {
 	static final PetTweaks NONE = new PetTweaks(100, 0, 0, RiderPose.AUTO);
+	/** Config keys holding saved adjustments start with this. */
+	static final String KEY_PREFIX = "tweak_";
 
 	final int size;
 	final int seatHeight;
@@ -62,6 +64,6 @@ final class PetTweaks
 
 	private static String key(String petName)
 	{
-		return "tweak_" + PetRules.normalize(petName).replaceAll("[^a-z0-9]+", "_");
+		return KEY_PREFIX + PetRules.normalize(petName).replaceAll("[^a-z0-9]+", "_");
 	}
 }

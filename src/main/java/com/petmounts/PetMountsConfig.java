@@ -31,6 +31,13 @@ public interface PetMountsConfig extends Config
 	String effectsSection = "effects";
 
 	@ConfigSection(
+		name = "Other players",
+		description = "See other players riding their pets too",
+		position = 25
+	)
+	String othersSection = "others";
+
+	@ConfigSection(
 		name = "Which pets",
 		description = "Only your own pets can be ridden, and awkward ones (objects, humanoids, snakes, fish) are refused",
 		position = 30,
@@ -207,6 +214,34 @@ public interface PetMountsConfig extends Config
 	default boolean naturalMotion()
 	{
 		return true;
+	}
+
+	// ---------- Other players ----------
+
+	@ConfigItem(
+		keyName = "everyoneRides",
+		name = "Everyone rides",
+		description = "Show other players riding the pets following them, on your screen only. They can't be clicked while"
+			+ " shown riding: hold Shift to see everyone normally. Always off in the Wilderness and on PvP worlds",
+		position = 1,
+		section = othersSection
+	)
+	default boolean everyoneRides()
+	{
+		return false;
+	}
+
+	@Range(min = 1, max = 30)
+	@ConfigItem(
+		keyName = "everyoneRidesLimit",
+		name = "Riders shown",
+		description = "The most other players shown riding at once, nearest first. Lower it if busy areas feel slow",
+		position = 2,
+		section = othersSection
+	)
+	default int everyoneRidesLimit()
+	{
+		return 10;
 	}
 
 	// ---------- Effects ----------

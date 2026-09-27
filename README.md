@@ -50,6 +50,19 @@ You ride with your mount rather than sitting stiffly on top of it:
 
 Turn it off with **Natural riding motion** if you'd rather sit perfectly still.
 
+## Everyone rides
+
+Turn on **Everyone rides** (in the Mount Stable or under **Other players** in the settings) to see other
+players riding the pets following them too, with the same mounts, saddles, reins and motion as yours.
+Walk into the Grand Exchange and see everyone on their pets.
+
+- It's on your screen only, like the rest of the plugin. Other players don't need Pet Mounts.
+- Players shown riding can't be clicked, so **hold Shift** to see everyone normally when you want to trade
+  with or follow someone.
+- It's always off in the Wilderness and on PvP worlds.
+- **Riders shown** sets how many riders are drawn at once, nearest first (10 by default).
+- Players step off while they're skilling or fighting, just like you.
+
 ## Riding in style
 
 - **Weapon, shield and cape are hidden while you ride**, so nothing pokes through your mount.
@@ -125,6 +138,8 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 | Mount size | Make every mount bigger or smaller |
 | Riding pose | Automatic (the pose fitted to each pet), or choose one yourself |
 | Seat height / Seat forward-back | Fine-tune where you sit (per-pet adjustments are in the Mount Stable) |
+| Everyone rides | Show other players riding their pets too (hold Shift to see them normally) |
+| Riders shown | The most other riders drawn at once |
 | Saddle and blanket | Show the saddle and blanket |
 | Reins | Hold reins running to your mount's mouth |
 | Natural riding motion | Settle in, sway with the stride and rock when starting and stopping |
@@ -147,6 +162,9 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 ## How it works (for developers)
 
 - The real pet and the real player model are hidden with a `RenderCallback`.
+- Each rider on a pet is a `MountRig` (mount, saddle, reins, rider, pose and motion). Your own mount is one
+  rig; **Everyone rides** (`OtherRiders.java`) keeps one per nearby player whose pet follows them, sharing
+  the built mount models between riders of the same pet.
 - The saddle is built by reshaping a spare game model into saddle geometry (`SaddleMesh.java`),
   moulded to the pet's back by probing the model in its idle pose.
 - Weapon, shield and cape are hidden by changing the local appearance copy, like other appearance

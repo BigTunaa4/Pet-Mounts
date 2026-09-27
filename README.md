@@ -57,8 +57,8 @@ players riding the pets following them too, with the same mounts, saddles, reins
 Walk into the Grand Exchange and see everyone on their pets.
 
 - It's on your screen only, like the rest of the plugin. Other players don't need Pet Mounts.
-- Players shown riding can't be clicked, so **hold Shift** to see everyone normally when you want to trade
-  with or follow someone.
+- Right-click a rider as usual to follow, trade with or report them. You can also **hold Shift** to see
+  everyone normally.
 - It's always off in the Wilderness and on PvP worlds.
 - **Riders shown** sets how many riders are drawn at once, nearest first (10 by default).
 - Players step off while they're skilling or fighting, just like you.
@@ -114,8 +114,9 @@ If you disagree with a call, add pet names to **Always allow** or **Never allow*
 
 Every rideable pet has its own measured seat, found on the game's model in its idle pose:
 
-- **Size:** each pet is enlarged until its back is about horse height, so your legs hang
-  down naturally. Big pets are never shrunk. The **Mount size** setting scales them all.
+- **Size:** each pet is enlarged until its back is about pony height, so your legs hang
+  down naturally. Long, wide or tall pets are kept to about 2.5 tiles long and 2 tiles tall, and
+  no pet is ever made smaller than it is. The **Mount size** setting scales them all.
 - **Seat:** the exact spot on the pet's back where you sit. The plugin follows that spot
   every frame, so you rise, dip and sway with the pet as it walks and idles.
 - **Pose:** Wide (legs down both sides, like a horse) for most pets, Extra wide (knees

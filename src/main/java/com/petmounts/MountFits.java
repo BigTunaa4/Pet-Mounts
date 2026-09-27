@@ -38,6 +38,8 @@ final class MountFits
 	}
 
 	private static final Map<Integer, Fit> FITS = build();
+	private static final Map<Integer, int[]> LIGHTING = buildLighting();
+	private static final int[] NORMAL_LIGHTING = {0, 0};
 
 	private MountFits()
 	{
@@ -47,6 +49,16 @@ final class MountFits
 	static Fit get(int npcId)
 	{
 		return FITS.get(npcId);
+	}
+
+	/**
+	 * The pet's own lighting from the game's NPC definition: {ambient, contrast}. Many pets are drawn brighter
+	 * or with stronger shading than normal (hellcats, phoenixes, the wilderness boss pets), and the mount has to
+	 * be lit the same way to look like the pet you know. {0, 0} for pets with normal lighting.
+	 */
+	static int[] lighting(int npcId)
+	{
+		return LIGHTING.getOrDefault(npcId, NORMAL_LIGHTING);
 	}
 
 	static int size()
@@ -253,6 +265,58 @@ final class MountFits
 		put(m, 16466, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
 		put(m, 16467, RiderPose.WIDE, 4.5f, 65, 39, 38, 0.6447f, 0.0f, 256); // Yorkie puppy
 		put(m, 16468, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
+		return m;
+	}
+
+	private static Map<Integer, int[]> buildLighting()
+	{
+		Map<Integer, int[]> m = new HashMap<>();
+		m.put(318, new int[]{30, 30}); // Dark core
+		m.put(1625, new int[]{40, 0}); // Hellcat
+		m.put(1632, new int[]{40, 0}); // Lazy hellcat
+		m.put(2144, new int[]{30, 30}); // Sraracha
+		m.put(2782, new int[]{40, 0}); // Clockwork cat
+		m.put(3081, new int[]{40, 0}); // Phoenix
+		m.put(3082, new int[]{40, 0}); // Phoenix
+		m.put(3083, new int[]{40, 0}); // Phoenix
+		m.put(3084, new int[]{40, 0}); // Phoenix
+		m.put(5557, new int[]{30, 30}); // Venenatis spiderling
+		m.put(5558, new int[]{30, 30}); // Callisto cub
+		m.put(5561, new int[]{30, 30}); // Scorpia's offspring
+		m.put(5590, new int[]{40, 0}); // Wily hellcat
+		m.put(5604, new int[]{40, 0}); // Overgrown hellcat
+		m.put(5893, new int[]{60, 0}); // TzRek-Jad
+		m.put(6635, new int[]{30, 30}); // Baby Mole
+		m.put(6636, new int[]{30, 30}); // Prince Black Dragon
+		m.put(6638, new int[]{30, 30}); // Kalphite Princess
+		m.put(6674, new int[]{30, 30}); // Penance Pet
+		m.put(7370, new int[]{40, 0}); // Phoenix
+		m.put(7616, new int[]{30, 30}); // Scurry
+		m.put(8010, new int[]{30, 30}); // Corporeal Critter
+		m.put(10625, new int[]{-10, 0}); // JalRek-Jad
+		m.put(10651, new int[]{30, 30}); // Baby Mole-rat
+		m.put(11159, new int[]{30, 30}); // Sraracha
+		m.put(11160, new int[]{30, 30}); // Sraracha
+		m.put(11985, new int[]{30, 30}); // Venenatis spiderling
+		m.put(11986, new int[]{30, 30}); // Callisto cub
+		m.put(12157, new int[]{0, 76}); // Wisp
+		m.put(12182, new int[]{0, 10}); // Beaver
+		m.put(12183, new int[]{0, 10}); // Beaver
+		m.put(12184, new int[]{0, 10}); // Beaver
+		m.put(12185, new int[]{0, 10}); // Beaver
+		m.put(12186, new int[]{0, 10}); // Beaver
+		m.put(12187, new int[]{0, 10}); // Beaver
+		m.put(12188, new int[]{0, 10}); // Beaver
+		m.put(12189, new int[]{0, 10}); // Beaver
+		m.put(12190, new int[]{0, 10}); // Beaver
+		m.put(12858, new int[]{40, 0}); // Quetzin
+		m.put(13518, new int[]{15, 0}); // Broav
+		m.put(14044, new int[]{0, 20}); // Bone Squirrel
+		m.put(14926, new int[]{0, 10}); // Beaver
+		m.put(14927, new int[]{0, 10}); // Beaver
+		m.put(14928, new int[]{0, 10}); // Beaver
+		m.put(14929, new int[]{0, 10}); // Beaver
+		m.put(16316, new int[]{20, 20}); // Mr McGroot
 		return m;
 	}
 }

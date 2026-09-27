@@ -122,6 +122,9 @@ public class PetMountsPlugin extends Plugin
 	private RiderPose autoPose = RiderPose.WIDE;
 	/** Spare model reshaped into the saddle; any stable model with enough vertices and faces works. */
 	private static final int SADDLE_TEMPLATE_MODEL = 25754;
+	/** The game's base lighting for NPC models; each NPC adds its own ambient and contrast on top. */
+	private static final int NPC_AMBIENT = 64;
+	private static final int NPC_CONTRAST = 850;
 
 	/** Saddle and blanket, built once the mount stands in its idle pose. */
 	private RuneLiteObject saddle;
@@ -930,7 +933,9 @@ public class PetMountsPlugin extends Plugin
 
 		petPalette = PetPalette.fromModel(md.getFaceColors(), md.getFaceTextures());
 
-		Model model = md.light();
+		// Lit exactly as the game lights this NPC, so the mount looks like the pet you know.
+		int[] lighting = MountFits.lighting(comp.getId());
+		Model model = md.light(NPC_AMBIENT + lighting[0], NPC_CONTRAST + lighting[1] * 5, -30, -50, -30);
 		if (model == null)
 		{
 			return false;

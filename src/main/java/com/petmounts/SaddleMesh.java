@@ -26,6 +26,10 @@ final class SaddleMesh
 	static final short LEATHER_DARK = hsl(6, 3, 20);
 	static final short STEEL = hsl(0, 0, 72);
 	static final short GOLD = hsl(8, 5, 62);
+	static final short SILVER = hsl(0, 0, 96);
+	/** The biggest the blanket gets (half its width, and its length), however broad the pet's back. */
+	static final float MAX_BLANKET_HALF_WIDTH = 44;
+	static final float MAX_BLANKET_LENGTH = 66;
 
 	private static final float BLANKET_GAP = 0.8f;
 	private static final float BLANKET_THICKNESS = 1.2f;
@@ -72,8 +76,9 @@ final class SaddleMesh
 		// The saddle is sized for the rider; the blanket is sized for the pet.
 		float sw = Math.max(12, Math.min(wideSeat ? 24 : 19, back * 0.85f));
 		float sl = 38;
-		float bw = Math.max(sw + 5, Math.min(60, back * 1.1f));
-		float bl = Math.max(46, Math.min(90, bw * 1.6f));
+		// The blanket covers the back but stays in proportion to the rider, even on very broad, flat pets.
+		float bw = Math.max(sw + 5, Math.min(Math.min(sw + 12, MAX_BLANKET_HALF_WIDTH), back * 1.1f));
+		float bl = Math.max(46, Math.min(MAX_BLANKET_LENGTH, bw * 1.6f));
 
 		// Blanket: cloth over the back, hanging down both sides, with a trimmed edge.
 		float[][] blanketGround = drape(surface, 9, 6, bw, bl);
@@ -108,8 +113,74 @@ final class SaddleMesh
 		// A small horn on the pommel.
 		float front = -sl / 2 * 0.9f;
 		float pommelTop = seatGround[0][3] + onBlanket + SEAT_THICKNESS + 6;
-		m.box(-1.8f, 1.8f, -(pommelTop + 4), -(pommelTop - 1), front - 1.8f, front + 1.8f, GOLD);
+		m.box(-1.8f, 1.8f, -(pommelTop + 4), -(pommelTop - 1), front - 1.8f, front + 1.8f, trim);
 		return m;
+	}
+
+	/**
+	 * Gold or silver fittings for this pet. Gold suits warm-coloured pets (browns, oranges, reds, whites);
+	 * silver suits grey, black and cool-coloured ones (blues, greens, purples), where gold clashes.
+	 *
+	 * @param faceColors the pet's face colours (Jagex HSL)
+	 * @param alphas     face transparency, or null
+	 */
+	static short trimFor(short[] faceColors, byte[] alphas)
+	{
+		if (faceColors == null || faceColors.length == 0)
+		{
+			return GOLD;
+		}
+		int[] hues = new int[64];
+		int[] lums = new int[128];
+		int faces = 0, grey = 0, colourful = 0;
+		for (int f = 0; f < faceColors.length; f++)
+		{
+			if (alphas != null && f < alphas.length && (alphas[f] & 0xFF) >= 254)
+			{
+				continue;
+			}
+			int c = faceColors[f] & 0xFFFF;
+			int hue = (c >> 10) & 63, sat = (c >> 7) & 7, lum = c & 127;
+			faces++;
+			lums[lum]++;
+			if (sat < 2)
+			{
+				grey++;
+			}
+			else
+			{
+				colourful++;
+				hues[hue]++;
+			}
+		}
+		if (faces == 0)
+		{
+			return GOLD;
+		}
+		int median = 0;
+		int seen = lums[0];
+		while (median < 127 && seen < (faces + 1) / 2)
+		{
+			median++;
+			seen += lums[median];
+		}
+		if (grey > faces * 0.6f)
+		{
+			return median < 75 ? SILVER : GOLD; // grey and black pets; white ones keep gold
+		}
+		int hue = 0;
+		for (int h = 1; h < 64; h++)
+		{
+			if (hues[h] > hues[hue])
+			{
+				hue = h;
+			}
+		}
+		if (colourful > 0 && hue >= 17 && hue <= 56)
+		{
+			return SILVER; // greens, blues and purples
+		}
+		return median < 16 ? SILVER : GOLD; // near-black pets
 	}
 
 	/**

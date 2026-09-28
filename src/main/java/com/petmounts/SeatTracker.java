@@ -34,7 +34,8 @@ final class SeatTracker
 		this.wb = wb;
 		this.wc = wc;
 		this.vertexCount = rest.getVerticesCount();
-		this.maxMove = Math.max(20, mountHeight / 2);
+		// Hopping and flying pets really do move this far in their walk; only a jump beyond it is a bad frame.
+		this.maxMove = Math.max(40, mountHeight);
 		read(rest);
 		restX = x;
 		restY = y;

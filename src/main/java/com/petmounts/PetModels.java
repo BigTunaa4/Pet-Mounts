@@ -50,9 +50,11 @@ final class PetModels
 		final int mountHeight;
 		final RiderPose autoPose;
 		final Color[] palette;
+		/** Gold or silver saddle fittings, whichever suits the pet's colours. */
+		final short trim;
 
 		Built(int npcId, String petName, Model model, int a, int b, int c, float wa, float wb, float wc,
-			int mountHeight, RiderPose autoPose, Color[] palette)
+			int mountHeight, RiderPose autoPose, Color[] palette, short trim)
 		{
 			this.npcId = npcId;
 			this.petName = petName;
@@ -66,6 +68,7 @@ final class PetModels
 			this.mountHeight = mountHeight;
 			this.autoPose = autoPose;
 			this.palette = palette;
+			this.trim = trim;
 		}
 	}
 
@@ -276,6 +279,7 @@ final class PetModels
 		}
 
 		Color[] palette = PetPalette.fromModel(md.getFaceColors(), md.getFaceTextures());
+		short trim = SaddleMesh.trimFor(md.getFaceColors(), md.getFaceTransparencies());
 
 		// Lit exactly as the game lights this NPC, so the mount looks like the pet you know.
 		int[] lighting = MountFits.lighting(comp.getId());
@@ -285,9 +289,21 @@ final class PetModels
 			return null;
 		}
 
+		int[] mapped = null;
 		if (model.getVerticesCount() != md.getVerticesCount())
 		{
-			// The lit model numbers its vertices differently: find the seat on it directly.
+			// The lit model numbers its vertices differently. Keep the fitted seat by finding the same points on it.
+			mapped = mapVertices(md, model, sa, sb, sc);
+			if (mapped != null)
+			{
+				sa = mapped[0];
+				sb = mapped[1];
+				sc = mapped[2];
+			}
+		}
+		if (model.getVerticesCount() != md.getVerticesCount() && mapped == null)
+		{
+			// Couldn't match them up: find the seat on the lit model directly.
 			SeatFinder.Seat onModel = SeatFinder.find(model.getVerticesX(), model.getVerticesY(), model.getVerticesZ(),
 				model.getVerticesCount(), model.getFaceIndices1(), model.getFaceIndices2(), model.getFaceIndices3(),
 				model.getFaceTransparencies(), model.getFaceCount());
@@ -305,7 +321,40 @@ final class PetModels
 
 		log.debug("Built mount for npc {} ({}): {}, growth {}x, pose {}",
 			comp.getId(), comp.getName(), fit != null ? "tuned" : "automatic", growth, autoPose);
-		return new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose, palette);
+		return new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose, palette, trim);
+	}
+
+	/** The lit model's vertices at the same places as these model-data vertices, or null if any is missing. */
+	private static int[] mapVertices(ModelData md, Model model, int... vertices)
+	{
+		float[] mx = md.getVerticesX(), my = md.getVerticesY(), mz = md.getVerticesZ();
+		float[] lx = model.getVerticesX(), ly = model.getVerticesY(), lz = model.getVerticesZ();
+		int[] out = new int[vertices.length];
+		for (int i = 0; i < vertices.length; i++)
+		{
+			int v = vertices[i];
+			if (v < 0 || v >= md.getVerticesCount())
+			{
+				return null;
+			}
+			int best = -1;
+			float bestD = 0.5f;
+			for (int j = 0; j < model.getVerticesCount(); j++)
+			{
+				float d = Math.abs(lx[j] - mx[v]) + Math.abs(ly[j] - my[v]) + Math.abs(lz[j] - mz[v]);
+				if (d < bestD)
+				{
+					bestD = d;
+					best = j;
+				}
+			}
+			if (best < 0)
+			{
+				return null;
+			}
+			out[i] = best;
+		}
+		return out;
 	}
 
 	/** How much to shrink this (enlarged) pet to keep it within the biggest mount size, or 1 if it fits. */

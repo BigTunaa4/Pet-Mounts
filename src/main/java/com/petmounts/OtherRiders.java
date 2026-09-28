@@ -245,6 +245,18 @@ final class OtherRiders
 		return b;
 	}
 
+	/** Sits every shown rider on their mount for the frame about to be drawn. */
+	void place()
+	{
+		for (MountRig rig : rigs.values())
+		{
+			if (rig.isVisible())
+			{
+				rig.place();
+			}
+		}
+	}
+
 	/** Shows everyone normally again and lets go of their mounts. */
 	void clear()
 	{

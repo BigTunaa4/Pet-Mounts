@@ -19,6 +19,7 @@ import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.Player;
 import net.runelite.api.Renderable;
+import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.FocusChanged;
@@ -607,6 +608,20 @@ public class PetMountsPlugin extends Plugin
 			return ((NPC) target).getCombatLevel() > 0;
 		}
 		return target instanceof Player;
+	}
+
+	/**
+	 * Just before each frame is drawn: sit every rider on the exact animation frame their mount is showing, so
+	 * nothing trails a frame behind, even at unlocked frame rates.
+	 */
+	@Subscribe
+	public void onBeforeRender(BeforeRender e)
+	{
+		if (rig != null && rig.isVisible())
+		{
+			rig.place();
+		}
+		others.place();
 	}
 
 	@Subscribe

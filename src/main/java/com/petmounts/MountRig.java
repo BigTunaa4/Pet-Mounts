@@ -73,6 +73,9 @@ final class MountRig
 
 	private boolean visible;
 	private NPC pet;
+	/** The pose and style from the latest tick, for placing everything between ticks. */
+	private RiderPose placePose;
+	private Style placeStyle;
 	/** The mount's footprint in its own space, for the right-click area. */
 	private final float minX, maxX, minZ, maxZ;
 	/** How far the rider's head is above the ground, updated as they move. */
@@ -214,7 +217,13 @@ final class MountRig
 			motion.reset(style.naturalMotion && dropIn);
 		}
 
-		position(pose, gait, style);
+		// The motion (settle, sway, surge) steps once per client tick; where everything goes is worked out every
+		// frame in place(), on the exact animation frame being drawn.
+		float cycle = animation != null && gait > 0 ? animation.cycle() : 0;
+		motion.update(gait, cycle, style.naturalMotion);
+		placePose = pose;
+		placeStyle = style;
+		place();
 
 		if (!mount.isActive())
 		{
@@ -310,8 +319,19 @@ final class MountRig
 	// Placing everything
 	// ------------------------------------------------------------------
 
-	private void position(RiderPose pose, int gait, Style style)
+	/**
+	 * Puts the mount, saddle, rider and reins where they belong for the frame about to be drawn. Called every
+	 * client tick and again just before each frame is drawn, so the rider sits on the exact animation frame the
+	 * mount is showing (never a frame behind) and moves smoothly at any frame rate.
+	 */
+	void place()
 	{
+		if (placeStyle == null || player.getLocalLocation() == null)
+		{
+			return;
+		}
+		RiderPose pose = placePose;
+		Style style = placeStyle;
 		LocalPoint lp = player.getLocalLocation();
 		int plane = player.getWorldView().getPlane();
 		int orientation = player.getCurrentOrientation();
@@ -320,16 +340,14 @@ final class MountRig
 		mount.setLocation(lp, plane);
 
 		// Follow the seat on the mount's back as it animates.
-		seat.update(mount.getModel());
+		Model frame = mount.getModel();
+		seat.update(frame);
 
-		// The rider follows the seat through a spring, with stride sway and surge (see RiderMotion).
-		float cycle = animation != null && gait > 0 ? animation.cycle() : 0;
-		motion.update(seat.x, seat.y, seat.z, gait, cycle, style.naturalMotion);
-
+		// The rider sits on the seat, plus settling, stride sway and surge (see RiderMotion).
 		// Where the rider's feet go, in the mount's own space: the seat, shifted so the pose's contact point
 		// lands on it, plus the forward adjustment. Model x is sideways and z points toward the tail.
-		float mx = motion.x;
-		float mz = motion.z - pose.getContactBack() - style.seatForward;
+		float mx = seat.x + motion.x;
+		float mz = seat.z + motion.z - pose.getContactBack() - style.seatForward;
 
 		// Turn that to face the way the mount faces (orientation 0 faces south).
 		double rad = orientation * Math.PI / 1024.0;
@@ -351,12 +369,12 @@ final class MountRig
 
 		rider.setLocation(new LocalPoint(lp.getX() + dx, lp.getY() + dy, lp.getWorldView()), plane);
 		rider.setOrientation(orientation);
-		// seatLift is measured from the resting seat; add how far the smoothed, settling rider is from it.
-		float riderLift = seatLift(style) - pose.getContactHeight() + (seat.y - motion.y);
+		// Settling lifts the rider a little above the seat just after they appear.
+		float riderLift = seatLift(style) - pose.getContactHeight() - motion.y; // y points down
 		rider.setZ(ground - Math.round(riderLift)); // negative Z is up
 		topHeight = Math.max(built.mountHeight, Math.round(riderLift) + RIDER_HEIGHT);
 
-		updateReins(pose, style, mx, riderLift, mz, lp, plane, orientation, ground);
+		updateReins(frame, pose, style, mx, riderLift, mz, lp, plane, orientation, ground);
 	}
 
 	// ------------------------------------------------------------------
@@ -395,7 +413,8 @@ final class MountRig
 
 		boolean onTop = pose == RiderPose.CROSS_LEGGED || pose == RiderPose.STANDING;
 		SaddleMesh mesh = SaddleMesh.build(surface, seatHeight, pose == RiderPose.EXTRA_WIDE, !onTop,
-			blanketColor(style), SaddleMesh.GOLD, md.getVerticesCount(), md.getFaceCount());
+			blanketColor(style), style.blanket != null ? SaddleMesh.GOLD : built.trim, md.getVerticesCount(),
+			md.getFaceCount());
 
 		fill(md, mesh.x, mesh.y, mesh.z, mesh.vertexCount, mesh.f1, mesh.f2, mesh.f3, mesh.faceCount, mesh.color, (short) 0);
 		Model model = md.light(64, 850, -30, -50, -30);
@@ -446,11 +465,10 @@ final class MountRig
 	 * Lays the reins from the rider's hands to the mount's mouth. The rider's feet are at (footX, footZ) in the
 	 * mount's space, {@code footLift} above the ground.
 	 */
-	private void updateReins(RiderPose pose, Style style, float footX, float footLift, float footZ, LocalPoint lp,
-		int plane, int orientation, int ground)
+	private void updateReins(Model m, RiderPose pose, Style style, float footX, float footLift, float footZ,
+		LocalPoint lp, int plane, int orientation, int ground)
 	{
 		int[][] hands = ReinMesh.handsFor(pose);
-		Model m = mount.getModel();
 		if (!style.reins || hands == null || bit == null || m == null || m.getVerticesCount() != bitVertexCount)
 		{
 			setActive(reins, false);

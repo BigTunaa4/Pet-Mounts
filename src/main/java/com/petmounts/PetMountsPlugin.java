@@ -55,7 +55,7 @@ public class PetMountsPlugin extends Plugin
 {
 	/** Settings that change how the mounts are built (size, blanket colour, which pets); the rest apply live. */
 	private static final Set<String> REBUILD_KEYS = Set.of("sizeMultiplier", "matchPetColors", "effectColor",
-		"alwaysAllow", "neverAllow");
+		"alwaysAllow", "neverAllow", "chosenMount");
 	/** Game ticks to stay off the mount after the last action animation. */
 	private static final int ACTION_GRACE_TICKS = 3;
 	/** How long the climb-on animation plays before the mount poofs in. */
@@ -214,6 +214,12 @@ public class PetMountsPlugin extends Plugin
 			{
 				configManager.setConfiguration(PetMountsConfig.GROUP, key, value);
 			}
+
+			@Override
+			public void chooseMount(int npcId)
+			{
+				configManager.setConfiguration(PetMountsConfig.GROUP, "chosenMount", Math.max(0, npcId));
+			}
 		});
 		navButton = NavigationButton.builder()
 			.tooltip("Pet Mounts")
@@ -284,27 +290,34 @@ public class PetMountsPlugin extends Plugin
 
 		NPC pet = client.getFollower();
 		Player me = client.getLocalPlayer();
-		if (pet == null || me == null)
+		if (me == null)
 		{
-			if (announce)
-			{
-				message("You need one of your pets following you to ride it.");
-			}
 			return;
 		}
-
-		String refusal = refusalFor(pet);
-		if (refusal != null)
+		if (chosenMount() <= 0)
 		{
-			if (announce)
+			if (pet == null)
 			{
-				message(refusal);
+				if (announce)
+				{
+					message("You need one of your pets following you to ride it, or pick a mount in the Mount Stable.");
+				}
+				return;
 			}
-			return;
+
+			String refusal = refusalFor(pet);
+			if (refusal != null)
+			{
+				if (announce)
+				{
+					message(refusal);
+				}
+				return;
+			}
 		}
 
 		// Build the mount now so we know its size (for where the effects and poof go).
-		NPCComposition comp = PetModels.compositionOf(pet);
+		NPCComposition comp = mountComposition();
 		if (comp != null)
 		{
 			ensureRig(me, comp);
@@ -398,9 +411,27 @@ public class PetMountsPlugin extends Plugin
 
 	private String petName()
 	{
-		NPC pet = client.getFollower();
-		String name = pet == null ? null : PetModels.nameOf(PetModels.compositionOf(pet));
+		String name = PetModels.nameOf(mountComposition());
 		return name != null ? name : "your pet";
+	}
+
+	/** The pet picked in the Mount Stable (its NPC id), or 0 to ride the pet following you. */
+	private int chosenMount()
+	{
+		int id = config.chosenMount();
+		return id > 0 && MountFits.choices().containsValue(id) ? id : 0;
+	}
+
+	/** What you ride: the pet picked in the Mount Stable, or the pet following you. Null if neither. */
+	private NPCComposition mountComposition()
+	{
+		int chosen = chosenMount();
+		if (chosen > 0)
+		{
+			return client.getNpcDefinition(chosen);
+		}
+		NPC pet = client.getFollower();
+		return pet == null ? null : PetModels.compositionOf(pet);
 	}
 
 	/** Colour for the effects: the pet's main colour, or the colour chosen in settings. */
@@ -413,8 +444,7 @@ public class PetMountsPlugin extends Plugin
 	/** Height of the seat above the ground right now, including the player's adjustments. */
 	private int seatLift()
 	{
-		NPC pet = client.getFollower();
-		NPCComposition comp = pet == null ? null : PetModels.compositionOf(pet);
+		NPCComposition comp = mountComposition();
 		return rig == null || comp == null ? 0 : rig.seatLift(styleFor(comp));
 	}
 
@@ -458,7 +488,15 @@ public class PetMountsPlugin extends Plugin
 			.setOption("Ride")
 			.setTarget(entry.getTarget())
 			.setType(MenuAction.RUNELITE)
-			.onClick(me -> setRiding(true, true));
+			.onClick(me ->
+			{
+				// Riding the pet that's following you, rather than one picked in the Mount Stable.
+				if (chosenMount() > 0)
+				{
+					configManager.setConfiguration(PetMountsConfig.GROUP, "chosenMount", 0);
+				}
+				setRiding(true, true);
+			});
 	}
 
 	@Subscribe
@@ -660,9 +698,10 @@ public class PetMountsPlugin extends Plugin
 
 	private void updateOwnMount(Player me, NPC pet)
 	{
+		int chosen = chosenMount();
 		if (mountingSince != 0)
 		{
-			if (pet == null)
+			if (pet == null && chosen <= 0)
 			{
 				cancelMounting("Your pet wandered off before you could climb on.");
 			}
@@ -688,7 +727,7 @@ public class PetMountsPlugin extends Plugin
 				effects.puff(effectColor(), 0);
 			}
 		}
-		if (!riding || pet == null || busy)
+		if (!riding || (pet == null && chosen <= 0) || busy)
 		{
 			if (!riding)
 			{
@@ -698,19 +737,22 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 
-		NPCComposition comp = PetModels.compositionOf(pet);
+		NPCComposition comp = mountComposition();
 		if (comp == null)
 		{
 			hideMount();
 			return;
 		}
 
-		String refusal = refusalFor(pet);
-		if (refusal != null)
+		if (chosen <= 0)
 		{
-			setRiding(false, false);
-			message(refusal);
-			return;
+			String refusal = refusalFor(pet);
+			if (refusal != null)
+			{
+				setRiding(false, false);
+				message(refusal);
+				return;
+			}
 		}
 
 		if (!ensureRig(me, comp))
@@ -720,7 +762,10 @@ public class PetMountsPlugin extends Plugin
 		}
 
 		// Just appeared after the poof, or climbing back on: drop into the saddle. (Not after a loading screen.)
-		rig.update(pet, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
+		NPC ridden = chosen > 0 ? null : pet;
+		int[] animations = ridden != null ? new int[]{ridden.getIdlePoseAnimation(), ridden.getWalkAnimation(),
+			ridden.getRunAnimation()} : MountFits.animations(chosen);
+		rig.update(ridden, animations, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
 		dropIn = false;
 
 		if (pausedForAction)
@@ -875,9 +920,20 @@ public class PetMountsPlugin extends Plugin
 		String status;
 		boolean canRide = false;
 		PetTweaks t = PetTweaks.NONE;
-		if (pet == null)
+		int chosen = chosenMount();
+		if (chosen > 0)
 		{
-			status = "Summon one of your pets to ride it.";
+			NPCComposition comp = client.getNpcDefinition(chosen);
+			name = PetModels.nameOf(comp);
+			canRide = true;
+			t = comp == null ? PetTweaks.NONE : tweaksFor(comp);
+			status = riding ? "You're riding " + name + "."
+				: mountingSince != 0 ? "Climbing on..."
+				: "Ready to ride.";
+		}
+		else if (pet == null)
+		{
+			status = "Summon one of your pets, or pick a mount below.";
 		}
 		else
 		{
@@ -897,7 +953,7 @@ public class PetMountsPlugin extends Plugin
 		}
 		MountStablePanel.State s = new MountStablePanel.State(name, status, canRide, riding || mountingSince != 0, t,
 			config.showSaddle(), config.showReins(), config.naturalMotion(), config.everyoneRides(),
-			config.hideHeldItems(), config.hideCape());
+			config.hideHeldItems(), config.hideCape(), chosen);
 		if (!s.sameAs(panelState))
 		{
 			panelState = s;
@@ -909,8 +965,7 @@ public class PetMountsPlugin extends Plugin
 	/** Saves the panel's adjustments for the pet following you and rebuilds the mounts with them. */
 	private void savePetTweaks(PetTweaks t)
 	{
-		NPC pet = client.getFollower();
-		String name = pet == null ? null : PetModels.nameOf(PetModels.compositionOf(pet));
+		String name = PetModels.nameOf(mountComposition());
 		if (name == null)
 		{
 			return;
@@ -933,7 +988,7 @@ public class PetMountsPlugin extends Plugin
 		// Hide the real pets (the enlarged mounts replace them) and the real players
 		// (the rider copies are drawn on the mounts' backs).
 		if (rig != null && rig.isVisible()
-			&& (renderable == client.getFollower() || renderable == client.getLocalPlayer()))
+			&& ((renderable == client.getFollower() && chosenMount() <= 0) || renderable == client.getLocalPlayer()))
 		{
 			return false;
 		}

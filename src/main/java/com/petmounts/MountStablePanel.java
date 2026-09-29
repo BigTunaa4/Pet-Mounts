@@ -35,6 +35,9 @@ class MountStablePanel extends PluginPanel
 		void saveTweaks(PetTweaks tweaks);
 
 		void setOption(String key, boolean value);
+
+		/** Rides this pet (NPC id), or the pet following you for 0. */
+		void chooseMount(int npcId);
 	}
 
 	/** What the panel shows; built by the plugin on the client thread. */
@@ -51,9 +54,11 @@ class MountStablePanel extends PluginPanel
 		final boolean everyone;
 		final boolean hideHeld;
 		final boolean hideCape;
+		/** The pet picked to ride (NPC id), or 0 for the pet following you. */
+		final int chosen;
 
 		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks,
-			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape)
+			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape, int chosen)
 		{
 			this.petName = petName;
 			this.status = status;
@@ -66,13 +71,14 @@ class MountStablePanel extends PluginPanel
 			this.everyone = everyone;
 			this.hideHeld = hideHeld;
 			this.hideCape = hideCape;
+			this.chosen = chosen;
 		}
 
 		boolean sameAs(State o)
 		{
 			return o != null && java.util.Objects.equals(petName, o.petName) && status.equals(o.status)
 				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
-				&& hideCape == o.hideCape && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
+				&& hideCape == o.hideCape && chosen == o.chosen && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
 				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
 	}
@@ -83,6 +89,9 @@ class MountStablePanel extends PluginPanel
 	private final JLabel petLabel = new JLabel();
 	private final JLabel statusLabel = new JLabel();
 	private final JButton rideButton = new JButton();
+	/** "Your pet" first, then every rideable pet by name. */
+	private final JComboBox<String> mountBox = new JComboBox<>();
+	private static final String YOUR_PET = "The pet following you";
 	private final JCheckBox saddleBox = new JCheckBox("Saddle and blanket");
 	private final JCheckBox reinsBox = new JCheckBox("Reins");
 	private final JCheckBox motionBox = new JCheckBox("Natural riding motion");
@@ -126,6 +135,27 @@ class MountStablePanel extends PluginPanel
 		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
 		content.add(left(card));
 		content.add(Box.createRigidArea(new Dimension(0, 8)));
+
+		// Which pet to ride: your follower, or any rideable pet, even one you haven't got yet.
+		content.add(left(small("Mount")));
+		mountBox.addItem(YOUR_PET);
+		for (String name : MountFits.choices().keySet())
+		{
+			mountBox.addItem(name);
+		}
+		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
+		mountBox.setToolTipText("Ride the pet following you, or pick any pet to ride, even one you don't have yet");
+		mountBox.addActionListener(e ->
+		{
+			if (!updating)
+			{
+				Object picked = mountBox.getSelectedItem();
+				Integer id = picked == null || YOUR_PET.equals(picked) ? null : MountFits.choices().get(picked);
+				actions.chooseMount(id == null ? 0 : id);
+			}
+		});
+		content.add(left(mountBox));
+		content.add(Box.createRigidArea(new Dimension(0, 6)));
 
 		rideButton.setFont(FontManager.getRunescapeBoldFont());
 		rideButton.setFocusPainted(false);
@@ -180,7 +210,7 @@ class MountStablePanel extends PluginPanel
 		content.add(left(tip));
 
 		add(content, BorderLayout.NORTH);
-		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true));
+		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0));
 	}
 
 	/** Shows the latest state. Call on the Swing thread. */
@@ -197,6 +227,7 @@ class MountStablePanel extends PluginPanel
 		statusLabel.setForeground(s.riding || s.canRide ? READY : ColorScheme.LIGHT_GRAY_COLOR);
 		rideButton.setText(s.riding ? "Dismount" : "Ride");
 		rideButton.setEnabled(s.riding || s.canRide);
+		mountBox.setSelectedItem(nameOfChoice(s.chosen));
 		saddleBox.setSelected(s.saddle);
 		reinsBox.setSelected(s.reins);
 		motionBox.setSelected(s.motion);
@@ -210,6 +241,21 @@ class MountStablePanel extends PluginPanel
 		forwardSlider.setValue(s.tweaks.seatForward);
 		setEnabledDeep(tweakPanel, s.petName != null && s.canRide);
 		updating = false;
+	}
+
+	private static String nameOfChoice(int npcId)
+	{
+		if (npcId > 0)
+		{
+			for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+			{
+				if (e.getValue() == npcId)
+				{
+					return e.getKey();
+				}
+			}
+		}
+		return YOUR_PET;
 	}
 
 	private void tweaksChanged()

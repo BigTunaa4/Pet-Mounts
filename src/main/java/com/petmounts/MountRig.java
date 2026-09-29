@@ -88,9 +88,7 @@ final class MountRig
 		this.built = built;
 		this.poser = new RiderPoser(client);
 		this.rider = new RiderController(player, () -> poser.hold(player));
-		mount = client.createRuneLiteObject();
-		mount.setModel(built.model);
-		mount.setShouldLoop(true);
+		mount = new MountObject(client, built);
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
 		float[] xs = built.model.getVerticesX(), zs = built.model.getVerticesZ();
@@ -196,10 +194,20 @@ final class MountRig
 	 */
 	void update(NPC pet, int gait, Style style, boolean dropIn)
 	{
+		update(pet, pet == null ? null : new int[]{pet.getIdlePoseAnimation(), pet.getWalkAnimation(),
+			pet.getRunAnimation()}, gait, style, dropIn);
+	}
+
+	/**
+	 * @param pet the pet being ridden, or null when riding a pet that isn't following you
+	 * @param animations the pet's {idle, walk, run} animations
+	 */
+	void update(NPC pet, int[] animations, int gait, Style style, boolean dropIn)
+	{
 		this.pet = pet;
 		RiderPose pose = poseFor(style);
 
-		updateAnimation(pet, gait);
+		updateAnimation(animations, gait);
 		poser.apply(player, pose);
 		look.apply(player, style.hideHeld, style.hideCape);
 
@@ -278,11 +286,11 @@ final class MountRig
 	// Mount animation
 	// ------------------------------------------------------------------
 
-	private void updateAnimation(NPC pet, int gait)
+	private void updateAnimation(int[] animations, int gait)
 	{
-		int walk = pet.getWalkAnimation();
-		int run = pet.getRunAnimation();
-		idleAnimationId = pet.getIdlePoseAnimation();
+		int walk = animations == null ? -1 : animations[1];
+		int run = animations == null ? -1 : animations[2];
+		idleAnimationId = animations == null ? -1 : animations[0];
 
 		int anim;
 		float pace = 1f;

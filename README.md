@@ -13,6 +13,15 @@ and turns with you.
 To get off: **right-click anywhere and choose "Dismount"** (always there while riding),
 press **Alt + M** again, or type `::dismount`.
 
+## Ride any pet
+
+Don't have the pet you want? Pick any rideable pet from the **Mount** list at the top of the Mount Stable and
+press **Ride**. You ride it just like your own: same saddle, reins, animations and riding motion. Choose
+**The pet following you** to go back to riding your own pet. Right-clicking your pet and choosing **Ride** also
+switches back to it.
+
+It's cosmetic and on your screen only, like the rest of the plugin.
+
 ## Mount Stable
 
 Click the saddle icon in the RuneLite sidebar to open the **Mount Stable**:

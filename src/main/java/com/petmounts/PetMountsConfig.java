@@ -328,4 +328,15 @@ public interface PetMountsConfig extends Config
 		hidden = true
 	)
 	void wasMounted(boolean mounted);
+
+	@ConfigItem(
+		keyName = "chosenMount",
+		name = "",
+		description = "The pet to ride (its NPC id), or 0 to ride the pet following you. Set in the Mount Stable",
+		hidden = true
+	)
+	default int chosenMount()
+	{
+		return 0;
+	}
 }

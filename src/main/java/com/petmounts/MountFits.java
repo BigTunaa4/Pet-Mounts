@@ -39,6 +39,8 @@ final class MountFits
 
 	private static final Map<Integer, Fit> FITS = build();
 	private static final Map<Integer, int[]> LIGHTING = buildLighting();
+	private static final Map<Integer, int[]> ANIMATIONS = buildAnimations();
+	private static final Map<String, Integer> CHOICES = buildChoices();
 	private static final int[] NORMAL_LIGHTING = {0, 0};
 
 	private MountFits()
@@ -59,6 +61,18 @@ final class MountFits
 	static int[] lighting(int npcId)
 	{
 		return LIGHTING.getOrDefault(npcId, NORMAL_LIGHTING);
+	}
+
+	/** The pet's own {idle, walk, run} animations from the game's NPC definition, or null if unknown. */
+	static int[] animations(int npcId)
+	{
+		return ANIMATIONS.get(npcId);
+	}
+
+	/** Every rideable pet by name, alphabetical, with the NPC id of its standard look. */
+	static Map<String, Integer> choices()
+	{
+		return CHOICES;
 	}
 
 	static int size()
@@ -318,5 +332,299 @@ final class MountFits
 		m.put(14929, new int[]{0, 10}); // Beaver
 		m.put(16316, new int[]{20, 20}); // Mr McGroot
 		return m;
+	}
+
+	private static Map<Integer, int[]> buildAnimations()
+	{
+		Map<Integer, int[]> m = new HashMap<>();
+		m.put(318, new int[]{7980, 2417, -1});
+		m.put(1619, new int[]{317, 314, -1});
+		m.put(1620, new int[]{317, 314, -1});
+		m.put(1621, new int[]{317, 314, -1});
+		m.put(1622, new int[]{317, 314, -1});
+		m.put(1623, new int[]{317, 314, -1});
+		m.put(1624, new int[]{317, 314, -1});
+		m.put(1625, new int[]{317, 314, -1});
+		m.put(1626, new int[]{317, 314, -1});
+		m.put(1627, new int[]{317, 314, -1});
+		m.put(1628, new int[]{317, 314, -1});
+		m.put(1629, new int[]{317, 314, -1});
+		m.put(1630, new int[]{317, 314, -1});
+		m.put(1631, new int[]{317, 314, -1});
+		m.put(1632, new int[]{317, 314, -1});
+		m.put(2055, new int[]{3144, 3145, -1});
+		m.put(2144, new int[]{8320, 8319, -1});
+		m.put(2782, new int[]{317, 314, -1});
+		m.put(3081, new int[]{6809, 6808, -1});
+		m.put(3082, new int[]{6809, 6808, -1});
+		m.put(3083, new int[]{6809, 6808, -1});
+		m.put(3084, new int[]{6809, 6808, -1});
+		m.put(3099, new int[]{6561, 6560, -1});
+		m.put(4002, new int[]{6764, 6765, -1});
+		m.put(5557, new int[]{9986, 9987, -1});
+		m.put(5558, new int[]{10011, 10010, -1});
+		m.put(5561, new int[]{6258, 6257, -1});
+		m.put(5584, new int[]{317, 314, -1});
+		m.put(5585, new int[]{317, 314, -1});
+		m.put(5586, new int[]{317, 314, -1});
+		m.put(5587, new int[]{317, 314, -1});
+		m.put(5588, new int[]{317, 314, -1});
+		m.put(5589, new int[]{317, 314, -1});
+		m.put(5590, new int[]{317, 314, -1});
+		m.put(5591, new int[]{317, 2662, -1});
+		m.put(5592, new int[]{317, 2662, -1});
+		m.put(5593, new int[]{317, 2662, -1});
+		m.put(5594, new int[]{317, 2662, -1});
+		m.put(5595, new int[]{317, 2662, -1});
+		m.put(5596, new int[]{317, 2662, -1});
+		m.put(5597, new int[]{317, 2662, -1});
+		m.put(5598, new int[]{317, 314, -1});
+		m.put(5599, new int[]{317, 314, -1});
+		m.put(5600, new int[]{317, 314, -1});
+		m.put(5601, new int[]{317, 314, -1});
+		m.put(5602, new int[]{317, 314, -1});
+		m.put(5603, new int[]{317, 314, -1});
+		m.put(5604, new int[]{317, 314, -1});
+		m.put(5893, new int[]{2650, 5805, -1});
+		m.put(6635, new int[]{3309, 3313, -1});
+		m.put(6636, new int[]{90, 4635, -1});
+		m.put(6638, new int[]{6239, 6238, -1});
+		m.put(6674, new int[]{5410, 5409, -1});
+		m.put(6722, new int[]{6772, 6774, -1});
+		m.put(6756, new int[]{5182, 5181, -1});
+		m.put(6757, new int[]{5182, 5181, -1});
+		m.put(6758, new int[]{5182, 5181, -1});
+		m.put(6759, new int[]{5182, 5181, -1});
+		m.put(7232, new int[]{7269, 7280, -1});
+		m.put(7351, new int[]{7309, 7310, -1});
+		m.put(7353, new int[]{7315, 7316, -1});
+		m.put(7370, new int[]{6809, 6808, -1});
+		m.put(7616, new int[]{10687, 10715, -1});
+		m.put(7760, new int[]{7694, 7695, -1});
+		m.put(8010, new int[]{1678, 7974, -1});
+		m.put(8029, new int[]{7948, 7959, -1});
+		m.put(8201, new int[]{7417, 7982, -1});
+		m.put(8205, new int[]{7449, 7986, -1});
+		m.put(8337, new int[]{13135, 8122, -1});
+		m.put(8492, new int[]{8233, 8296, -1});
+		m.put(8493, new int[]{8298, 8297, -1});
+		m.put(8494, new int[]{8247, 8299, -1});
+		m.put(8495, new int[]{8254, 8300, -1});
+		m.put(8541, new int[]{8553, 8553, -1});
+		m.put(8737, new int[]{8417, 8428, -1});
+		m.put(8738, new int[]{8417, 8428, -1});
+		m.put(9514, new int[]{8639, 8639, -1});
+		m.put(9637, new int[]{7309, 7310, -1});
+		m.put(9852, new int[]{7315, 7316, -1});
+		m.put(9853, new int[]{7315, 7316, -1});
+		m.put(10625, new int[]{7589, 8857, -1});
+		m.put(10636, new int[]{6772, 6774, -1});
+		m.put(10651, new int[]{3309, 3313, -1});
+		m.put(10872, new int[]{8002, 8003, -1});
+		m.put(10873, new int[]{8137, 9032, -1});
+		m.put(11159, new int[]{8320, 8319, -1});
+		m.put(11160, new int[]{8320, 8319, -1});
+		m.put(11847, new int[]{9741, 9739, -1});
+		m.put(11849, new int[]{2037, 2036, -1});
+		m.put(11985, new int[]{5326, 5325, -1});
+		m.put(11986, new int[]{4919, 4923, -1});
+		m.put(12157, new int[]{10230, 10233, -1});
+		m.put(12181, new int[]{7177, 7178, -1});
+		m.put(12182, new int[]{7177, 7178, -1});
+		m.put(12183, new int[]{7177, 7178, -1});
+		m.put(12184, new int[]{7177, 7178, -1});
+		m.put(12185, new int[]{7177, 7178, -1});
+		m.put(12186, new int[]{7177, 7178, -1});
+		m.put(12187, new int[]{7177, 7178, -1});
+		m.put(12188, new int[]{7177, 7178, -1});
+		m.put(12189, new int[]{7177, 7178, -1});
+		m.put(12190, new int[]{7177, 7178, -1});
+		m.put(12549, new int[]{2370, 2369, -1});
+		m.put(12550, new int[]{6561, 6560, -1});
+		m.put(12858, new int[]{10952, 10952, -1});
+		m.put(13518, new int[]{11232, 11234, -1});
+		m.put(13683, new int[]{11473, 11474, -1});
+		m.put(13684, new int[]{8340, 9139, -1});
+		m.put(14044, new int[]{11662, 11663, -1});
+		m.put(14785, new int[]{12401, 12402, -1});
+		m.put(14926, new int[]{7177, 7178, -1});
+		m.put(14927, new int[]{7177, 7178, -1});
+		m.put(14928, new int[]{7177, 7178, -1});
+		m.put(14929, new int[]{7177, 7178, -1});
+		m.put(14930, new int[]{13498, 13499, -1});
+		m.put(14931, new int[]{12586, 12587, -1});
+		m.put(14932, new int[]{12548, 12550, -1});
+		m.put(15631, new int[]{5852, 5856, -1});
+		m.put(16316, new int[]{5339, 14449, -1});
+		m.put(16361, new int[]{6561, 6560, -1});
+		m.put(16362, new int[]{6561, 6560, -1});
+		m.put(16363, new int[]{6561, 6560, -1});
+		m.put(16364, new int[]{6561, 6560, -1});
+		m.put(16365, new int[]{6561, 6560, -1});
+		m.put(16366, new int[]{6561, 6560, -1});
+		m.put(16367, new int[]{6561, 6560, -1});
+		m.put(16368, new int[]{6561, 6560, -1});
+		m.put(16369, new int[]{6561, 6560, -1});
+		m.put(16370, new int[]{6561, 6560, -1});
+		m.put(16371, new int[]{6561, 6560, -1});
+		m.put(16372, new int[]{6561, 6560, -1});
+		m.put(16373, new int[]{6561, 6560, -1});
+		m.put(16374, new int[]{6561, 6560, -1});
+		m.put(16375, new int[]{6561, 6560, -1});
+		m.put(16376, new int[]{6561, 6560, -1});
+		m.put(16377, new int[]{6561, 6560, -1});
+		m.put(16378, new int[]{6561, 6560, -1});
+		m.put(16379, new int[]{6561, 6560, -1});
+		m.put(16380, new int[]{6561, 6560, -1});
+		m.put(16381, new int[]{6561, 6560, -1});
+		m.put(16382, new int[]{6561, 6560, -1});
+		m.put(16383, new int[]{6561, 6560, -1});
+		m.put(16384, new int[]{6561, 6560, -1});
+		m.put(16385, new int[]{6561, 6560, -1});
+		m.put(16386, new int[]{6561, 6560, -1});
+		m.put(16387, new int[]{6561, 6560, -1});
+		m.put(16388, new int[]{6561, 6560, -1});
+		m.put(16389, new int[]{6561, 6560, -1});
+		m.put(16390, new int[]{6561, 6560, -1});
+		m.put(16391, new int[]{6561, 6560, -1});
+		m.put(16392, new int[]{6561, 6560, -1});
+		m.put(16393, new int[]{6561, 6560, -1});
+		m.put(16394, new int[]{6561, 6560, -1});
+		m.put(16395, new int[]{6561, 6560, -1});
+		m.put(16396, new int[]{6561, 6560, -1});
+		m.put(16433, new int[]{7858, 6560, -1});
+		m.put(16434, new int[]{7858, 6560, -1});
+		m.put(16435, new int[]{7858, 6560, -1});
+		m.put(16436, new int[]{6561, 6560, -1});
+		m.put(16437, new int[]{6561, 6560, -1});
+		m.put(16438, new int[]{6561, 6560, -1});
+		m.put(16439, new int[]{7858, 6560, -1});
+		m.put(16440, new int[]{7858, 6560, -1});
+		m.put(16441, new int[]{7858, 6560, -1});
+		m.put(16442, new int[]{6561, 6560, -1});
+		m.put(16443, new int[]{6561, 6560, -1});
+		m.put(16444, new int[]{6561, 6560, -1});
+		m.put(16445, new int[]{6561, 6560, -1});
+		m.put(16446, new int[]{6561, 6560, -1});
+		m.put(16447, new int[]{6561, 6560, -1});
+		m.put(16448, new int[]{6561, 6560, -1});
+		m.put(16449, new int[]{6561, 6560, -1});
+		m.put(16450, new int[]{6561, 6560, -1});
+		m.put(16451, new int[]{6561, 6560, -1});
+		m.put(16452, new int[]{6561, 6560, -1});
+		m.put(16453, new int[]{6561, 6560, -1});
+		m.put(16454, new int[]{6561, 6560, -1});
+		m.put(16455, new int[]{6561, 6560, -1});
+		m.put(16456, new int[]{6561, 6560, -1});
+		m.put(16457, new int[]{6561, 6560, -1});
+		m.put(16458, new int[]{6561, 6560, -1});
+		m.put(16459, new int[]{6561, 6560, -1});
+		m.put(16460, new int[]{6561, 6560, -1});
+		m.put(16461, new int[]{6561, 6560, -1});
+		m.put(16462, new int[]{6561, 6560, -1});
+		m.put(16463, new int[]{6561, 6560, -1});
+		m.put(16464, new int[]{6561, 6560, -1});
+		m.put(16465, new int[]{6561, 6560, -1});
+		m.put(16466, new int[]{6561, 6560, -1});
+		m.put(16467, new int[]{6561, 6560, -1});
+		m.put(16468, new int[]{6561, 6560, -1});
+		return m;
+	}
+
+	private static Map<String, Integer> buildChoices()
+	{
+		Map<String, Integer> m = new java.util.LinkedHashMap<>();
+		m.put("Babi", 11847);
+		m.put("Baby Chinchompa", 6756);
+		m.put("Baby Mole", 6635);
+		m.put("Baby Mole-rat", 10651);
+		m.put("Beaver", 12181);
+		m.put("Beef", 15631);
+		m.put("Bernese Mountain Dog", 16385);
+		m.put("Bernese Mountain Dog puppy", 16457);
+		m.put("Bloodhound", 7232);
+		m.put("Bone Squirrel", 14044);
+		m.put("Border Collie", 16367);
+		m.put("Border Collie puppy", 16442);
+		m.put("Broav", 13518);
+		m.put("Callisto cub", 5558);
+		m.put("Cat", 1619);
+		m.put("Chaos Elemental Jr.", 2055);
+		m.put("Chihuahua", 16364);
+		m.put("Chihuahua puppy", 16439);
+		m.put("Chompy chick", 4002);
+		m.put("Clockwork cat", 2782);
+		m.put("Corgi", 16370);
+		m.put("Corgi puppy", 16445);
+		m.put("Corporeal Critter", 8010);
+		m.put("Corrupted Youngllef", 8738);
+		m.put("Dark core", 318);
+		m.put("Dark Squirrel", 9637);
+		m.put("Dom", 14785);
+		m.put("Flying Vespina", 9514);
+		m.put("Fox", 12550);
+		m.put("Giant Squirrel", 7351);
+		m.put("Great blue heron", 10636);
+		m.put("Greyhound", 16373);
+		m.put("Greyhound puppy", 16448);
+		m.put("Gull", 14931);
+		m.put("Gulliver", 14932);
+		m.put("Hell-kitten", 5597);
+		m.put("Hellcat", 1625);
+		m.put("Hellpuppy", 3099);
+		m.put("Herbi", 7760);
+		m.put("Heron", 6722);
+		m.put("Husky", 16376);
+		m.put("Husky puppy", 16436);
+		m.put("Ikkle Hydra", 8492);
+		m.put("JalRek-Jad", 10625);
+		m.put("Kalphite Princess", 6638);
+		m.put("Kitten", 5591);
+		m.put("Labrador", 16361);
+		m.put("Labrador puppy", 16433);
+		m.put("Lazy cat", 1626);
+		m.put("Lazy hellcat", 1632);
+		m.put("Lil' Nylo", 10872);
+		m.put("Lil' Sot", 10873);
+		m.put("Lil' Zik", 8337);
+		m.put("Little Parasite", 8541);
+		m.put("Mr McGroot", 16316);
+		m.put("Nid", 13683);
+		m.put("Overgrown cat", 5598);
+		m.put("Overgrown hellcat", 5604);
+		m.put("Penance Pet", 6674);
+		m.put("Pheasant", 12549);
+		m.put("Phoenix", 3081);
+		m.put("Prince Black Dragon", 6636);
+		m.put("Pug", 16379);
+		m.put("Pug puppy", 16451);
+		m.put("Puppadile", 8201);
+		m.put("Quetzin", 12858);
+		m.put("Rax", 13684);
+		m.put("Red", 9852);
+		m.put("Rocky", 7353);
+		m.put("Samoyed", 16382);
+		m.put("Samoyed puppy", 16454);
+		m.put("Scorpia's offspring", 5561);
+		m.put("Scurry", 7616);
+		m.put("Shiba", 16388);
+		m.put("Shiba puppy", 16460);
+		m.put("Soup", 14930);
+		m.put("Spaniel", 16391);
+		m.put("Spaniel puppy", 16463);
+		m.put("Sraracha", 2144);
+		m.put("TzRek-Jad", 5893);
+		m.put("Venenatis spiderling", 5557);
+		m.put("Vespina", 8205);
+		m.put("Vorki", 8029);
+		m.put("Wily cat", 5584);
+		m.put("Wily hellcat", 5590);
+		m.put("Wisp", 12157);
+		m.put("Yorkie", 16394);
+		m.put("Yorkie puppy", 16466);
+		m.put("Youngllef", 8737);
+		m.put("Zebo", 11849);
+		m.put("Ziggy", 9853);
+		return java.util.Collections.unmodifiableMap(m);
 	}
 }

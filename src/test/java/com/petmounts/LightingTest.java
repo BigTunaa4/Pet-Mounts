@@ -13,4 +13,18 @@ public class LightingTest
 		assertArrayEquals(new int[]{0, 0}, MountFits.lighting(1619)); // Cat: normal lighting
 		assertArrayEquals(new int[]{0, 0}, MountFits.lighting(-1)); // unknown pet
 	}
+
+	@Test
+	public void everyRideablePetCanBePickedAndAnimated()
+	{
+		org.junit.Assert.assertTrue(MountFits.choices().size() >= 90);
+		for (int id : MountFits.choices().values())
+		{
+			org.junit.Assert.assertNotNull("tuned: " + id, MountFits.get(id));
+			int[] anims = MountFits.animations(id);
+			org.junit.Assert.assertNotNull("animations: " + id, anims);
+			org.junit.Assert.assertTrue("has an idle animation: " + id, anims[0] != -1);
+		}
+		org.junit.Assert.assertEquals(Integer.valueOf(6635), MountFits.choices().get("Baby Mole"));
+	}
 }

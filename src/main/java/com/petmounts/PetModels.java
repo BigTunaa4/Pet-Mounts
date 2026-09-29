@@ -52,6 +52,14 @@ final class PetModels
 		final Color[] palette;
 		/** Gold or silver saddle fittings, whichever suits the pet's colours. */
 		final short trim;
+		/**
+		 * The pet at its own size, to animate: the enlargement is applied after each animation frame, the way the
+		 * game draws scaled NPCs. (Enlarging first breaks skeletal animations, which move bones by fixed amounts.)
+		 * Null to animate {@link #model} directly.
+		 */
+		Model base;
+		/** How much {@link #base} is enlarged (sideways, up) and lowered (model units) after animating. */
+		float scaleX = 1, scaleY = 1, hover;
 
 		Built(int npcId, String petName, Model model, int a, int b, int c, float wa, float wb, float wc,
 			int mountHeight, RiderPose autoPose, Color[] palette, short trim)
@@ -201,6 +209,9 @@ final class PetModels
 			fit = null;
 		}
 
+		// Everything done to the model below, so the same can be done after each animation frame.
+		float fx = 1, fy = 1, hover = 0;
+
 		// How much to enlarge the pet: tuned, or grown until its back is about pony height.
 		float growth;
 		if (fit != null)
@@ -210,6 +221,8 @@ final class PetModels
 		else
 		{
 			md.scale(ws, hs, ws); // the pet at its normal in-game size, to measure it
+			fx *= ws / (float) SCALE_BASE;
+			fy *= hs / (float) SCALE_BASE;
 			SeatFinder.Seat found = findSeat(md);
 			float seatHeight = found != null ? found.height - Math.max(0, -maxY(md)) : -minY(md) * 0.6f;
 			growth = MountSizing.growthFactor(Math.round(seatHeight), TARGET_SEAT_HEIGHT, MAX_GROWTH, 1f);
@@ -218,6 +231,8 @@ final class PetModels
 		growth *= sizeScale;
 
 		md.scale(Math.round(ws * growth), Math.round(hs * growth), Math.round(ws * growth));
+		fx *= Math.round(ws * growth) / (float) SCALE_BASE;
+		fy *= Math.round(hs * growth) / (float) SCALE_BASE;
 
 		// Floating pets: bring them down to a gentle hover so the rider isn't up in the air.
 		// Model Y points down, so a negative lowest point means the model floats above the ground.
@@ -226,6 +241,7 @@ final class PetModels
 		if (floating)
 		{
 			md.translate(0, Math.round(-lowest - MAX_HOVER), 0);
+			hover = Math.round(-lowest - MAX_HOVER);
 		}
 
 		// Tuned pets were fitted for a seat at horse height: bring the seat down to pony height. And keep long,
@@ -242,6 +258,9 @@ final class PetModels
 			int s = Math.max(1, Math.round(SCALE_BASE * fitted));
 			md.scale(s, s, s);
 			growth *= s / (float) SCALE_BASE;
+			fx *= s / (float) SCALE_BASE;
+			fy *= s / (float) SCALE_BASE;
+			hover *= s / (float) SCALE_BASE;
 		}
 		int mountHeight = Math.max(1, Math.round(-minY(md)));
 
@@ -319,9 +338,24 @@ final class PetModels
 			swc = onModel.wc;
 		}
 
+		Built built = new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose,
+			palette, trim);
+
+		// The pet at its own size, lit the same way, for animating before enlarging.
+		ModelData raw = load(comp);
+		Model base = raw == null ? null
+			: raw.light(NPC_AMBIENT + lighting[0], NPC_CONTRAST + lighting[1] * 5, -30, -50, -30);
+		if (base != null && base.getVerticesCount() == model.getVerticesCount())
+		{
+			built.base = base;
+			built.scaleX = fx;
+			built.scaleY = fy;
+			built.hover = hover;
+		}
+
 		log.debug("Built mount for npc {} ({}): {}, growth {}x, pose {}",
 			comp.getId(), comp.getName(), fit != null ? "tuned" : "automatic", growth, autoPose);
-		return new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose, palette, trim);
+		return built;
 	}
 
 	/** The lit model's vertices at the same places as these model-data vertices, or null if any is missing. */

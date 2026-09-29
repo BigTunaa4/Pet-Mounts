@@ -203,3 +203,7 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 The seat-following technique and the seated riding poses are adapted from
 [Rapid Mounts](https://github.com/RapidUrsa/RapidMounts) by RapidUrsa (BSD 2-Clause).
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Support
+
+This plugin is free and always will be. If you enjoy it and want to say thanks, you can leave a tip on Cash App: [$VintageAdVenturesss](https://cash.app/$VintageAdVenturesss). Totally optional, and much appreciated.

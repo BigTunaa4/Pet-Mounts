@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntPredicate;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
@@ -127,6 +128,15 @@ public class PetMountsPlugin extends Plugin
 	private final SpeedTracker speed = new SpeedTracker();
 	private int lastBusyTick = -100;
 	private int tickCount;
+	/**
+	 * Animation smoothing blends each frame into the next. The seated poses hold one frame of an emote (or loop
+	 * part of one), so blending made riders' arms and legs twitch toward the next frame and snap back. Riding
+	 * poses are left out of the smoothing; everything else is smoothed exactly as before.
+	 */
+	private IntPredicate smoothingFilter;
+	private final IntPredicate riderPoseFilter = id -> !isRidingPose(id) && smoothingFilter != null
+		&& smoothingFilter.test(id);
+
 	/** Held to see everyone normally (to click on them) while "Everyone rides" is on. */
 	private volatile boolean shiftHeld;
 
@@ -238,6 +248,31 @@ public class PetMountsPlugin extends Plugin
 		mouseManager.registerMouseListener(mountButton.mouse);
 
 		riding = config.remountOnLogin() && config.wasMounted();
+		clientThread.invoke(this::keepPosesSteady);
+	}
+
+	/** Leaves the riding poses out of animation smoothing (see {@link #riderPoseFilter}). */
+	private void keepPosesSteady()
+	{
+		IntPredicate current = client.getAnimationInterpolationFilter();
+		if (current != null && current != riderPoseFilter)
+		{
+			// Smoothing is on (or its settings changed): smooth what it smoothed, except the riding poses.
+			smoothingFilter = current;
+			client.setAnimationInterpolationFilter(riderPoseFilter);
+		}
+	}
+
+	private static boolean isRidingPose(int animationId)
+	{
+		for (RiderPose pose : RiderPose.values())
+		{
+			if (pose.getAnimationId() == animationId && animationId != -1)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -252,6 +287,11 @@ public class PetMountsPlugin extends Plugin
 		panelState = null;
 		clientThread.invoke(() ->
 		{
+			if (client.getAnimationInterpolationFilter() == riderPoseFilter)
+			{
+				client.setAnimationInterpolationFilter(smoothingFilter);
+			}
+			smoothingFilter = null;
 			effects.clear();
 			cancelMounting(null);
 			hideMount();
@@ -621,6 +661,7 @@ public class PetMountsPlugin extends Plugin
 	{
 		tickCount++;
 		others.gameTick(tickCount);
+		keepPosesSteady(); // in case smoothing was switched on (or changed) since
 
 		Player me = client.getLocalPlayer();
 		if (me == null || !config.hopOffForActions() || mountingSince != 0)

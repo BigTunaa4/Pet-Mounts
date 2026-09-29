@@ -147,14 +147,20 @@ final class RiderPoser
 
 	private int frameCount(int animationId)
 	{
-		return frameCounts.computeIfAbsent(animationId, id ->
+		Integer known = frameCounts.get(animationId);
+		if (known != null)
 		{
-			Animation a = client.loadAnimation(id);
-			if (a == null)
-			{
-				return 1;
-			}
-			return a.isMayaAnim() ? Math.max(1, a.getDuration()) : Math.max(1, a.getNumFrames());
-		});
+			return known;
+		}
+		Animation a = client.loadAnimation(animationId);
+		if (a == null)
+		{
+			// Not loaded yet: don't remember that, or seated poses would be stuck on their first
+			// (standing) frame. Leave the frames as they are until it loads.
+			return Integer.MAX_VALUE;
+		}
+		int count = a.isMayaAnim() ? Math.max(1, a.getDuration()) : Math.max(1, a.getNumFrames());
+		frameCounts.put(animationId, count);
+		return count;
 	}
 }

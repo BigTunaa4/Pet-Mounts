@@ -1,5 +1,6 @@
 package com.petmounts;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Model;
 import net.runelite.api.RuneLiteObject;
@@ -10,6 +11,7 @@ import net.runelite.api.RuneLiteObject;
  * newer, skeletal ones apart (they move bones by fixed distances), which stretched pets like Scurry, Gull and the
  * Callisto cub across the screen.
  */
+@Slf4j
 final class MountObject extends RuneLiteObject
 {
 	/** The enlarged pet standing still, for when there's no animation. */
@@ -42,6 +44,20 @@ final class MountObject extends RuneLiteObject
 
 	@Override
 	public Model getModel()
+	{
+		// Called while the game draws the scene: never let a problem here reach the game.
+		try
+		{
+			return animatedFrame();
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Couldn't animate the mount this frame", e);
+			return still;
+		}
+	}
+
+	private Model animatedFrame()
 	{
 		Model frame = super.getModel();
 		if (frame == null || frame == animated)

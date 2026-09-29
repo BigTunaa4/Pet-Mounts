@@ -157,10 +157,10 @@ final class MountFits
 		put(m, 8201, RiderPose.EXTRA_WIDE, 1.844f, 727, 732, 733, 0.2248f, 0.2248f, 753); // Puppadile
 		put(m, 8205, RiderPose.WIDE, 2.789f, 512, 522, 504, -0.0f, 0.7924f, 1137); // Vespina
 		put(m, 8337, RiderPose.EXTRA_WIDE, 1.35f, 581, 640, 641, 0.0f, 0.0f, 2110); // Lil' Zik (seat on the front of the back)
-		put(m, 8492, RiderPose.EXTRA_WIDE, 1.5f, 127, 134, 135, 0.127f, 0.8144f, 1556); // Ikkle Hydra
-		put(m, 8493, RiderPose.EXTRA_WIDE, 1.5f, 42, 49, 50, 0.1921f, 0.0439f, 1625); // Ikkle Hydra
-		put(m, 8494, RiderPose.WIDE, 1.5f, 409, 618, 610, 0.3895f, 0.1969f, 1510); // Ikkle Hydra
-		put(m, 8495, RiderPose.WIDE, 1.5f, 747, 1345, 753, 0.4388f, 0.18f, 1455); // Ikkle Hydra
+		put(m, 8492, RiderPose.EXTRA_WIDE, 2.1f, 127, 134, 135, 0.127f, 0.8144f, 1556); // Ikkle Hydra
+		put(m, 8493, RiderPose.EXTRA_WIDE, 2.1f, 42, 49, 50, 0.1921f, 0.0439f, 1625); // Ikkle Hydra
+		put(m, 8494, RiderPose.WIDE, 2.1f, 409, 618, 610, 0.3895f, 0.1969f, 1510); // Ikkle Hydra
+		put(m, 8495, RiderPose.WIDE, 2.1f, 747, 1345, 753, 0.4388f, 0.18f, 1455); // Ikkle Hydra
 		put(m, 8541, RiderPose.CROSS_LEGGED, 1.303f, 414, 416, 415, 0.7703f, 0.2297f, 800); // Little Parasite
 		put(m, 8737, RiderPose.WIDE, 2.067f, 225, 246, 247, 0.0925f, 0.2074f, 1131); // Youngllef
 		put(m, 8738, RiderPose.WIDE, 2.067f, 225, 246, 247, 0.0925f, 0.2074f, 1131); // Corrupted Youngllef

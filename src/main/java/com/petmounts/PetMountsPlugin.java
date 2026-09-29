@@ -145,7 +145,16 @@ public class PetMountsPlugin extends Plugin
 		@Override
 		public boolean addEntity(Renderable renderable, boolean ui)
 		{
-			return shouldDraw(renderable, ui);
+			// Called while the game draws the scene: if anything goes wrong, just draw the entity normally.
+			try
+			{
+				return shouldDraw(renderable, ui);
+			}
+			catch (RuntimeException e)
+			{
+				log.debug("Render check failed", e);
+				return true;
+			}
 		}
 	};
 
@@ -696,11 +705,18 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onBeforeRender(BeforeRender e)
 	{
-		if (rig != null && rig.isVisible())
+		try
 		{
-			rig.place();
+			if (rig != null && rig.isVisible())
+			{
+				rig.place();
+			}
+			others.place();
 		}
-		others.place();
+		catch (RuntimeException ex)
+		{
+			log.debug("Couldn't place the riders this frame", ex);
+		}
 	}
 
 	@Subscribe

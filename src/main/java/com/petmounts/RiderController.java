@@ -1,5 +1,6 @@
 package com.petmounts;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Model;
 import net.runelite.api.Player;
 import net.runelite.api.RuneLiteObjectController;
@@ -8,6 +9,7 @@ import net.runelite.api.RuneLiteObjectController;
  * Draws a player's current (animated) model at an arbitrary height.
  * The real player is hidden while riding and this copy is drawn on the mount's back instead.
  */
+@Slf4j
 class RiderController extends RuneLiteObjectController
 {
 	private final Player player;
@@ -28,7 +30,15 @@ class RiderController extends RuneLiteObjectController
 	@Override
 	public Model getModel()
 	{
-		beforeDraw.run();
+		// Called while the game draws the scene: never let a problem here reach the game.
+		try
+		{
+			beforeDraw.run();
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Couldn't pose the rider this frame", e);
+		}
 		return player.getModel();
 	}
 }

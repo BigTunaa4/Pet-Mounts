@@ -156,7 +156,7 @@ final class MountFits
 		put(m, 8029, RiderPose.EXTRA_WIDE, 2.913f, 347, 81, 348, 0.1142f, 0.0961f, 1497); // Vorki
 		put(m, 8201, RiderPose.EXTRA_WIDE, 1.844f, 727, 732, 733, 0.2248f, 0.2248f, 753); // Puppadile
 		put(m, 8205, RiderPose.WIDE, 2.789f, 512, 522, 504, -0.0f, 0.7924f, 1137); // Vespina
-		put(m, 8337, RiderPose.EXTRA_WIDE, 1.35f, 1605, 644, 1606, 0.0f, 0.6471f, 2110); // Lil' Zik
+		put(m, 8337, RiderPose.EXTRA_WIDE, 1.35f, 581, 640, 641, 0.0f, 0.0f, 2110); // Lil' Zik (seat on the front of the back)
 		put(m, 8492, RiderPose.EXTRA_WIDE, 1.5f, 127, 134, 135, 0.127f, 0.8144f, 1556); // Ikkle Hydra
 		put(m, 8493, RiderPose.EXTRA_WIDE, 1.5f, 42, 49, 50, 0.1921f, 0.0439f, 1625); // Ikkle Hydra
 		put(m, 8494, RiderPose.WIDE, 1.5f, 409, 618, 610, 0.3895f, 0.1969f, 1510); // Ikkle Hydra

@@ -3,8 +3,11 @@ package com.petmounts;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.util.LinkBrowser;
 
 /**
  * The Mount Stable: a sidebar panel showing the pet following you, whether it can be ridden, a ride button,
@@ -84,6 +88,7 @@ class MountStablePanel extends PluginPanel
 	}
 
 	private static final Color READY = new Color(110, 225, 110);
+	private static final String TIP_URL = "https://cash.app/$VintageAdVenturesss";
 
 	private final Actions actions;
 	private final JLabel petLabel = new JLabel();
@@ -208,6 +213,35 @@ class MountStablePanel extends PluginPanel
 		tip.setFont(FontManager.getRunescapeSmallFont());
 		tip.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		content.add(left(tip));
+
+		// Optional tip link. Nothing is locked behind it.
+		content.add(Box.createRigidArea(new Dimension(0, 12)));
+		JLabel support = new JLabel("<html>Enjoying Pet Mounts? It's free, but you can <u>leave a tip</u>.</html>");
+		support.setFont(FontManager.getRunescapeSmallFont());
+		support.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		support.setToolTipText(TIP_URL);
+		support.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		support.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				LinkBrowser.browse(TIP_URL);
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{
+				support.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+				support.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+			}
+		});
+		content.add(left(support));
 
 		add(content, BorderLayout.NORTH);
 		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0));

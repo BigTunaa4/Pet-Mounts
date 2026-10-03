@@ -57,6 +57,11 @@ final class MountRig
 	private PacedAnimationController animation;
 	private int animationId = -2;
 	private int idleAnimationId = -1;
+	/** Something the mount does now and then while standing still (a dog digging), or -1. */
+	private final int idleExtra;
+	private int stillTicks;
+	private int nextExtraAt;
+	private boolean playingExtra;
 
 	private RuneLiteObject saddle;
 	private boolean saddleTried;
@@ -89,6 +94,8 @@ final class MountRig
 		this.poser = new RiderPoser(client);
 		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = new MountObject(client, built);
+		idleExtra = MountFits.idleExtra(built.npcId);
+		nextExtraAt = nextExtraDelay();
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
 		float[] xs = built.model.getVerticesX(), zs = built.model.getVerticesZ();
@@ -207,7 +214,9 @@ final class MountRig
 		this.pet = pet;
 		RiderPose pose = poseFor(style);
 
-		updateAnimation(animations, gait);
+		// When the pet itself does something (a cat pouncing on a rat, a dog digging), the mount does it too.
+		int action = pet != null ? pet.getAnimation() : -1;
+		updateAnimation(animations, gait, action);
 		poser.apply(player, pose);
 		look.apply(player, style.hideHeld, style.hideCape);
 
@@ -286,15 +295,47 @@ final class MountRig
 	// Mount animation
 	// ------------------------------------------------------------------
 
-	private void updateAnimation(int[] animations, int gait)
+	/** 8 to 18 seconds of standing still, in client ticks. */
+	private static int nextExtraDelay()
+	{
+		return 400 + (int) (Math.random() * 500);
+	}
+
+	private void updateAnimation(int[] animations, int gait, int action)
 	{
 		int walk = animations == null ? -1 : animations[1];
 		int run = animations == null ? -1 : animations[2];
 		idleAnimationId = animations == null ? -1 : animations[0];
 
+		// Now and then, while standing still, the mount does its own thing (a dog stops to dig).
+		boolean still = gait == 0 && action == -1;
+		if (!still)
+		{
+			stillTicks = 0;
+			playingExtra = false;
+		}
+		else if (idleExtra != -1 && !playingExtra && ++stillTicks >= nextExtraAt)
+		{
+			playingExtra = true;
+		}
+		if (playingExtra && animationId == idleExtra && (animation == null || animation.playedOnce()))
+		{
+			playingExtra = false;
+			stillTicks = 0;
+			nextExtraAt = nextExtraDelay();
+		}
+
 		int anim;
 		float pace = 1f;
-		if (gait == 2 && run != -1 && run != walk)
+		if (action != -1 && gait == 0)
+		{
+			anim = action;
+		}
+		else if (playingExtra)
+		{
+			anim = idleExtra;
+		}
+		else if (gait == 2 && run != -1 && run != walk)
 		{
 			anim = run;
 		}

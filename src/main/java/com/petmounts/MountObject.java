@@ -20,6 +20,13 @@ final class MountObject extends RuneLiteObject
 	private final Model animated;
 	private final int scaleX, scaleY;
 	private final int hover;
+	/** For floating pets: the seat (triangle and weights) and its height at rest, to hold it at riding height. */
+	private final boolean holdHeight;
+	private final int seatA, seatB, seatC;
+	private final float seatWa, seatWb, seatWc;
+	private final float restSeatY;
+	/** How far a floating pet may bob above or below its riding height. */
+	private static final float BOB = 8;
 
 	MountObject(Client client, PetModels.Built built)
 	{
@@ -40,6 +47,26 @@ final class MountObject extends RuneLiteObject
 			hover = 0;
 		}
 		setModel(animated);
+
+		holdHeight = built.floating;
+		seatA = built.a;
+		seatB = built.b;
+		seatC = built.c;
+		seatWa = built.wa;
+		seatWb = built.wb;
+		seatWc = built.wc;
+		restSeatY = seatY(still);
+	}
+
+	private float seatY(Model m)
+	{
+		float[] ys = m.getVerticesY();
+		int n = m.getVerticesCount();
+		if (seatA >= n || seatB >= n || seatC >= n)
+		{
+			return Float.NaN;
+		}
+		return seatWa * ys[seatA] + seatWb * ys[seatB] + seatWc * ys[seatC];
 	}
 
 	@Override
@@ -74,7 +101,20 @@ final class MountObject extends RuneLiteObject
 		{
 			frame.translate(0, hover, 0);
 		}
-		if (scaleX != PetModels.SCALE_BASE || scaleY != PetModels.SCALE_BASE || hover != 0)
+		boolean moved = scaleX != PetModels.SCALE_BASE || scaleY != PetModels.SCALE_BASE || hover != 0;
+		if (holdHeight && !Float.isNaN(restSeatY))
+		{
+			// Flying pets' walk animations fly them up into the air. Keep the seat at riding height (with a
+			// little bob) so you stay on its back and it doesn't soar above you.
+			float drift = seatY(frame) - restSeatY; // y points down: negative is higher
+			float fix = drift < -BOB ? -drift - BOB : drift > BOB ? -(drift - BOB) : 0;
+			if (!Float.isNaN(fix) && Math.abs(fix) >= 1)
+			{
+				frame.translate(0, Math.round(fix), 0);
+				moved = true;
+			}
+		}
+		if (moved)
 		{
 			frame.calculateBoundsCylinder();
 		}

@@ -60,6 +60,8 @@ final class PetModels
 		Model base;
 		/** How much {@link #base} is enlarged (sideways, up) and lowered (model units) after animating. */
 		float scaleX = 1, scaleY = 1, hover;
+		/** A floating pet: kept at riding height even when its animation flies it up or down. */
+		boolean floating;
 
 		Built(int npcId, String petName, Model model, int a, int b, int c, float wa, float wb, float wc,
 			int mountHeight, RiderPose autoPose, Color[] palette, short trim)
@@ -340,6 +342,7 @@ final class PetModels
 
 		Built built = new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose,
 			palette, trim);
+		built.floating = floating;
 
 		// The pet at its own size, lit the same way, for animating before enlarging.
 		ModelData raw = load(comp);

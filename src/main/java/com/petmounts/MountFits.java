@@ -11,7 +11,7 @@ import java.util.Map;
  * the pet animates, so the rider moves with the pet's back. The vertex count guards against model updates:
  * if the pet's model changes, the plugin falls back to finding a seat automatically.
  *
- * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants.
+ * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 91 creatures.
  */
 final class MountFits
 {
@@ -69,10 +69,48 @@ final class MountFits
 		return ANIMATIONS.get(npcId);
 	}
 
-	/** Every rideable pet by name, alphabetical, with the NPC id of its standard look. */
+	/** Every rideable pet and creature by name, alphabetical, with the NPC id of its standard look. */
 	static Map<String, Integer> choices()
 	{
 		return CHOICES;
+	}
+
+	/** Dog dig animations. Every dog, wolf and hound shares one skeleton, so they can all dig. */
+	static final int DIG = 14498, DIG_SMALL = 14499;
+	private static final int[] DIGGERS = {
+		7232, 12550, 16361, 16362, 16363, 16367, 16368, 16369, 16370, 16371, 16372, 16373, 16374, 16375, 16376,
+		16377, 16378, 16382, 16383, 16384, 16385, 16386, 16387, 16388, 16389, 16390, 16391, 16392, 16393, 109,
+		3426, 14237, 114, 104, 4185, 107, 106
+	};
+	/** Puppies and small breeds have their own, smaller dig. */
+	private static final int[] SMALL_DIGGERS = {
+		3099, 16364, 16365, 16366, 16379, 16380, 16381, 16394, 16395, 16396, 16433, 16434, 16435, 16436, 16437,
+		16438, 16439, 16440, 16441, 16442, 16443, 16444, 16445, 16446, 16447, 16448, 16449, 16450, 16451, 16452,
+		16453, 16454, 16455, 16456, 16457, 16458, 16459, 16460, 16461, 16462, 16463, 16464, 16465, 16466, 16467,
+		16468
+	};
+
+	/**
+	 * Something the mount does now and then while standing still (a dog digging), or -1. Played once, then back
+	 * to idle.
+	 */
+	static int idleExtra(int npcId)
+	{
+		for (int id : SMALL_DIGGERS)
+		{
+			if (id == npcId)
+			{
+				return DIG_SMALL;
+			}
+		}
+		for (int id : DIGGERS)
+		{
+			if (id == npcId)
+			{
+				return DIG;
+			}
+		}
+		return -1;
 	}
 
 	static int size()
@@ -279,6 +317,98 @@ final class MountFits
 		put(m, 16466, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
 		put(m, 16467, RiderPose.WIDE, 4.5f, 65, 39, 38, 0.6447f, 0.0f, 256); // Yorkie puppy
 		put(m, 16468, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
+		// Creatures: anything with a back to sit on, from dragons to the pet rock.
+		put(m, 8030, RiderPose.EXTRA_WIDE, 0.524f, 429, 413, 412, 0.6073f, 0.3219f, 1002); // Adamant dragon
+		put(m, 7795, RiderPose.EXTRA_WIDE, 0.525f, 175, 411, 412, 0.2168f, 0.0f, 948); // Ancient Wyvern
+		put(m, 11992, RiderPose.WIDE, 0.588f, 93, 101, 102, -0.0f, 0.2785f, 470); // Artio
+		put(m, 1871, RiderPose.EXTRA_WIDE, 1.06f, 278, 298, 299, 0.2662f, 0.1631f, 1008); // Baby black dragon
+		put(m, 243, RiderPose.EXTRA_WIDE, 1.063f, 281, 282, 283, 0.0487f, 0.9513f, 1012); // Baby blue dragon
+		put(m, 5873, RiderPose.EXTRA_WIDE, 1.063f, 281, 282, 283, 0.0487f, 0.9513f, 1012); // Baby green dragon
+		put(m, 245, RiderPose.EXTRA_WIDE, 1.074f, 303, 323, 324, 0.8523f, 0.0328f, 1053); // Baby red dragon
+		put(m, 417, RiderPose.WIDE, 1.09f, 29, 67, 68, -0.0f, 0.1927f, 261); // Basilisk
+		put(m, 6076, RiderPose.EXTRA_WIDE, 0.662f, 32, 35, 36, 0.1875f, 0.6406f, 1217); // Battle tortoise
+		put(m, 478, RiderPose.EXTRA_WIDE, 2.292f, 68, 24, 52, 0.3844f, 0.0f, 231); // Big frog
+		put(m, 109, RiderPose.WIDE, 0.59f, 1, 11, 12, 0.5406f, 0.0f, 456); // Big Wolf
+		put(m, 2839, RiderPose.WIDE, 0.629f, 8, 18, 19, 0.7926f, 0.0f, 510); // Black bear
+		put(m, 252, RiderPose.EXTRA_WIDE, 0.622f, 313, 410, 314, 0.7012f, 0.2403f, 1027); // Black dragon
+		put(m, 2849, RiderPose.WIDE, 0.722f, 129, 151, 152, -0.0f, 0.2621f, 421); // Black unicorn
+		put(m, 268, RiderPose.EXTRA_WIDE, 0.622f, 368, 465, 369, 0.7002f, 0.2414f, 1119); // Blue dragon
+		put(m, 270, RiderPose.EXTRA_WIDE, 0.523f, 373, 357, 356, 0.6233f, 0.3698f, 932); // Bronze dragon
+		put(m, 7275, RiderPose.EXTRA_WIDE, 0.623f, 329, 430, 330, 0.7274f, 0.212f, 1150); // Brutal black dragon
+		put(m, 7273, RiderPose.EXTRA_WIDE, 0.622f, 313, 414, 314, 0.6972f, 0.2447f, 1134); // Brutal blue dragon
+		put(m, 2918, RiderPose.EXTRA_WIDE, 0.622f, 313, 414, 314, 0.6972f, 0.2447f, 1134); // Brutal green dragon
+		put(m, 7274, RiderPose.EXTRA_WIDE, 0.622f, 368, 469, 369, 0.7088f, 0.2321f, 1189); // Brutal red dragon
+		put(m, 15625, RiderPose.WIDE, 0.355f, 299, 305, 306, 0.1436f, 0.0f, 638); // Bull
+		put(m, 3902, RiderPose.EXTRA_WIDE, 3.722f, 20, 65, 66, 0.7054f, 0.0f, 154); // Bunny
+		put(m, 6503, RiderPose.WIDE, 0.37f, 2, 8, 9, 0.2083f, 0.6576f, 484); // Callisto
+		put(m, 2835, RiderPose.WIDE, 0.47f, 75, 132, 133, 0.0f, 0.562f, 274); // Camel
+		put(m, 5862, RiderPose.EXTRA_WIDE, 0.286f, 25, 68, 59, 0.4196f, 0.5328f, 1101); // Cerberus
+		put(m, 1173, RiderPose.WIDE, 1.981f, 53, 85, 54, 0.1212f, 0.1519f, 203); // Chicken
+		put(m, 9047, RiderPose.EXTRA_WIDE, 0.53f, 450, 753, 451, 0.8391f, 0.1187f, 1117); // Corrupted Dragon
+		put(m, 2790, RiderPose.WIDE, 0.697f, 388, 387, 396, -0.0f, 0.8699f, 475); // Cow
+		put(m, 4184, RiderPose.EXTRA_WIDE, 1.49f, 9, 32, 10, -0.0f, 0.9637f, 246); // Crocodile
+		put(m, 9033, RiderPose.EXTRA_WIDE, 0.53f, 271, 272, 273, 0.1187f, 0.0422f, 1114); // Crystalline Dragon
+		put(m, 459, RiderPose.EXTRA_WIDE, 1.808f, 84, 108, 85, -0.0f, 0.4574f, 245); // Desert Lizard
+		put(m, 3426, RiderPose.WIDE, 0.771f, 1, 11, 12, 0.5059f, 0.0f, 456); // Dire Wolf
+		put(m, 14237, RiderPose.WIDE, 1.07f, 77, 98, 99, -0.0f, 0.1475f, 318); // Dog
+		put(m, 8612, RiderPose.EXTRA_WIDE, 0.407f, 445, 448, 449, 0.1372f, 0.2655f, 1049); // Drake
+		put(m, 1838, RiderPose.EXTRA_WIDE, 4.5f, 122, 133, 123, 0.0f, 0.3685f, 277); // Duck
+		put(m, 817, RiderPose.EXTRA_WIDE, 0.62f, 326, 427, 327, 0.6976f, 0.2488f, 1061); // Elvarg
+		put(m, 14922, RiderPose.EXTRA_WIDE, 0.622f, 246, 535, 247, 0.2376f, 0.0586f, 918); // Frost dragon
+		put(m, 477, RiderPose.EXTRA_WIDE, 1.146f, 68, 24, 52, 0.3844f, 0.0f, 231); // Giant frog
+		put(m, 5779, RiderPose.EXTRA_WIDE, 0.644f, 103, 115, 116, 0.0f, 0.9761f, 374); // Giant Mole
+		put(m, 2510, RiderPose.EXTRA_WIDE, 1.193f, 234, 235, 236, 0.4507f, 0.0f, 533); // Giant rat
+		put(m, 2261, RiderPose.EXTRA_WIDE, 0.434f, 259, 272, 260, 0.0468f, 0.3883f, 298); // Giant Rock Crab
+		put(m, 1792, RiderPose.WIDE, 1.106f, 27, 63, 28, 0.5346f, 0.0923f, 183); // Goat
+		put(m, 260, RiderPose.EXTRA_WIDE, 0.622f, 313, 410, 314, 0.7012f, 0.2403f, 1027); // Green dragon
+		put(m, 2838, RiderPose.WIDE, 0.588f, 16, 37, 17, 0.0664f, 0.0664f, 534); // Grizzly bear
+		put(m, 114, RiderPose.WIDE, 1.302f, 166, 87, 86, 0.8975f, 0.0f, 269); // Guard dog
+		put(m, 104, RiderPose.WIDE, 0.809f, 110, 260, 261, -0.0f, 0.3268f, 266); // Hellhound
+		put(m, 2909, RiderPose.WIDE, 0.844f, 179, 162, 109, 0.6186f, 0.1752f, 536); // Horned graahk
+		put(m, 272, RiderPose.EXTRA_WIDE, 0.524f, 380, 365, 364, 0.6169f, 0.3506f, 999); // Iron dragon
+		put(m, 4185, RiderPose.WIDE, 2.093f, 80, 146, 147, 0.1246f, 0.0f, 257); // Jackal
+		put(m, 963, RiderPose.EXTRA_WIDE, 0.43f, 210, 277, 211, 0.3678f, 0.5236f, 1130); // Kalphite Queen
+		put(m, 957, RiderPose.EXTRA_WIDE, 0.896f, 133, 374, 114, 0.4009f, 0.0496f, 578); // Kalphite Soldier
+		put(m, 239, RiderPose.EXTRA_WIDE, 0.552f, 734, 792, 793, 0.2544f, 0.6898f, 1414); // King Black Dragon
+		put(m, 3027, RiderPose.EXTRA_WIDE, 0.717f, 445, 448, 456, 0.727f, 0.0f, 501); // King Scorpion
+		put(m, 6593, RiderPose.EXTRA_WIDE, 0.619f, 70, 100, 71, 0.5808f, 0.3707f, 1112); // Lava dragon
+		put(m, 7597, RiderPose.EXTRA_WIDE, 3.897f, 84, 108, 85, -0.0f, 0.3247f, 229); // Lizard
+		put(m, 7792, RiderPose.EXTRA_WIDE, 0.6f, 175, 411, 412, 0.2168f, 0.0f, 948); // Long-tailed Wyvern
+		put(m, 6604, RiderPose.WIDE, 0.448f, 18, 37, 19, 0.407f, 0.093f, 313); // Mammoth
+		put(m, 2919, RiderPose.EXTRA_WIDE, 0.609f, 428, 347, 346, 0.3606f, 0.1258f, 1021); // Mithril dragon
+		put(m, 12465, RiderPose.EXTRA_WIDE, 0.444f, 734, 691, 738, 0.824f, 0.1538f, 873); // Mutated Tortoise
+		put(m, 7561, RiderPose.CROSS_LEGGED, 0.635f, 727, 732, 733, 0.2709f, 0.2709f, 753); // Muttadile
+		put(m, 2946, RiderPose.WIDE, 0.911f, 213, 151, 223, 0.0412f, 0.3294f, 499); // Nail beast
+		put(m, 830, RiderPose.WIDE, 0.955f, 150, 137, 136, 0.9292f, 0.0708f, 200); // Penguin
+		put(m, 5983, RiderPose.EXTRA_WIDE, 3.159f, 10, 14, 11, 0.6101f, 0.3246f, 16); // Pet rock
+		put(m, 2796, RiderPose.WIDE, 1.562f, 76, 91, 92, 0.32f, 0.5385f, 254); // Pig
+		put(m, 1262, RiderPose.WIDE, 1.013f, 57, 59, 60, 0.7115f, 0.0f, 294); // Ram
+		put(m, 7039, RiderPose.EXTRA_WIDE, 0.535f, 313, 410, 314, 0.6993f, 0.2425f, 1050); // Reanimated dragon
+		put(m, 248, RiderPose.EXTRA_WIDE, 0.622f, 313, 410, 314, 0.6995f, 0.2423f, 1027); // Red dragon
+		put(m, 7940, RiderPose.EXTRA_WIDE, 0.535f, 370, 376, 377, 0.2441f, 0.0581f, 1032); // Revenant dragon
+		put(m, 15691, RiderPose.WIDE, 0.496f, 75, 73, 70, 0.4297f, 0.1406f, 967); // Rhino
+		put(m, 1175, RiderPose.WIDE, 1.585f, 53, 85, 54, 0.1212f, 0.1519f, 203); // Rooster
+		put(m, 8031, RiderPose.EXTRA_WIDE, 0.524f, 429, 348, 347, 0.3369f, 0.0508f, 1026); // Rune dragon
+		put(m, 2907, RiderPose.WIDE, 0.826f, 43, 115, 116, 0.3951f, 0.1008f, 462); // Sabre-toothed kyatt
+		put(m, 8713, RiderPose.EXTRA_WIDE, 0.539f, 209, 266, 267, -0.0f, 0.2291f, 686); // Sarachnis
+		put(m, 2479, RiderPose.EXTRA_WIDE, 0.719f, 427, 430, 438, 0.5602f, 0.0f, 476); // Scorpion
+		put(m, 1178, RiderPose.WIDE, 1.069f, 38, 40, 41, 0.7676f, 0.0f, 238); // Sheep
+		put(m, 466, RiderPose.WIDE, 0.768f, 62, 70, 71, 0.0538f, 0.0f, 469); // Skeletal Wyvern
+		put(m, 11998, RiderPose.EXTRA_WIDE, 0.539f, 318, 499, 319, -0.0f, 0.6273f, 2221); // Spindel
+		put(m, 7794, RiderPose.EXTRA_WIDE, 0.6f, 136, 161, 162, 0.1685f, 0.0f, 896); // Spitting Wyvern
+		put(m, 1845, RiderPose.WIDE, 0.642f, 235, 173, 238, -0.0f, 0.8663f, 478); // Stag
+		put(m, 274, RiderPose.EXTRA_WIDE, 0.522f, 369, 287, 286, 0.3779f, 0.6103f, 968); // Steel dragon
+		put(m, 7793, RiderPose.EXTRA_WIDE, 0.6f, 372, 385, 373, 0.0f, 0.0854f, 944); // Taloned Wyvern
+		put(m, 6473, RiderPose.EXTRA_WIDE, 0.612f, 53, 87, 88, 0.0128f, 0.0282f, 535); // Terror dog
+		put(m, 2064, RiderPose.WIDE, 0.763f, 173, 186, 174, 0.0131f, 0.9869f, 436); // Terrorbird
+		put(m, 15429, RiderPose.EXTRA_WIDE, 1.688f, 185, 157, 156, 0.0f, 0.3321f, 303); // Tortoise
+		put(m, 4652, RiderPose.WIDE, 0.47f, 75, 132, 133, 0.0f, 0.562f, 274); // Ugthanki
+		put(m, 2837, RiderPose.WIDE, 0.722f, 129, 151, 152, -0.0f, 0.2621f, 421); // Unicorn
+		put(m, 6504, RiderPose.EXTRA_WIDE, 0.539f, 148, 147, 281, 0.4134f, 0.1827f, 507); // Venenatis
+		put(m, 8061, RiderPose.EXTRA_WIDE, 0.384f, 347, 81, 348, 0.1142f, 0.0961f, 1497); // Vorkath
+		put(m, 107, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // White wolf
+		put(m, 106, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // Wolf
+		put(m, 8610, RiderPose.EXTRA_WIDE, 1.135f, 7, 20, 21, 0.2542f, 0.4232f, 1139); // Wyrm
 		return m;
 	}
 
@@ -331,6 +461,29 @@ final class MountFits
 		m.put(14928, new int[]{0, 10}); // Beaver
 		m.put(14929, new int[]{0, 10}); // Beaver
 		m.put(16316, new int[]{20, 20}); // Mr McGroot
+		// Creatures: anything with a back to sit on, from dragons to the pet rock.
+		m.put(8030, new int[]{15, 15}); // Adamant dragon
+		m.put(11992, new int[]{25, 0}); // Artio
+		m.put(6076, new int[]{10, 15}); // Battle tortoise
+		m.put(109, new int[]{30, 0}); // Big Wolf
+		m.put(270, new int[]{15, 15}); // Bronze dragon
+		m.put(6503, new int[]{25, 0}); // Callisto
+		m.put(9047, new int[]{0, 44}); // Corrupted Dragon
+		m.put(9033, new int[]{30, 0}); // Crystalline Dragon
+		m.put(459, new int[]{30, 30}); // Desert Lizard
+		m.put(14237, new int[]{0, 10}); // Dog
+		m.put(8612, new int[]{0, 44}); // Drake
+		m.put(14922, new int[]{20, 30}); // Frost dragon
+		m.put(272, new int[]{15, 15}); // Iron dragon
+		m.put(2919, new int[]{15, 15}); // Mithril dragon
+		m.put(12465, new int[]{15, 15}); // Mutated Tortoise
+		m.put(2796, new int[]{15, 0}); // Pig
+		m.put(7940, new int[]{40, 40}); // Revenant dragon
+		m.put(8031, new int[]{15, 15}); // Rune dragon
+		m.put(1845, new int[]{25, 0}); // Stag
+		m.put(274, new int[]{15, 15}); // Steel dragon
+		m.put(2837, new int[]{25, 0}); // Unicorn
+		m.put(107, new int[]{50, 0}); // White wolf
 		return m;
 	}
 
@@ -528,12 +681,104 @@ final class MountFits
 		m.put(16466, new int[]{6561, 6560, -1});
 		m.put(16467, new int[]{6561, 6560, -1});
 		m.put(16468, new int[]{6561, 6560, -1});
+		// Creatures: anything with a back to sit on, from dragons to the pet rock.
+		m.put(8030, new int[]{90, 79, -1}); // Adamant dragon
+		m.put(7795, new int[]{7650, 7650, -1}); // Ancient Wyvern
+		m.put(11992, new int[]{10011, 10009, -1}); // Artio
+		m.put(1871, new int[]{27, 21, -1}); // Baby black dragon
+		m.put(243, new int[]{27, 21, -1}); // Baby blue dragon
+		m.put(5873, new int[]{27, 21, -1}); // Baby green dragon
+		m.put(245, new int[]{27, 21, -1}); // Baby red dragon
+		m.put(417, new int[]{1545, 1544, -1}); // Basilisk
+		m.put(6076, new int[]{3952, 3953, -1}); // Battle tortoise
+		m.put(478, new int[]{1796, 1797, -1}); // Big frog
+		m.put(109, new int[]{6580, 6556, -1}); // Big Wolf
+		m.put(2839, new int[]{4919, 4923, -1}); // Black bear
+		m.put(252, new int[]{90, 79, -1}); // Black dragon
+		m.put(2849, new int[]{6374, 6373, -1}); // Black unicorn
+		m.put(268, new int[]{90, 79, -1}); // Blue dragon
+		m.put(270, new int[]{90, 79, -1}); // Bronze dragon
+		m.put(7275, new int[]{90, 79, -1}); // Brutal black dragon
+		m.put(7273, new int[]{90, 79, -1}); // Brutal blue dragon
+		m.put(2918, new int[]{90, 79, -1}); // Brutal green dragon
+		m.put(7274, new int[]{90, 79, -1}); // Brutal red dragon
+		m.put(15625, new int[]{13781, 13782, -1}); // Bull
+		m.put(3902, new int[]{1242, 1243, -1}); // Bunny
+		m.put(6503, new int[]{4919, 4923, -1}); // Callisto
+		m.put(2835, new int[]{51, 45, -1}); // Camel
+		m.put(5862, new int[]{4484, 4488, -1}); // Cerberus
+		m.put(1173, new int[]{5386, 5385, -1}); // Chicken
+		m.put(9047, new int[]{90, 79, -1}); // Corrupted Dragon
+		m.put(2790, new int[]{5852, 5848, -1}); // Cow
+		m.put(4184, new int[]{2037, 2036, -1}); // Crocodile
+		m.put(9033, new int[]{90, 79, -1}); // Crystalline Dragon
+		m.put(459, new int[]{2774, 2775, -1}); // Desert Lizard
+		m.put(3426, new int[]{6580, 6556, -1}); // Dire Wolf
+		m.put(14237, new int[]{7269, 6577, -1}); // Dog
+		m.put(8612, new int[]{8274, 8273, -1}); // Drake
+		m.put(1838, new int[]{6818, 6817, -1}); // Duck
+		m.put(817, new int[]{90, 79, -1}); // Elvarg
+		m.put(14922, new int[]{90, 79, -1}); // Frost dragon
+		m.put(477, new int[]{1796, 1797, -1}); // Giant frog
+		m.put(5779, new int[]{3309, 3313, -1}); // Giant Mole
+		m.put(2510, new int[]{4932, 4931, -1}); // Giant rat
+		m.put(2261, new int[]{1310, 1311, -1}); // Giant Rock Crab
+		m.put(1792, new int[]{252, 249, -1}); // Goat
+		m.put(260, new int[]{90, 79, -1}); // Green dragon
+		m.put(2838, new int[]{4919, 4923, -1}); // Grizzly bear
+		m.put(114, new int[]{6561, 6560, -1}); // Guard dog
+		m.put(104, new int[]{6561, 6583, -1}); // Hellhound
+		m.put(2909, new int[]{5225, 5226, -1}); // Horned graahk
+		m.put(272, new int[]{90, 79, -1}); // Iron dragon
+		m.put(4185, new int[]{6561, 6560, -1}); // Jackal
+		m.put(963, new int[]{6239, 6238, -1}); // Kalphite Queen
+		m.put(957, new int[]{6218, 6220, -1}); // Kalphite Soldier
+		m.put(239, new int[]{90, 4635, -1}); // King Black Dragon
+		m.put(3027, new int[]{6252, 6253, -1}); // King Scorpion
+		m.put(6593, new int[]{90, 79, -1}); // Lava dragon
+		m.put(7597, new int[]{2774, 2775, -1}); // Lizard
+		m.put(7792, new int[]{7650, 7650, -1}); // Long-tailed Wyvern
+		m.put(6604, new int[]{306, 303, -1}); // Mammoth
+		m.put(2919, new int[]{90, 79, -1}); // Mithril dragon
+		m.put(12465, new int[]{10435, 10434, -1}); // Mutated Tortoise
+		m.put(7561, new int[]{7425, 7419, -1}); // Muttadile
+		m.put(2946, new int[]{5986, 5987, -1}); // Nail beast
+		m.put(830, new int[]{5668, 5666, -1}); // Penguin
+		m.put(5983, new int[]{-1, -1, -1}); // Pet rock
+		m.put(2796, new int[]{2166, 2165, -1}); // Pig
+		m.put(1262, new int[]{5335, 5334, -1}); // Ram
+		m.put(7039, new int[]{90, 79, -1}); // Reanimated dragon
+		m.put(248, new int[]{90, 79, -1}); // Red dragon
+		m.put(7940, new int[]{90, 79, -1}); // Revenant dragon
+		m.put(15691, new int[]{813, 819, -1}); // Rhino
+		m.put(1175, new int[]{5386, 5385, -1}); // Rooster
+		m.put(8031, new int[]{90, 79, -1}); // Rune dragon
+		m.put(2907, new int[]{5225, 5226, -1}); // Sabre-toothed kyatt
+		m.put(8713, new int[]{8320, 8319, -1}); // Sarachnis
+		m.put(2479, new int[]{6252, 6253, -1}); // Scorpion
+		m.put(1178, new int[]{5339, 5340, -1}); // Sheep
+		m.put(466, new int[]{2984, 2982, -1}); // Skeletal Wyvern
+		m.put(11998, new int[]{9986, 9988, -1}); // Spindel
+		m.put(7794, new int[]{7650, 7650, -1}); // Spitting Wyvern
+		m.put(1845, new int[]{6374, 6373, -1}); // Stag
+		m.put(274, new int[]{90, 79, -1}); // Steel dragon
+		m.put(7793, new int[]{7650, 7650, -1}); // Taloned Wyvern
+		m.put(6473, new int[]{5623, 5622, -1}); // Terror dog
+		m.put(2064, new int[]{1008, 1007, -1}); // Terrorbird
+		m.put(15429, new int[]{12978, 12975, -1}); // Tortoise
+		m.put(4652, new int[]{51, 45, -1}); // Ugthanki
+		m.put(2837, new int[]{6374, 6373, -1}); // Unicorn
+		m.put(6504, new int[]{5318, 5317, -1}); // Venenatis
+		m.put(8061, new int[]{7948, 7947, -1}); // Vorkath
+		m.put(107, new int[]{6580, 6556, -1}); // White wolf
+		m.put(106, new int[]{6580, 6556, -1}); // Wolf
+		m.put(8610, new int[]{8266, 8266, -1}); // Wyrm
 		return m;
 	}
 
 	private static Map<String, Integer> buildChoices()
 	{
-		Map<String, Integer> m = new java.util.LinkedHashMap<>();
+		Map<String, Integer> m = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		m.put("Babi", 11847);
 		m.put("Baby Chinchompa", 6756);
 		m.put("Baby Mole", 6635);
@@ -625,6 +870,98 @@ final class MountFits
 		m.put("Youngllef", 8737);
 		m.put("Zebo", 11849);
 		m.put("Ziggy", 9853);
+		// Creatures: anything with a back to sit on, from dragons to the pet rock.
+		m.put("Adamant dragon", 8030);
+		m.put("Ancient Wyvern", 7795);
+		m.put("Artio", 11992);
+		m.put("Baby black dragon", 1871);
+		m.put("Baby blue dragon", 243);
+		m.put("Baby green dragon", 5873);
+		m.put("Baby red dragon", 245);
+		m.put("Basilisk", 417);
+		m.put("Battle tortoise", 6076);
+		m.put("Big frog", 478);
+		m.put("Big Wolf", 109);
+		m.put("Black bear", 2839);
+		m.put("Black dragon", 252);
+		m.put("Black unicorn", 2849);
+		m.put("Blue dragon", 268);
+		m.put("Bronze dragon", 270);
+		m.put("Brutal black dragon", 7275);
+		m.put("Brutal blue dragon", 7273);
+		m.put("Brutal green dragon", 2918);
+		m.put("Brutal red dragon", 7274);
+		m.put("Bull", 15625);
+		m.put("Bunny", 3902);
+		m.put("Callisto", 6503);
+		m.put("Camel", 2835);
+		m.put("Cerberus", 5862);
+		m.put("Chicken", 1173);
+		m.put("Corrupted Dragon", 9047);
+		m.put("Cow", 2790);
+		m.put("Crocodile", 4184);
+		m.put("Crystalline Dragon", 9033);
+		m.put("Desert Lizard", 459);
+		m.put("Dire Wolf", 3426);
+		m.put("Dog", 14237);
+		m.put("Drake", 8612);
+		m.put("Duck", 1838);
+		m.put("Elvarg", 817);
+		m.put("Frost dragon", 14922);
+		m.put("Giant frog", 477);
+		m.put("Giant Mole", 5779);
+		m.put("Giant rat", 2510);
+		m.put("Giant Rock Crab", 2261);
+		m.put("Goat", 1792);
+		m.put("Green dragon", 260);
+		m.put("Grizzly bear", 2838);
+		m.put("Guard dog", 114);
+		m.put("Hellhound", 104);
+		m.put("Horned graahk", 2909);
+		m.put("Iron dragon", 272);
+		m.put("Jackal", 4185);
+		m.put("Kalphite Queen", 963);
+		m.put("Kalphite Soldier", 957);
+		m.put("King Black Dragon", 239);
+		m.put("King Scorpion", 3027);
+		m.put("Lava dragon", 6593);
+		m.put("Lizard", 7597);
+		m.put("Long-tailed Wyvern", 7792);
+		m.put("Mammoth", 6604);
+		m.put("Mithril dragon", 2919);
+		m.put("Mutated Tortoise", 12465);
+		m.put("Muttadile", 7561);
+		m.put("Nail beast", 2946);
+		m.put("Penguin", 830);
+		m.put("Pet rock", 5983);
+		m.put("Pig", 2796);
+		m.put("Ram", 1262);
+		m.put("Reanimated dragon", 7039);
+		m.put("Red dragon", 248);
+		m.put("Revenant dragon", 7940);
+		m.put("Rhino", 15691);
+		m.put("Rooster", 1175);
+		m.put("Rune dragon", 8031);
+		m.put("Sabre-toothed kyatt", 2907);
+		m.put("Sarachnis", 8713);
+		m.put("Scorpion", 2479);
+		m.put("Sheep", 1178);
+		m.put("Skeletal Wyvern", 466);
+		m.put("Spindel", 11998);
+		m.put("Spitting Wyvern", 7794);
+		m.put("Stag", 1845);
+		m.put("Steel dragon", 274);
+		m.put("Taloned Wyvern", 7793);
+		m.put("Terror dog", 6473);
+		m.put("Terrorbird", 2064);
+		m.put("Tortoise", 15429);
+		m.put("Ugthanki", 4652);
+		m.put("Unicorn", 2837);
+		m.put("Venenatis", 6504);
+		m.put("Vorkath", 8061);
+		m.put("White wolf", 107);
+		m.put("Wolf", 106);
+		m.put("Wyrm", 8610);
 		return java.util.Collections.unmodifiableMap(m);
 	}
 }

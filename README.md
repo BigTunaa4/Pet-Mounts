@@ -20,6 +20,15 @@ press **Ride**. You ride it just like your own: same saddle, reins, animations a
 **The pet following you** to go back to riding your own pet. Right-clicking your pet and choosing **Ride** also
 switches back to it.
 
+The list also has creatures from all over Gielinor: every kind of dragon (green to rune, lava, brutal, baby,
+frost, crystalline, corrupted and revenant dragons, plus the King Black Dragon, Elvarg and Vorkath), drakes,
+wyrms and wyverns, the gnomes' battle tortoise, unicorns, camels, cows, bulls, rams, bears, wolves, hellhounds,
+Cerberus, Callisto, crocodiles, kalphites, Venenatis, Sarachnis, a mammoth, a rhino, a giant frog, a
+penguin, a chicken and, of course, a pet rock. Each one is sized and fitted with a saddle so you sit on its back.
+
+Dogs, wolves and hounds stop to dig now and then while you stand still, and when your own pet does something
+(a cat chasing a rat, say) your mount does it too.
+
 It's cosmetic and on your screen only, like the rest of the plugin.
 
 ## Mount Stable
@@ -204,6 +213,6 @@ The seat-following technique and the seated riding poses are adapted from
 [Rapid Mounts](https://github.com/RapidUrsa/RapidMounts) by RapidUrsa (BSD 2-Clause).
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-## Support
+## Tip the developer
 
 This plugin is free and always will be. If you enjoy it and want to say thanks, you can leave a tip on Cash App: [$VintageAdVenturesss](https://cash.app/$VintageAdVenturesss). Totally optional, and much appreciated.

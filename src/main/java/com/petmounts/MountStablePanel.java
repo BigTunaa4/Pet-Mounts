@@ -141,7 +141,7 @@ class MountStablePanel extends PluginPanel
 		content.add(left(card));
 		content.add(Box.createRigidArea(new Dimension(0, 8)));
 
-		// Which pet to ride: your follower, or any rideable pet, even one you haven't got yet.
+		// What to ride: your follower, or any rideable pet or creature, even a pet you haven't got yet.
 		content.add(left(small("Mount")));
 		mountBox.addItem(YOUR_PET);
 		for (String name : MountFits.choices().keySet())
@@ -149,7 +149,8 @@ class MountStablePanel extends PluginPanel
 			mountBox.addItem(name);
 		}
 		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
-		mountBox.setToolTipText("Ride the pet following you, or pick any pet to ride, even one you don't have yet");
+		mountBox.setMaximumRowCount(20);
+		mountBox.setToolTipText("Ride the pet following you, or pick any pet or creature to ride: dragons, unicorns, the battle tortoise, even a pet rock");
 		mountBox.addActionListener(e ->
 		{
 			if (!updating)

@@ -43,7 +43,7 @@ public class SeatTest
 	@Test
 	public void tunedSeatsCoverEveryRideablePet()
 	{
-		assertEquals(191, MountFits.size());
+		assertEquals(191 + 91, MountFits.size()); // pets plus creatures
 		MountFits.Fit darkCore = MountFits.get(318);
 		assertNotNull(darkCore);
 		assertEquals(RiderPose.CROSS_LEGGED, darkCore.pose);

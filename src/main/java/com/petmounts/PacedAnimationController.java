@@ -50,6 +50,12 @@ final class PacedAnimationController extends AnimationController
 		return length <= 0 ? 0 : (played % length) / length;
 	}
 
+	/** Whether the animation has played all the way through at least once. */
+	boolean playedOnce()
+	{
+		return length <= 0 || played >= length;
+	}
+
 	void setPace(float pace)
 	{
 		this.pace = Math.max(0.25f, Math.min(3f, pace));

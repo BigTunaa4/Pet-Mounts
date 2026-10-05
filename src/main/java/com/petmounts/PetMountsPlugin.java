@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
@@ -20,6 +21,8 @@ import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.Player;
 import net.runelite.api.Renderable;
+import net.runelite.api.Scene;
+import net.runelite.api.TileObject;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.CommandExecuted;
@@ -156,7 +159,33 @@ public class PetMountsPlugin extends Plugin
 				return true;
 			}
 		}
+
+		@Override
+		public boolean drawObject(Scene scene, TileObject object)
+		{
+			try
+			{
+				return shouldDrawObject(object);
+			}
+			catch (RuntimeException e)
+			{
+				log.debug("Draw check failed", e);
+				return true;
+			}
+		}
 	};
+
+	/**
+	 * When the game last asked before drawing a person. While it keeps asking, riders can be hidden without losing
+	 * their clickbox. (Some renderers might not ask; then riders are left out of the scene as before.)
+	 */
+	private volatile long peopleDrawCheckedAt;
+	private static final long DRAW_CHECK_TIMEOUT = 2_000_000_000L;
+
+	private boolean drawChecksPeople()
+	{
+		return System.nanoTime() - peopleDrawCheckedAt < DRAW_CHECK_TIMEOUT;
+	}
 
 	private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.mountHotkey())
 	{
@@ -634,6 +663,10 @@ public class PetMountsPlugin extends Plugin
 		}
 		for (Player rider : others.ridersAt(new java.awt.Point(mouse.getX(), mouse.getY())))
 		{
+			if (listedByGame(rider))
+			{
+				continue; // the game already made this rider's menu itself: leave it exactly as it is
+			}
 			String target = PlayerMenu.target(rider, me.getCombatLevel());
 			// Added last-option first, so the first option ends up on top as in the game's own menu.
 			for (int i = Math.min(options.length, types.length) - 1; i >= 0; i--)
@@ -652,6 +685,19 @@ public class PetMountsPlugin extends Plugin
 						|| lowered != null && i < lowered.length && lowered[i]);
 			}
 		}
+	}
+
+	/** Whether the open menu already has the game's own entries for this player. */
+	private boolean listedByGame(Player player)
+	{
+		for (MenuEntry entry : client.getMenu().getMenuEntries())
+		{
+			if (entry.getPlayer() == player)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Subscribe
@@ -1100,6 +1146,28 @@ public class PetMountsPlugin extends Plugin
 		{
 			return false;
 		}
-		return !others.hides(renderable);
+		if (others.hides(renderable))
+		{
+			// Other riders: keep them in the scene, so right-clicking them gives exactly the game's own menu (and
+			// whatever other plugins add to it), and just don't draw them. Their pets are left out completely.
+			return renderable instanceof Player && drawChecksPeople();
+		}
+		return true;
+	}
+
+	/** Hides other riders' real players from the picture while leaving them clickable. */
+	private boolean shouldDrawObject(TileObject object)
+	{
+		if (!(object instanceof GameObject))
+		{
+			return true;
+		}
+		Renderable r = ((GameObject) object).getRenderable();
+		if (!(r instanceof Actor))
+		{
+			return true;
+		}
+		peopleDrawCheckedAt = System.nanoTime();
+		return !(r instanceof Player && others.hides(r));
 	}
 }

@@ -480,135 +480,127 @@ final class MountFits
 		put(m, 13665, RiderPose.EXTRA_WIDE, 1.315f, 127, 49, 133, 0.861f, 0.0f, 307); // Broav (other form)
 		put(m, 16574, RiderPose.WIDE, 3.0f, 219, 300, 221, 0.0f, 0.5737f, 306); // Yorkie (other form)
 		// Shoulder rides: two-legged pets (and a few other tall ones) carry you up on their shoulders.
-		putShoulders(m, 5883, RiderPose.WIDE, 1.874f, 72, 106, 107, -0.0f, 0.875f, 395); // Abyssal orphan (other form)
-		putShoulders(m, 5884, RiderPose.WIDE, 1.874f, 72, 106, 107, -0.0f, 0.875f, 395); // Abyssal orphan
-		putShoulders(m, 11402, RiderPose.WIDE, 1.918f, 238, 243, 239, 0.0308f, 0.2333f, 499); // Abyssal protector (other form)
-		putShoulders(m, 11429, RiderPose.WIDE, 1.918f, 238, 243, 239, 0.0308f, 0.2333f, 499); // Abyssal protector
-		putShoulders(m, 16317, RiderPose.WIDE, 1.167f, 606, 1061, 1060, 0.2222f, 0.3333f, 1221); // Aggy
-		putShoulders(m, 16334, RiderPose.WIDE, 1.167f, 606, 1061, 1060, 0.2222f, 0.3333f, 1221); // Aggy (other form)
-		putShoulders(m, 10476, RiderPose.WIDE, 1.812f, 916, 920, 917, 0.5175f, 0.3147f, 1287); // Bran (other form)
-		putShoulders(m, 12593, RiderPose.WIDE, 1.812f, 916, 920, 917, 0.5175f, 0.3147f, 1287); // Bran
-		putShoulders(m, 12154, RiderPose.WIDE, 1.725f, 518, 524, 519, 0.4f, 0.1f, 934); // Butch (other form)
-		putShoulders(m, 12158, RiderPose.WIDE, 1.725f, 518, 524, 519, 0.4f, 0.1f, 934); // Butch
-		putShoulders(m, 6627, RiderPose.WIDE, 1.69f, 332, 333, 321, 0.2822f, 0.0f, 360); // Dagannoth Prime Jr. (other form)
-		putShoulders(m, 6629, RiderPose.WIDE, 1.69f, 332, 333, 321, 0.2822f, 0.0f, 360); // Dagannoth Prime Jr.
-		putShoulders(m, 6630, RiderPose.WIDE, 1.922f, 19, 32, 33, 0.2933f, 0.0f, 299); // Dagannoth Rex Jr.
-		putShoulders(m, 6641, RiderPose.WIDE, 1.922f, 19, 32, 33, 0.2933f, 0.0f, 299); // Dagannoth Rex Jr. (other form)
-		putShoulders(m, 6626, RiderPose.WIDE, 1.688f, 320, 321, 309, 0.292f, 0.0f, 338); // Dagannoth Supreme Jr. (other form)
-		putShoulders(m, 6628, RiderPose.WIDE, 1.688f, 320, 321, 309, 0.292f, 0.0f, 338); // Dagannoth Supreme Jr.
-		putShoulders(m, 9511, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Enraged Tektiny (other form)
-		putShoulders(m, 9513, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Enraged Tektiny
-		putShoulders(m, 6632, RiderPose.WIDE, 1.867f, 463, 509, 510, 0.0f, 0.0806f, 1038); // General Graardor Jr.
-		putShoulders(m, 6644, RiderPose.WIDE, 1.867f, 463, 509, 510, 0.0f, 0.0806f, 1038); // General Graardor Jr. (other form)
-		putShoulders(m, 11401, RiderPose.WIDE, 2.228f, 660, 395, 663, 0.0619f, 0.2165f, 1869); // Greatish guardian (other form)
-		putShoulders(m, 11428, RiderPose.WIDE, 2.228f, 660, 395, 663, 0.0619f, 0.2165f, 1869); // Greatish guardian
-		putShoulders(m, 6634, RiderPose.WIDE, 2.614f, 1030, 900, 1033, 0.5233f, 0.2162f, 1400); // K'ril Tsutsaroth Jr.
-		putShoulders(m, 6647, RiderPose.WIDE, 2.614f, 1030, 900, 1033, 0.5233f, 0.2162f, 1400); // K'ril Tsutsaroth Jr. (other form)
-		putShoulders(m, 6640, RiderPose.EXTRA_WIDE, 4.5f, 251, 278, 279, 0.0f, 0.625f, 427); // Kraken
-		putShoulders(m, 6656, RiderPose.EXTRA_WIDE, 4.5f, 251, 278, 279, 0.0f, 0.625f, 427); // Kraken (other form)
-		putShoulders(m, 6631, RiderPose.WIDE, 1.657f, 30, 58, 60, 0.6633f, 0.0f, 902); // Kree'arra Jr.
-		putShoulders(m, 6643, RiderPose.WIDE, 1.657f, 30, 58, 60, 0.6633f, 0.0f, 902); // Kree'arra Jr. (other form)
-		putShoulders(m, 10762, RiderPose.WIDE, 2.267f, 1869, 1868, 1870, 0.11f, 0.11f, 1896); // Lil' Bloat (other form)
-		putShoulders(m, 10871, RiderPose.WIDE, 2.267f, 1869, 1868, 1870, 0.11f, 0.11f, 1896); // Lil' Bloat
-		putShoulders(m, 2833, RiderPose.WIDE, 1.618f, 397, 405, 406, 0.9027f, 0.0262f, 1328); // Lil' Creator (other form)
-		putShoulders(m, 3566, RiderPose.WIDE, 1.618f, 397, 405, 406, 0.9027f, 0.0262f, 1328); // Lil' Creator
-		putShoulders(m, 3564, RiderPose.WIDE, 1.754f, 443, 562, 444, 0.6057f, 0.012f, 1461); // Lil' Destructor (other form)
-		putShoulders(m, 5008, RiderPose.WIDE, 1.754f, 443, 562, 444, 0.6057f, 0.012f, 1461); // Lil' Destructor
-		putShoulders(m, 10870, RiderPose.WIDE, 1.62f, 1229, 1234, 719, 0.285f, 0.4203f, 1644); // Lil' Maiden
-		putShoulders(m, 10765, RiderPose.WIDE, 1.811f, 876, 883, 877, 0.1407f, 0.384f, 1275); // Lil' Xarp (other form)
-		putShoulders(m, 10874, RiderPose.WIDE, 1.811f, 876, 883, 877, 0.1407f, 0.384f, 1275); // Lil' Xarp
-		putShoulders(m, 9398, RiderPose.WIDE, 2.533f, 1623, 1326, 1325, 0.7143f, 0.1688f, 2295); // Little Nightmare (other form)
-		putShoulders(m, 9399, RiderPose.WIDE, 2.533f, 1623, 1326, 1325, 0.7143f, 0.1688f, 2295); // Little Nightmare
-		putShoulders(m, 7890, RiderPose.WIDE, 1.79f, 502, 495, 494, 0.1001f, 0.8629f, 1392); // Midnight (other form)
-		putShoulders(m, 7893, RiderPose.WIDE, 1.79f, 502, 495, 494, 0.1001f, 0.8629f, 1392); // Midnight
-		putShoulders(m, 11276, RiderPose.WIDE, 2.129f, 951, 646, 645, 0.0667f, 0.2f, 1617); // Nexling (other form)
-		putShoulders(m, 11277, RiderPose.WIDE, 2.129f, 951, 646, 645, 0.0667f, 0.2f, 1617); // Nexling
-		putShoulders(m, 7891, RiderPose.WIDE, 1.598f, 1233, 1238, 1234, 0.125f, 0.4357f, 1514); // Noon (other form)
-		putShoulders(m, 7892, RiderPose.WIDE, 1.598f, 1233, 1238, 1234, 0.125f, 0.4357f, 1514); // Noon
-		putShoulders(m, 7519, RiderPose.WIDE, 2.183f, 486, 494, 495, 0.3889f, 0.0f, 1063); // Olmlet (other form)
-		putShoulders(m, 7520, RiderPose.WIDE, 2.183f, 486, 494, 495, 0.3889f, 0.0f, 1063); // Olmlet
-		putShoulders(m, 12592, RiderPose.WIDE, 1.914f, 533, 541, 542, 0.0f, 0.6154f, 1721); // Ric (other form)
-		putShoulders(m, 12595, RiderPose.WIDE, 1.914f, 533, 541, 542, 0.0f, 0.6154f, 1721); // Ric
-		putShoulders(m, 7337, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7338, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7339, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7340, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7341, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7342, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7343, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7344, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7345, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7346, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7347, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7348, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7349, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7350, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7354, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian
-		putShoulders(m, 7355, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7356, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7357, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7358, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7359, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7360, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7361, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7362, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7363, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7364, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7365, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7366, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 7367, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 8024, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 8028, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
-		putShoulders(m, 2182, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7439, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7440, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7441, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7442, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7443, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7444, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7445, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7446, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7447, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7448, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7449, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7450, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7451, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem
-		putShoulders(m, 7452, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7453, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7454, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7455, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7642, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7643, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7644, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7645, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7646, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7647, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7648, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7711, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7736, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7737, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7738, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7739, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7740, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 7741, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 14923, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 15051, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
-		putShoulders(m, 425, RiderPose.WIDE, 1.739f, 222, 227, 228, 0.3854f, 0.3854f, 1159); // Skotos (other form)
-		putShoulders(m, 7671, RiderPose.WIDE, 1.739f, 222, 227, 228, 0.3854f, 0.3854f, 1159); // Skotos
-		putShoulders(m, 12767, RiderPose.WIDE, 1.716f, 1507, 515, 1319, 0.1833f, 0.4733f, 2010); // Smol Heredit (other form)
-		putShoulders(m, 12857, RiderPose.WIDE, 1.716f, 1507, 515, 1319, 0.1833f, 0.4733f, 2010); // Smol Heredit
-		putShoulders(m, 7335, RiderPose.WIDE, 1.506f, 513, 530, 531, 0.2656f, 0.3906f, 573); // Tangleroot (other form)
-		putShoulders(m, 7352, RiderPose.WIDE, 1.506f, 513, 530, 531, 0.2656f, 0.3906f, 573); // Tangleroot
-		putShoulders(m, 8197, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Tektiny (other form)
-		putShoulders(m, 8202, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Tektiny
-		putShoulders(m, 8009, RiderPose.WIDE, 2.03f, 547, 570, 548, 0.162f, 0.1978f, 1617); // TzRek-Zuk (other form)
-		putShoulders(m, 8011, RiderPose.WIDE, 2.03f, 547, 570, 548, 0.162f, 0.1978f, 1617); // TzRek-Zuk
-		putShoulders(m, 5536, RiderPose.WIDE, 1.745f, 682, 698, 699, 0.566f, 0.2969f, 1229); // Vet'ion Jr. (other form)
-		putShoulders(m, 5559, RiderPose.WIDE, 1.745f, 682, 698, 699, 0.566f, 0.2969f, 1229); // Vet'ion Jr.
-		putShoulders(m, 14203, RiderPose.WIDE, 1.539f, 807, 816, 817, -0.0f, 0.2532f, 1503); // Yami (other form)
-		putShoulders(m, 14204, RiderPose.WIDE, 1.539f, 807, 816, 817, -0.0f, 0.2532f, 1503); // Yami
-		putShoulders(m, 6633, RiderPose.WIDE, 2.099f, 22, 29, 30, 0.5848f, 0.0539f, 768); // Zilyana Jr.
-		putShoulders(m, 6646, RiderPose.WIDE, 2.099f, 22, 29, 30, 0.5848f, 0.0539f, 768); // Zilyana Jr. (other form)
+		putShoulders(m, 5883, RiderPose.WIDE, 2.122f, 8, 22, 23, 0.6635f, 0.0288f, 395); // Abyssal orphan (other form)
+		putShoulders(m, 5884, RiderPose.WIDE, 2.122f, 8, 22, 23, 0.6635f, 0.0288f, 395); // Abyssal orphan
+		putShoulders(m, 16317, RiderPose.WIDE, 1.604f, 208, 221, 222, 0.3333f, -0.0f, 1221); // Aggy
+		putShoulders(m, 16334, RiderPose.WIDE, 1.604f, 208, 221, 222, 0.3333f, -0.0f, 1221); // Aggy (other form)
+		putShoulders(m, 10476, RiderPose.WIDE, 2.77f, 390, 400, 401, 0.2574f, 0.6941f, 1287); // Bran (other form)
+		putShoulders(m, 12593, RiderPose.WIDE, 2.77f, 390, 400, 401, 0.2574f, 0.6941f, 1287); // Bran
+		putShoulders(m, 12154, RiderPose.WIDE, 2.318f, 177, 187, 178, 0.0738f, 0.6485f, 934); // Butch (other form)
+		putShoulders(m, 12158, RiderPose.WIDE, 2.318f, 177, 187, 178, 0.0738f, 0.6485f, 934); // Butch
+		putShoulders(m, 6627, RiderPose.WIDE, 2.118f, 141, 143, 144, 0.0f, 0.2222f, 360); // Dagannoth Prime Jr. (other form)
+		putShoulders(m, 6629, RiderPose.WIDE, 2.118f, 141, 143, 144, 0.0f, 0.2222f, 360); // Dagannoth Prime Jr.
+		putShoulders(m, 6630, RiderPose.WIDE, 2.267f, 152, 160, 161, 0.6f, -0.0f, 299); // Dagannoth Rex Jr.
+		putShoulders(m, 6641, RiderPose.WIDE, 2.267f, 152, 160, 161, 0.6f, -0.0f, 299); // Dagannoth Rex Jr. (other form)
+		putShoulders(m, 6626, RiderPose.WIDE, 2.092f, 151, 157, 152, 0.0f, 0.6f, 338); // Dagannoth Supreme Jr. (other form)
+		putShoulders(m, 6628, RiderPose.WIDE, 2.092f, 151, 157, 152, 0.0f, 0.6f, 338); // Dagannoth Supreme Jr.
+		putShoulders(m, 6632, RiderPose.WIDE, 1.812f, 774, 783, 775, 0.3879f, 0.5292f, 1038); // General Graardor Jr.
+		putShoulders(m, 6644, RiderPose.WIDE, 1.812f, 774, 783, 775, 0.3879f, 0.5292f, 1038); // General Graardor Jr. (other form)
+		putShoulders(m, 11401, RiderPose.WIDE, 1.93f, 429, 1132, 1131, 0.8058f, 0.1343f, 1869); // Greatish guardian (other form)
+		putShoulders(m, 11428, RiderPose.WIDE, 1.93f, 429, 1132, 1131, 0.8058f, 0.1343f, 1869); // Greatish guardian
+		putShoulders(m, 6634, RiderPose.WIDE, 2.397f, 586, 648, 649, -0.0f, 0.4878f, 1400); // K'ril Tsutsaroth Jr.
+		putShoulders(m, 6647, RiderPose.WIDE, 2.397f, 586, 648, 649, -0.0f, 0.4878f, 1400); // K'ril Tsutsaroth Jr. (other form)
+		putShoulders(m, 6640, RiderPose.EXTRA_WIDE, 4.5f, 290, 288, 277, 0.8299f, 0.0f, 427); // Kraken
+		putShoulders(m, 6656, RiderPose.EXTRA_WIDE, 4.5f, 290, 288, 277, 0.8299f, 0.0f, 427); // Kraken (other form)
+		putShoulders(m, 6631, RiderPose.WIDE, 1.883f, 78, 116, 115, 0.2753f, 0.6457f, 902); // Kree'arra Jr.
+		putShoulders(m, 6643, RiderPose.WIDE, 1.883f, 78, 116, 115, 0.2753f, 0.6457f, 902); // Kree'arra Jr. (other form)
+		putShoulders(m, 10762, RiderPose.WIDE, 2.081f, 224, 306, 225, 0.3333f, 0.2144f, 1896); // Lil' Bloat (other form)
+		putShoulders(m, 10871, RiderPose.WIDE, 2.081f, 224, 306, 225, 0.3333f, 0.2144f, 1896); // Lil' Bloat
+		putShoulders(m, 2833, RiderPose.WIDE, 1.847f, 299, 310, 311, 0.3333f, 0.6667f, 1328); // Lil' Creator (other form)
+		putShoulders(m, 3566, RiderPose.WIDE, 1.847f, 299, 310, 311, 0.3333f, 0.6667f, 1328); // Lil' Creator
+		putShoulders(m, 3564, RiderPose.WIDE, 1.962f, 433, 571, 435, 0.0385f, 0.2804f, 1461); // Lil' Destructor (other form)
+		putShoulders(m, 5008, RiderPose.WIDE, 1.962f, 433, 571, 435, 0.0385f, 0.2804f, 1461); // Lil' Destructor
+		putShoulders(m, 10870, RiderPose.WIDE, 1.558f, 173, 177, 174, 0.3945f, 0.4044f, 1644); // Lil' Maiden
+		putShoulders(m, 10765, RiderPose.WIDE, 2.468f, 610, 637, 611, 0.8861f, 0.0592f, 1275); // Lil' Xarp (other form)
+		putShoulders(m, 10874, RiderPose.WIDE, 2.468f, 610, 637, 611, 0.8861f, 0.0592f, 1275); // Lil' Xarp
+		putShoulders(m, 9398, RiderPose.WIDE, 2.842f, 1622, 1628, 1624, 0.0f, 0.968f, 2295); // Little Nightmare (other form)
+		putShoulders(m, 9399, RiderPose.WIDE, 2.842f, 1622, 1628, 1624, 0.0f, 0.968f, 2295); // Little Nightmare
+		putShoulders(m, 7890, RiderPose.WIDE, 1.773f, 502, 495, 494, 0.0035f, 0.5411f, 1392); // Midnight (other form)
+		putShoulders(m, 7893, RiderPose.WIDE, 1.773f, 502, 495, 494, 0.0035f, 0.5411f, 1392); // Midnight
+		putShoulders(m, 11276, RiderPose.WIDE, 2.196f, 613, 625, 626, 0.0833f, 0.6833f, 1617); // Nexling (other form)
+		putShoulders(m, 11277, RiderPose.WIDE, 2.196f, 613, 625, 626, 0.0833f, 0.6833f, 1617); // Nexling
+		putShoulders(m, 7891, RiderPose.WIDE, 1.961f, 395, 453, 396, 0.4042f, 0.2034f, 1514); // Noon (other form)
+		putShoulders(m, 7892, RiderPose.WIDE, 1.961f, 395, 453, 396, 0.4042f, 0.2034f, 1514); // Noon
+		putShoulders(m, 7519, RiderPose.WIDE, 2.484f, 97, 96, 138, 0.1023f, 0.1589f, 1063); // Olmlet (other form)
+		putShoulders(m, 7520, RiderPose.WIDE, 2.484f, 97, 96, 138, 0.1023f, 0.1589f, 1063); // Olmlet
+		putShoulders(m, 12592, RiderPose.WIDE, 2.05f, 539, 557, 558, 0.0f, 0.8077f, 1721); // Ric (other form)
+		putShoulders(m, 12595, RiderPose.WIDE, 2.05f, 539, 557, 558, 0.0f, 0.8077f, 1721); // Ric
+		putShoulders(m, 7337, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7338, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7339, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7340, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7341, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7342, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7343, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7344, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7345, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7346, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7347, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7348, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7349, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7350, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7354, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian
+		putShoulders(m, 7355, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7356, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7357, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7358, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7359, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7360, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7361, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7362, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7363, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7364, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7365, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7366, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 7367, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 8024, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 8028, RiderPose.WIDE, 1.93f, 141, 157, 158, 0.3161f, 0.1702f, 522); // Rift guardian (other form)
+		putShoulders(m, 2182, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7439, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7440, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7441, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7442, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7443, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7444, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7445, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7446, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7447, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7448, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7449, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7450, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7451, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem
+		putShoulders(m, 7452, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7453, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7454, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7455, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7642, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7643, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7644, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7645, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7646, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7647, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7648, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7711, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7736, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7737, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7738, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7739, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7740, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 7741, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 14923, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 15051, RiderPose.WIDE, 1.818f, 330, 342, 343, -0.0f, 1.0f, 571); // Rock Golem (other form)
+		putShoulders(m, 425, RiderPose.WIDE, 2.0f, 226, 233, 234, 0.637f, 0.1815f, 1159); // Skotos (other form)
+		putShoulders(m, 7671, RiderPose.WIDE, 2.0f, 226, 233, 234, 0.637f, 0.1815f, 1159); // Skotos
+		putShoulders(m, 12767, RiderPose.WIDE, 1.957f, 1003, 1314, 1315, 0.3284f, 0.5132f, 2010); // Smol Heredit (other form)
+		putShoulders(m, 12857, RiderPose.WIDE, 1.957f, 1003, 1314, 1315, 0.3284f, 0.5132f, 2010); // Smol Heredit
+		putShoulders(m, 7335, RiderPose.WIDE, 2.273f, 112, 162, 163, 0.3333f, 0.3333f, 573); // Tangleroot (other form)
+		putShoulders(m, 7352, RiderPose.WIDE, 2.273f, 112, 162, 163, 0.3333f, 0.3333f, 573); // Tangleroot
+		putShoulders(m, 8009, RiderPose.WIDE, 2.257f, 671, 775, 776, 0.3333f, 0.1111f, 1617); // TzRek-Zuk (other form)
+		putShoulders(m, 8011, RiderPose.WIDE, 2.257f, 671, 775, 776, 0.3333f, 0.1111f, 1617); // TzRek-Zuk
+		putShoulders(m, 5536, RiderPose.WIDE, 1.85f, 699, 822, 821, 0.0463f, 0.7672f, 1229); // Vet'ion Jr. (other form)
+		putShoulders(m, 5559, RiderPose.WIDE, 1.85f, 699, 822, 821, 0.0463f, 0.7672f, 1229); // Vet'ion Jr.
+		putShoulders(m, 6633, RiderPose.WIDE, 2.07f, 29, 351, 30, 0.15f, 0.0343f, 768); // Zilyana Jr.
+		putShoulders(m, 6646, RiderPose.WIDE, 2.07f, 29, 351, 30, 0.15f, 0.0343f, 768); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		put(m, 8030, RiderPose.EXTRA_WIDE, 0.524f, 429, 413, 412, 0.6073f, 0.3219f, 1002); // Adamant dragon
 		put(m, 7795, RiderPose.EXTRA_WIDE, 0.525f, 175, 411, 412, 0.2168f, 0.0f, 948); // Ancient Wyvern
@@ -807,8 +799,6 @@ final class MountFits
 		m.put(6629, new int[]{30, 30}); // Dagannoth Prime Jr.
 		m.put(6630, new int[]{30, 30}); // Dagannoth Rex Jr.
 		m.put(6641, new int[]{30, 30}); // Dagannoth Rex Jr. (other form)
-		m.put(9511, new int[]{10, 5}); // Enraged Tektiny (other form)
-		m.put(9513, new int[]{10, 5}); // Enraged Tektiny
 		m.put(6632, new int[]{30, 30}); // General Graardor Jr.
 		m.put(6644, new int[]{30, 30}); // General Graardor Jr. (other form)
 		m.put(11401, new int[]{20, 20}); // Greatish guardian (other form)
@@ -857,8 +847,6 @@ final class MountFits
 		m.put(7671, new int[]{30, 30}); // Skotos
 		m.put(12767, new int[]{20, 30}); // Smol Heredit (other form)
 		m.put(12857, new int[]{20, 30}); // Smol Heredit
-		m.put(8197, new int[]{10, 5}); // Tektiny (other form)
-		m.put(8202, new int[]{10, 5}); // Tektiny
 		m.put(8009, new int[]{30, 30}); // TzRek-Zuk (other form)
 		m.put(8011, new int[]{30, 30}); // TzRek-Zuk
 		m.put(5536, new int[]{30, 30}); // Vet'ion Jr. (other form)
@@ -1240,8 +1228,6 @@ final class MountFits
 		// Shoulder rides: two-legged pets (and a few other tall ones) carry you up on their shoulders.
 		m.put(5883, new int[]{7125, 7124, -1}); // Abyssal orphan (other form)
 		m.put(5884, new int[]{7125, 7124, -1}); // Abyssal orphan
-		m.put(11402, new int[]{2185, 2184, -1}); // Abyssal protector (other form)
-		m.put(11429, new int[]{2185, 2184, -1}); // Abyssal protector
 		m.put(16317, new int[]{4588, 4588, -1}); // Aggy
 		m.put(16334, new int[]{4588, 4588, -1}); // Aggy (other form)
 		m.put(10476, new int[]{11970, 11972, -1}); // Bran (other form)
@@ -1254,8 +1240,6 @@ final class MountFits
 		m.put(6641, new int[]{2850, 2849, -1}); // Dagannoth Rex Jr. (other form)
 		m.put(6626, new int[]{2850, 2849, -1}); // Dagannoth Supreme Jr. (other form)
 		m.put(6628, new int[]{2850, 2849, -1}); // Dagannoth Supreme Jr.
-		m.put(9511, new int[]{7485, 8637, -1}); // Enraged Tektiny (other form)
-		m.put(9513, new int[]{7485, 8637, -1}); // Enraged Tektiny
 		m.put(6632, new int[]{7017, 7016, -1}); // General Graardor Jr.
 		m.put(6644, new int[]{7017, 7016, -1}); // General Graardor Jr. (other form)
 		m.put(11401, new int[]{9379, 9378, -1}); // Greatish guardian (other form)
@@ -1357,14 +1341,10 @@ final class MountFits
 		m.put(12857, new int[]{10874, 10880, -1}); // Smol Heredit
 		m.put(7335, new int[]{7312, 7313, -1}); // Tangleroot (other form)
 		m.put(7352, new int[]{7312, 7313, -1}); // Tangleroot
-		m.put(8197, new int[]{7476, 7477, -1}); // Tektiny (other form)
-		m.put(8202, new int[]{7476, 7983, -1}); // Tektiny
 		m.put(8009, new int[]{7975, 7977, -1}); // TzRek-Zuk (other form)
 		m.put(8011, new int[]{7975, 7977, -1}); // TzRek-Zuk
 		m.put(5536, new int[]{9965, 9967, -1}); // Vet'ion Jr. (other form)
 		m.put(5559, new int[]{9965, 9967, -1}); // Vet'ion Jr.
-		m.put(14203, new int[]{12140, 12143, -1}); // Yami (other form)
-		m.put(14204, new int[]{12140, 12143, -1}); // Yami
 		m.put(6633, new int[]{6966, 6965, -1}); // Zilyana Jr.
 		m.put(6646, new int[]{6966, 6965, -1}); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
@@ -1557,14 +1537,12 @@ final class MountFits
 		m.put("Zebo", 11849);
 		m.put("Ziggy", 9853);
 		m.put("Abyssal orphan", 5884);
-		m.put("Abyssal protector", 11429);
 		m.put("Aggy", 16317);
 		m.put("Bran", 12593);
 		m.put("Butch", 12158);
 		m.put("Dagannoth Prime Jr.", 6629);
 		m.put("Dagannoth Rex Jr.", 6630);
 		m.put("Dagannoth Supreme Jr.", 6628);
-		m.put("Enraged Tektiny", 9513);
 		m.put("General Graardor Jr.", 6632);
 		m.put("Greatish guardian", 11428);
 		m.put("K'ril Tsutsaroth Jr.", 6634);
@@ -1586,10 +1564,8 @@ final class MountFits
 		m.put("Skotos", 7671);
 		m.put("Smol Heredit", 12857);
 		m.put("Tangleroot", 7352);
-		m.put("Tektiny", 8202);
 		m.put("TzRek-Zuk", 8011);
 		m.put("Vet'ion Jr.", 5559);
-		m.put("Yami", 14204);
 		m.put("Zilyana Jr.", 6633);
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put("Adamant dragon", 8030);

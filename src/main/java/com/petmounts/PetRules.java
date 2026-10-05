@@ -72,12 +72,16 @@ final class PetRules
 		// Too small
 		.put("maggot marquess", Reason.TOO_SMALL)
 		// Stand upright on two legs
+		.put("abyssal protector", Reason.HUMANOID)
 		.put("akkhito", Reason.HUMANOID)
 		.put("elidinis' damaged guardian", Reason.HUMANOID)
 		.put("elidinis' guardian", Reason.HUMANOID)
+		.put("enraged tektiny", Reason.HUMANOID)
 		.put("moxi", Reason.HUMANOID)
+		.put("tektiny", Reason.HUMANOID)
 		.put("tumeken's damaged guardian", Reason.HUMANOID)
 		.put("tumeken's guardian", Reason.HUMANOID)
+		.put("yami", Reason.HUMANOID)
 		// Snakes and worms
 		.put("huberte", Reason.SLITHERS)
 		.put("jal-nib-rek", Reason.SLITHERS)
@@ -100,12 +104,12 @@ final class PetRules
 
 	/** Pets checked and tuned as mounts, by their in-game name (lower case). */
 	private static final Set<String> RIDEABLE = ImmutableSet.of(
-		"abyssal orphan", "abyssal protector", "aggy", "babi", "baby chinchompa", "baby mole", "baby mole-rat", "beaver",
+		"abyssal orphan", "aggy", "babi", "baby chinchompa", "baby mole", "baby mole-rat", "beaver",
 		"beef", "bernese mountain dog", "bernese mountain dog puppy", "bloodhound", "bone squirrel", "border collie",
 		"border collie puppy", "bran", "broav", "butch", "callisto cub", "cat", "chaos elemental jr.", "chihuahua",
 		"chihuahua puppy", "chompy chick", "clockwork cat", "corgi", "corgi puppy", "corporeal critter",
 		"corrupted youngllef", "dagannoth prime jr.", "dagannoth rex jr.", "dagannoth supreme jr.", "dark core",
-		"dark squirrel", "dom", "enraged tektiny", "flying vespina", "fox", "general graardor jr.", "giant squirrel",
+		"dark squirrel", "dom", "flying vespina", "fox", "general graardor jr.", "giant squirrel",
 		"great blue heron", "greatish guardian", "greyhound", "greyhound puppy", "gull", "gulliver", "hell-kitten",
 		"hellcat", "hellpuppy", "herbi", "heron", "husky", "husky puppy", "ikkle hydra", "jalrek-jad",
 		"k'ril tsutsaroth jr.", "kalphite princess", "kitten", "kraken", "kree'arra jr.", "labrador", "labrador puppy",
@@ -114,8 +118,8 @@ final class PetRules
 		"olmlet", "overgrown cat", "overgrown hellcat", "penance pet", "pheasant", "phoenix", "prince black dragon", "pug",
 		"pug puppy", "puppadile", "quetzin", "rax", "red", "ric", "rift guardian", "rock golem", "rocky", "samoyed",
 		"samoyed puppy", "scorpia's offspring", "scurry", "shiba", "shiba puppy", "skotos", "smol heredit", "soup",
-		"spaniel", "spaniel puppy", "sraracha", "tangleroot", "tektiny", "tzrek-jad", "tzrek-zuk", "venenatis spiderling",
-		"vespina", "vet'ion jr.", "vorki", "wily cat", "wily hellcat", "wisp", "yami", "yorkie", "yorkie puppy", "youngllef",
+		"spaniel", "spaniel puppy", "sraracha", "tangleroot", "tzrek-jad", "tzrek-zuk", "venenatis spiderling",
+		"vespina", "vet'ion jr.", "vorki", "wily cat", "wily hellcat", "wisp", "yorkie", "yorkie puppy", "youngllef",
 		"zebo", "ziggy", "zilyana jr."
 	);
 

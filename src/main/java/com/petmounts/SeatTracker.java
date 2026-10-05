@@ -21,6 +21,10 @@ final class SeatTracker
 	/** Where the seat is at rest, and how far it may move from there (guards against a bad frame). */
 	private float restX, restY, restZ;
 	private float maxMove;
+	/** Frames in a row that looked implausible. */
+	private int rejected;
+	/** After this many, the animation really does hold the seat there: follow it. */
+	private static final int MAX_REJECTED = 25;
 
 	/** Current seat in model space: x sideways, y pointing down, z toward the tail. */
 	float x, y, z;
@@ -63,11 +67,20 @@ final class SeatTracker
 		read(animated);
 		if (Math.abs(x - restX) > maxMove || Math.abs(y - restY) > maxMove || Math.abs(z - restZ) > maxMove)
 		{
-			// A frame moved the seat somewhere implausible: keep the last good position.
-			x = px;
-			y = py;
-			z = pz;
+			if (++rejected < MAX_REJECTED)
+			{
+				// A frame moved the seat somewhere implausible: keep the last good position.
+				x = px;
+				y = py;
+				z = pz;
+				return;
+			}
+			// Not one bad frame: the pet's animation keeps the seat here, so this is where the rider belongs.
+			restX = x;
+			restY = y;
+			restZ = z;
 		}
+		rejected = 0;
 	}
 
 	private void read(Model m)

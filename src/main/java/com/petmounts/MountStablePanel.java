@@ -12,12 +12,15 @@ import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
@@ -148,8 +151,9 @@ class MountStablePanel extends PluginPanel
 		{
 			mountBox.addItem(name);
 		}
-		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
-		mountBox.setMaximumRowCount(20);
+		mountBox.setRenderer(new MountCell(new MountIcons()));
+		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, MountIcons.HEIGHT + 12));
+		mountBox.setMaximumRowCount(6);
 		mountBox.setToolTipText("Ride the pet following you, or pick any pet or creature to ride: dragons, unicorns, the battle tortoise, even a pet rock");
 		mountBox.addActionListener(e ->
 		{
@@ -276,6 +280,47 @@ class MountStablePanel extends PluginPanel
 		forwardSlider.setValue(s.tweaks.seatForward);
 		setEnabledDeep(tweakPanel, s.petName != null && s.canRide);
 		updating = false;
+	}
+
+	/** One row of the Mount list: the mount's picture and its name, like a card. */
+	private static final class MountCell extends JPanel implements ListCellRenderer<String>
+	{
+		private static final Color GOLD = new Color(255, 200, 40);
+		private final MountIcons icons;
+		private final JLabel picture = new JLabel();
+		private final JLabel name = new JLabel();
+
+		MountCell(MountIcons icons)
+		{
+			this.icons = icons;
+			setLayout(new BorderLayout(8, 0));
+			picture.setPreferredSize(new Dimension(MountIcons.WIDTH, MountIcons.HEIGHT));
+			picture.setHorizontalAlignment(JLabel.CENTER);
+			name.setFont(FontManager.getRunescapeBoldFont());
+			name.setForeground(Color.WHITE);
+			add(picture, BorderLayout.WEST);
+			add(name, BorderLayout.CENTER);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
+			boolean selected, boolean focused)
+		{
+			ImageIcon icon = icons.get(value);
+			picture.setIcon(icon);
+			picture.setVisible(icon != null);
+			name.setText(value);
+			setToolTipText(value);
+			boolean inList = index >= 0;
+			setBackground(inList && selected ? ColorScheme.DARK_GRAY_COLOR : ColorScheme.DARKER_GRAY_COLOR);
+			setBorder(BorderFactory.createCompoundBorder(
+				inList ? BorderFactory.createCompoundBorder(
+					new EmptyBorder(2, 2, 2, 2),
+					BorderFactory.createLineBorder(selected ? GOLD : ColorScheme.MEDIUM_GRAY_COLOR, selected ? 2 : 1))
+					: new EmptyBorder(0, 0, 0, 0),
+				new EmptyBorder(icon != null ? 2 : 8, 4, icon != null ? 2 : 8, 4)));
+			return this;
+		}
 	}
 
 	private static String nameOfChoice(int npcId)

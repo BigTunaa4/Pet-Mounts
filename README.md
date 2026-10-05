@@ -15,7 +15,7 @@ press **Alt + M** again, or type `::dismount`.
 
 ## Ride any pet
 
-Don't have the pet you want? Pick any rideable pet from the **Mount** list at the top of the Mount Stable and
+Don't have the pet you want? Pick any rideable pet from the **Mount** list (each one shown with a picture) at the top of the Mount Stable and
 press **Ride**. You ride it just like your own: same saddle, reins, animations and riding motion. Choose
 **The pet following you** to go back to riding your own pet. Right-clicking your pet and choosing **Ride** also
 switches back to it.

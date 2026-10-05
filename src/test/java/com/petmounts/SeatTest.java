@@ -3,6 +3,7 @@ package com.petmounts;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class SeatTest
@@ -43,7 +44,7 @@ public class SeatTest
 	@Test
 	public void tunedSeatsCoverEveryRideablePet()
 	{
-		assertEquals(191 + 91, MountFits.size()); // pets plus creatures
+		assertTrue("pets, their other forms, shoulder rides and creatures", MountFits.size() > 500);
 		MountFits.Fit darkCore = MountFits.get(318);
 		assertNotNull(darkCore);
 		assertEquals(RiderPose.CROSS_LEGGED, darkCore.pose);

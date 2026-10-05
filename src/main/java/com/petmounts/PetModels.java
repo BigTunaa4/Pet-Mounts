@@ -2,6 +2,7 @@ package com.petmounts;
 
 import java.awt.Color;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Animation;
 import net.runelite.api.Client;
 import net.runelite.api.Model;
 import net.runelite.api.ModelData;
@@ -21,6 +22,8 @@ final class PetModels
 	static final int MAX_HOVER = 12;
 	/** Pets grow until the seat is about this high: pony height, so legs hang down naturally. */
 	static final int TARGET_SEAT_HEIGHT = 90;
+	/** Seat height for pets you ride on the shoulders of. */
+	static final int SHOULDER_SEAT_HEIGHT = 200;
 	/**
 	 * The biggest a mount may be (before the player's size settings): about 2.5 tiles long, 3 tiles wide and
 	 * 2 tiles tall. Long, wide and tall pets (wings, tails, legs, necks) are kept to this even if their back
@@ -62,6 +65,8 @@ final class PetModels
 		float scaleX = 1, scaleY = 1, hover;
 		/** A floating pet: kept at riding height even when its animation flies it up or down. */
 		boolean floating;
+		/** Ridden on the shoulders (a two-legged pet): no saddle or reins. */
+		boolean shoulders;
 
 		Built(int npcId, String petName, Model model, int a, int b, int c, float wa, float wb, float wc,
 			int mountHeight, RiderPose autoPose, Color[] palette, short trim)
@@ -199,6 +204,15 @@ final class PetModels
 			return null;
 		}
 
+		// A few pets' idle animation moves the whole model: the heron's lifts it about 220 units off a model that
+		// sits below the ground. Measure everything (size, seat, how high it floats) on the pet as it really
+		// stands. The animation itself already moves each frame, so this only changes the measurements.
+		int shift = idleShift(comp);
+		if (shift != 0)
+		{
+			md.translate(0, shift, 0);
+		}
+
 		int ws = comp.getWidthScale() > 0 ? comp.getWidthScale() : SCALE_BASE;
 		int hs = comp.getHeightScale() > 0 ? comp.getHeightScale() : SCALE_BASE;
 
@@ -245,14 +259,23 @@ final class PetModels
 			md.translate(0, Math.round(-lowest - MAX_HOVER), 0);
 			hover = Math.round(-lowest - MAX_HOVER);
 		}
+		else if (lowest > MAX_HOVER)
+		{
+			// Standing in a hole (an idle that sinks the pet, like a swimming muttadile): back up onto the ground.
+			md.translate(0, Math.round(-lowest), 0);
+			hover = Math.round(-lowest);
+		}
 
 		// Tuned pets were fitted for a seat at horse height: bring the seat down to pony height. And keep long,
 		// wide and tall pets to a sensible size. Never smaller than the pet itself.
-		float cap = capFactor(md, sizeScale);
+		boolean shoulders = fit != null && fit.shoulders;
+		float cap = shoulders ? 1f : capFactor(md, sizeScale);
 		if (fit != null)
 		{
+			// Shoulder rides sit higher: the pet is a giant carrying you, not a pony.
 			float seat = seatHeight(md, fit.a, fit.b, fit.c, fit.wa, fit.wb, fit.wc);
-			cap = Math.min(cap, TARGET_SEAT_HEIGHT * sizeScale / Math.max(1f, seat));
+			int target = shoulders ? SHOULDER_SEAT_HEIGHT : TARGET_SEAT_HEIGHT;
+			cap = Math.min(cap, target * sizeScale / Math.max(1f, seat));
 		}
 		float fitted = Math.max(cap, Math.min(1f, sizeScale / growth));
 		if (fitted < 1f)
@@ -343,6 +366,7 @@ final class PetModels
 		Built built = new Built(comp.getId(), nameOf(comp), model, sa, sb, sc, swa, swb, swc, mountHeight, autoPose,
 			palette, trim);
 		built.floating = floating;
+		built.shoulders = shoulders;
 
 		// The pet at its own size, lit the same way, for animating before enlarging.
 		ModelData raw = load(comp);
@@ -359,6 +383,54 @@ final class PetModels
 		log.debug("Built mount for npc {} ({}): {}, growth {}x, pose {}",
 			comp.getId(), comp.getName(), fit != null ? "tuned" : "automatic", growth, autoPose);
 		return built;
+	}
+
+	/** Below this, an idle animation is just the pet breathing, not moving the whole model. */
+	private static final int MIN_IDLE_SHIFT = 16;
+
+	/**
+	 * How far the pet's idle animation moves the whole model up or down (y down), or 0 for the usual small
+	 * movements. The median vertex movement, so flapping wings or a wagging tail don't count.
+	 */
+	private int idleShift(NPCComposition comp)
+	{
+		int npcId = comp.getId();
+		int[] anims = MountFits.animations(npcId);
+		if (anims == null || anims[0] == -1)
+		{
+			return 0;
+		}
+		try
+		{
+			Animation idle = client.loadAnimation(anims[0]);
+			ModelData md = load(comp); // a separate copy, so lighting it here can't affect the mount
+			Model probe = md == null ? null : md.light(NPC_AMBIENT, NPC_CONTRAST, -30, -50, -30);
+			if (idle == null || probe == null)
+			{
+				return 0;
+			}
+			float[] rest = probe.getVerticesY().clone();
+			int n = probe.getVerticesCount();
+			Model posed = client.applyTransformations(probe, idle, 0, null, 0);
+			if (posed == null || posed.getVerticesCount() != n || n == 0)
+			{
+				return 0;
+			}
+			float[] ys = posed.getVerticesY();
+			float[] moved = new float[n];
+			for (int v = 0; v < n; v++)
+			{
+				moved[v] = ys[v] - rest[v];
+			}
+			java.util.Arrays.sort(moved);
+			int shift = Math.round(moved[n / 2]);
+			return Math.abs(shift) >= MIN_IDLE_SHIFT ? shift : 0;
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Couldn't measure the idle pose of npc {}", npcId, e);
+			return 0;
+		}
 	}
 
 	/** The lit model's vertices at the same places as these model-data vertices, or null if any is missing. */

@@ -32,11 +32,22 @@ public class PetRulesTest
 	@Test
 	public void awkwardPetsAreRefused()
 	{
-		assertEquals(PetRules.Reason.OBJECT, check("Tangleroot").reason);
-		assertEquals(PetRules.Reason.HUMANOID, check("General Graardor Jr.").reason);
-		assertEquals(PetRules.Reason.HUMANOID, check("Olmlet").reason);
+		assertEquals(PetRules.Reason.OBJECT, check("Smolcano").reason);
 		assertEquals(PetRules.Reason.SLITHERS, check("Snakeling").reason);
-		assertEquals(PetRules.Reason.AQUATIC, check("Kraken").reason);
+		assertEquals(PetRules.Reason.AQUATIC, check("Tiny Tempor").reason);
+	}
+
+	@Test
+	public void twoLeggedPetsCarryYouOnTheirShoulders()
+	{
+		for (String pet : new String[]{"General Graardor Jr.", "Kree'arra Jr.", "K'ril Tsutsaroth Jr.", "Zilyana Jr.",
+			"Noon", "Skotos", "Lil' Bloat", "Kraken", "Tangleroot"})
+		{
+			assertTrue(pet, check(pet).rideable);
+		}
+		MountFits.Fit kree = MountFits.get(MountFits.choices().get("Kree'arra Jr."));
+		assertTrue(kree.shoulders);
+		assertFalse(MountFits.get(MountFits.choices().get("Cat")).shoulders);
 	}
 
 	@Test

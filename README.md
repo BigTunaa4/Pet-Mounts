@@ -26,8 +26,13 @@ wyrms and wyverns, the gnomes' battle tortoise, unicorns, camels, cows, bulls, r
 Cerberus, Callisto, crocodiles, kalphites, Venenatis, Sarachnis, a mammoth, a rhino, a giant frog, a
 penguin, a chicken and, of course, a pet rock. Each one is sized and fitted with a saddle so you sit on its back.
 
-Dogs, wolves and hounds stop to dig now and then while you stand still, and when your own pet does something
-(a cat chasing a rat, say) your mount does it too.
+Two-legged pets carry you on their shoulders instead of under a saddle: General Graardor Jr., Kree'arra Jr.,
+K'ril Tsutsaroth Jr., Zilyana Jr., Noon and Midnight, Skotos, Lil' Bloat, the Dagannoth kings, Vet'ion Jr., Olmlet,
+TzRek-Zuk and more. The kraken and Tangleroot give you a ride on top.
+
+Your pet keeps its own tricks while you ride it. Right-click the mount for the pet's usual options: **Chase** on a
+cat sends it after rats and **Dig** on a dog starts it digging, and your mount does it with you on its back. Dogs,
+wolves and hounds also stop to dig now and then on their own while you stand still.
 
 It's cosmetic and on your screen only, like the rest of the plugin.
 

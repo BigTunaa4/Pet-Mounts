@@ -22,6 +22,8 @@ final class MountFits
 		final int a, b, c;
 		final float wa, wb, wc;
 		final int vertexCount;
+		/** Two-legged (or otherwise tall) pets: you ride up on their shoulders, with no saddle or reins. */
+		boolean shoulders;
 
 		Fit(RiderPose pose, float growth, int a, int b, int c, float wa, float wb, int vertexCount)
 		{
@@ -121,6 +123,14 @@ final class MountFits
 	private static void put(Map<Integer, Fit> m, int id, RiderPose pose, float growth, int a, int b, int c, float wa, float wb, int vc)
 	{
 		m.put(id, new Fit(pose, growth, a, b, c, wa, wb, vc));
+	}
+
+	private static void putShoulders(Map<Integer, Fit> m, int id, RiderPose pose, float growth, int a, int b, int c,
+		float wa, float wb, int vc)
+	{
+		Fit fit = new Fit(pose, growth, a, b, c, wa, wb, vc);
+		fit.shoulders = true;
+		m.put(id, fit);
 	}
 
 	private static Map<Integer, Fit> build()
@@ -317,6 +327,288 @@ final class MountFits
 		put(m, 16466, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
 		put(m, 16467, RiderPose.WIDE, 4.5f, 65, 39, 38, 0.6447f, 0.0f, 256); // Yorkie puppy
 		put(m, 16468, RiderPose.WIDE, 4.5f, 75, 88, 89, 0.3617f, 0.0f, 258); // Yorkie puppy
+		// The same pets under their other NPC ids (followers, house and menagerie versions).
+		put(m, 16560, RiderPose.WIDE, 2.765f, 28, 62, 63, 0.0f, 0.0186f, 270); // Pug (other form)
+		put(m, 15057, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 15056, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 15055, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 12174, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 15054, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 10620, RiderPose.EXTRA_WIDE, 1.628f, 620, 622, 623, 0.6622f, 0.0473f, 1487); // JalRek-Jad (other form)
+		put(m, 6718, RiderPose.EXTRA_WIDE, 3.802f, 50, 51, 52, 0.8085f, 0.0957f, 141); // Baby Chinchompa (other form)
+		put(m, 6720, RiderPose.EXTRA_WIDE, 3.802f, 50, 51, 52, 0.8085f, 0.0957f, 141); // Baby Chinchompa (other form)
+		put(m, 6719, RiderPose.EXTRA_WIDE, 3.802f, 50, 51, 52, 0.8085f, 0.0957f, 141); // Baby Chinchompa (other form)
+		put(m, 12169, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 8183, RiderPose.CROSS_LEGGED, 1.303f, 414, 416, 415, 0.7703f, 0.2297f, 800); // Little Parasite (other form)
+		put(m, 8518, RiderPose.EXTRA_WIDE, 2.1f, 42, 49, 50, 0.1921f, 0.0439f, 1625); // Ikkle Hydra (other form)
+		put(m, 6664, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 6665, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 395, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 6667, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 6663, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 6662, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 6666, RiderPose.WIDE, 2.24f, 93, 119, 40, 0.1865f, 0.5f, 209); // Cat (other form)
+		put(m, 14032, RiderPose.EXTRA_WIDE, 3.581f, 453, 461, 462, 0.0f, 0.8758f, 715); // Bone Squirrel (other form)
+		put(m, 11841, RiderPose.WIDE, 1.326f, 994, 975, 171, 0.6196f, 0.0f, 1603); // Babi (other form)
+		put(m, 12177, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 8730, RiderPose.WIDE, 2.067f, 225, 246, 247, 0.0925f, 0.2074f, 1131); // Corrupted Youngllef (other form)
+		put(m, 541, RiderPose.WIDE, 2.291f, 125, 127, 126, 0.2556f, 0.2444f, 333); // Clockwork cat (other form)
+		put(m, 6661, RiderPose.WIDE, 2.291f, 125, 127, 126, 0.2556f, 0.2444f, 333); // Clockwork cat (other form)
+		put(m, 540, RiderPose.WIDE, 2.291f, 125, 127, 126, 0.2556f, 0.2444f, 333); // Clockwork cat (other form)
+		put(m, 15060, RiderPose.EXTRA_WIDE, 1.65f, 781, 783, 784, 0.0f, 0.1395f, 1465); // Gulliver (other form)
+		put(m, 12172, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 3498, RiderPose.WIDE, 3.828f, 163, 189, 110, 0.0154f, 0.4031f, 209); // Kitten (other form)
+		put(m, 8008, RiderPose.EXTRA_WIDE, 1.351f, 750, 754, 753, 0.53f, 0.2933f, 1456); // Corporeal Critter (other form)
+		put(m, 964, RiderPose.WIDE, 1.816f, 291, 328, 329, 0.9563f, 0.0f, 574); // Hellpuppy (other form)
+		put(m, 15059, RiderPose.EXTRA_WIDE, 2.544f, 270, 210, 209, 0.0927f, 0.0f, 359); // Gull (other form)
+		put(m, 16552, RiderPose.WIDE, 1.872f, 203, 217, 218, 0.0f, 0.1027f, 309); // Greyhound (other form)
+		put(m, 6690, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 6693, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 6692, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 6691, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 6695, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 6694, RiderPose.WIDE, 1.878f, 126, 155, 74, 0.2102f, 0.5f, 316); // Wily cat (other form)
+		put(m, 8517, RiderPose.EXTRA_WIDE, 2.1f, 127, 134, 135, 0.127f, 0.8144f, 1556); // Ikkle Hydra (other form)
+		put(m, 16551, RiderPose.WIDE, 3.227f, 40, 48, 49, 0.467f, 0.0f, 294); // Corgi (other form)
+		put(m, 16402, RiderPose.WIDE, 3.228f, 41, 50, 51, 0.4681f, 0.5319f, 292); // Corgi (other form)
+		put(m, 16549, RiderPose.WIDE, 3.228f, 41, 50, 51, 0.4681f, 0.5319f, 292); // Corgi (other form)
+		put(m, 12178, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 16540, RiderPose.WIDE, 1.294f, 77, 98, 99, -0.0f, 0.1496f, 318); // Labrador (other form)
+		put(m, 15633, RiderPose.WIDE, 1.627f, 88, 108, 109, -0.0f, 0.958f, 437); // Beef (other form)
+		put(m, 6684, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 6687, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 6686, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 6685, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 6688, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 6683, RiderPose.WIDE, 2.177f, 128, 157, 75, 0.2437f, 0.4744f, 322); // Lazy cat (other form)
+		put(m, 12547, RiderPose.EXTRA_WIDE, 2.85f, 7, 23, 24, 0.5074f, 0.3645f, 173); // Pheasant (other form)
+		put(m, 9850, RiderPose.WIDE, 1.698f, 153, 151, 154, -0.0f, 0.9672f, 319); // Red (other form)
+		put(m, 6689, RiderPose.WIDE, 2.081f, 4, 8, 19, 0.2637f, 0.0275f, 347); // Lazy hellcat (other form)
+		put(m, 16542, RiderPose.WIDE, 1.294f, 77, 98, 99, -0.0f, 0.1496f, 318); // Labrador (other form)
+		put(m, 12170, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 16546, RiderPose.WIDE, 1.383f, 48, 74, 75, 0.3524f, 0.0f, 334); // Border Collie (other form)
+		put(m, 16544, RiderPose.WIDE, 2.723f, 99, 100, 101, 0.565f, 0.0f, 293); // Chihuahua (other form)
+		put(m, 16398, RiderPose.WIDE, 2.723f, 99, 100, 101, 0.565f, 0.0f, 293); // Chihuahua (other form)
+		put(m, 16400, RiderPose.WIDE, 1.383f, 46, 84, 85, 0.3524f, 0.0f, 336); // Border Collie (other form)
+		put(m, 16547, RiderPose.WIDE, 1.383f, 46, 84, 85, 0.3524f, 0.0f, 336); // Border Collie (other form)
+		put(m, 9851, RiderPose.WIDE, 1.698f, 198, 154, 151, 0.0f, 0.0326f, 319); // Ziggy (other form)
+		put(m, 14519, RiderPose.EXTRA_WIDE, 2.075f, 197, 530, 198, 0.0f, 0.0993f, 698); // Dom (other form)
+		put(m, 6696, RiderPose.WIDE, 1.881f, 126, 167, 127, 0.1797f, 0.5f, 321); // Wily hellcat (other form)
+		put(m, 2143, RiderPose.EXTRA_WIDE, 2.488f, 209, 266, 267, -0.0f, 0.2291f, 686); // Sraracha (other form)
+		put(m, 16545, RiderPose.WIDE, 2.723f, 10, 26, 27, 0.0f, 0.4352f, 293); // Chihuahua (other form)
+		put(m, 3077, RiderPose.CROSS_LEGGED, 3.098f, 267, 284, 268, 0.0f, 0.9673f, 523); // Phoenix (other form)
+		put(m, 5892, RiderPose.EXTRA_WIDE, 1.429f, 125, 147, 126, -0.0f, 0.7364f, 483); // TzRek-Jad (other form)
+		put(m, 16565, RiderPose.WIDE, 1.322f, 54, 81, 82, 0.5555f, 0.0f, 303); // Bernese Mountain Dog (other form)
+		put(m, 16568, RiderPose.WIDE, 1.591f, 103, 70, 109, -0.0f, 0.7195f, 284); // Shiba (other form)
+		put(m, 16573, RiderPose.WIDE, 3.0f, 90, 103, 104, 0.5737f, 0.0f, 306); // Yorkie (other form)
+		put(m, 16414, RiderPose.WIDE, 3.0f, 90, 103, 104, 0.5737f, 0.0f, 306); // Yorkie (other form)
+		put(m, 16548, RiderPose.WIDE, 1.383f, 48, 74, 75, 0.3524f, 0.0f, 334); // Border Collie (other form)
+		put(m, 7368, RiderPose.CROSS_LEGGED, 3.098f, 267, 284, 268, 0.0f, 0.9673f, 523); // Phoenix (other form)
+		put(m, 6721, RiderPose.EXTRA_WIDE, 3.814f, 50, 51, 52, 0.7635f, 0.1183f, 145); // Baby Chinchompa (other form)
+		put(m, 9638, RiderPose.EXTRA_WIDE, 3.108f, 69, 103, 104, -0.0f, 0.3171f, 427); // Dark Squirrel (other form)
+		put(m, 13681, RiderPose.EXTRA_WIDE, 2.485f, 1554, 1568, 1569, 0.0927f, 0.0f, 2019); // Nid (other form)
+		put(m, 10763, RiderPose.WIDE, 1.197f, 859, 880, 881, 0.0f, 0.4771f, 1766); // Lil' Nylo (other form)
+		put(m, 6296, RiderPose.WIDE, 1.22f, 131, 149, 132, 0.0383f, 0.9617f, 458); // Bloodhound (other form)
+		put(m, 12175, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 16555, RiderPose.WIDE, 1.493f, 97, 73, 101, -0.0f, 0.3331f, 286); // Husky (other form)
+		put(m, 3078, RiderPose.CROSS_LEGGED, 3.098f, 267, 284, 268, 0.0f, 0.9673f, 523); // Phoenix (other form)
+		put(m, 16570, RiderPose.WIDE, 2.25f, 119, 121, 122, 0.671f, 0.0f, 311); // Spaniel (other form)
+		put(m, 16557, RiderPose.WIDE, 1.493f, 97, 73, 101, -0.0f, 0.3331f, 286); // Husky (other form)
+		put(m, 6817, RiderPose.CROSS_LEGGED, 4.398f, 13, 44, 45, 0.876f, 0.0f, 254); // Great blue heron (other form)
+		put(m, 16550, RiderPose.WIDE, 3.228f, 41, 50, 51, 0.4681f, 0.5319f, 292); // Corgi (other form)
+		put(m, 6715, RiderPose.CROSS_LEGGED, 4.402f, 13, 54, 55, 0.8528f, 0.0f, 256); // Heron (other form)
+		put(m, 16556, RiderPose.WIDE, 1.493f, 97, 73, 101, -0.0f, 0.3331f, 286); // Husky (other form)
+		put(m, 16412, RiderPose.WIDE, 1.493f, 97, 73, 101, -0.0f, 0.3331f, 286); // Husky (other form)
+		put(m, 12153, RiderPose.CROSS_LEGGED, 1.953f, 1497, 2009, 1998, 0.0f, 0.1544f, 2289); // Wisp (other form)
+		put(m, 11157, RiderPose.EXTRA_WIDE, 2.488f, 1, 8, 9, 0.0f, 0.7709f, 686); // Sraracha (other form)
+		put(m, 12176, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 8519, RiderPose.WIDE, 2.1f, 409, 618, 610, 0.3895f, 0.1969f, 1510); // Ikkle Hydra (other form)
+		put(m, 16333, RiderPose.WIDE, 2.086f, 129, 67, 36, 0.2406f, 0.7594f, 323); // Mr McGroot (other form)
+		put(m, 495, RiderPose.EXTRA_WIDE, 3.358f, 318, 499, 319, -0.0f, 0.6273f, 2221); // Venenatis spiderling (other form)
+		put(m, 12768, RiderPose.CROSS_LEGGED, 4.463f, 143, 173, 174, 0.1569f, 0.0f, 469); // Quetzin (other form)
+		put(m, 16541, RiderPose.WIDE, 1.294f, 77, 98, 99, -0.0f, 0.1496f, 318); // Labrador (other form)
+		put(m, 16575, RiderPose.WIDE, 3.0f, 190, 273, 274, 0.4263f, 0.0f, 306); // Yorkie (other form)
+		put(m, 16543, RiderPose.WIDE, 2.723f, 63, 67, 68, -0.0f, 0.565f, 293); // Chihuahua (other form)
+		put(m, 16554, RiderPose.WIDE, 1.872f, 76, 98, 77, 0.0f, 0.1032f, 309); // Greyhound (other form)
+		put(m, 16558, RiderPose.WIDE, 2.765f, 56, 67, 68, -0.0f, 0.9814f, 270); // Pug (other form)
+		put(m, 3080, RiderPose.CROSS_LEGGED, 3.098f, 267, 284, 268, 0.0f, 0.9673f, 523); // Phoenix (other form)
+		put(m, 16563, RiderPose.WIDE, 1.312f, 168, 42, 41, 0.6327f, 0.0f, 338); // Samoyed (other form)
+		put(m, 9512, RiderPose.CROSS_LEGGED, 1.69f, 513, 514, 515, 0.6433f, 0.0f, 1137); // Flying Vespina (other form)
+		put(m, 16566, RiderPose.WIDE, 1.322f, 11, 28, 29, 0.5555f, 0.4445f, 303); // Bernese Mountain Dog (other form)
+		put(m, 16408, RiderPose.WIDE, 1.322f, 11, 28, 29, 0.5555f, 0.4445f, 303); // Bernese Mountain Dog (other form)
+		put(m, 12171, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 3079, RiderPose.CROSS_LEGGED, 3.098f, 267, 284, 268, 0.0f, 0.9673f, 523); // Phoenix (other form)
+		put(m, 6642, RiderPose.EXTRA_WIDE, 1.136f, 129, 159, 160, -0.0f, 0.7449f, 1239); // Penance Pet (other form)
+		put(m, 16410, RiderPose.WIDE, 1.591f, 103, 70, 109, -0.0f, 0.7195f, 284); // Shiba (other form)
+		put(m, 16567, RiderPose.WIDE, 1.591f, 103, 70, 109, -0.0f, 0.7195f, 284); // Shiba (other form)
+		put(m, 8196, RiderPose.EXTRA_WIDE, 1.844f, 727, 732, 733, 0.2248f, 0.2248f, 753); // Puppadile (other form)
+		put(m, 8336, RiderPose.EXTRA_WIDE, 1.35f, 581, 640, 641, 0.0f, 0.0f, 2110); // Lil' Zik (other form)
+		put(m, 11158, RiderPose.EXTRA_WIDE, 2.488f, 1, 8, 9, 0.0f, 0.7709f, 686); // Sraracha (other form)
+		put(m, 16571, RiderPose.WIDE, 2.25f, 127, 129, 130, 0.6739f, 0.0f, 315); // Spaniel (other form)
+		put(m, 7336, RiderPose.WIDE, 1.698f, 158, 156, 159, -0.0f, 0.9673f, 319); // Rocky (other form)
+		put(m, 8200, RiderPose.WIDE, 2.789f, 512, 522, 504, -0.0f, 0.7924f, 1137); // Vespina (other form)
+		put(m, 8025, RiderPose.EXTRA_WIDE, 2.913f, 347, 81, 348, 0.1142f, 0.0961f, 1497); // Vorki (other form)
+		put(m, 13682, RiderPose.EXTRA_WIDE, 2.584f, 124, 218, 219, 0.3733f, 0.2f, 527); // Rax (other form)
+		put(m, 16559, RiderPose.WIDE, 2.765f, 56, 67, 68, -0.0f, 0.9814f, 270); // Pug (other form)
+		put(m, 7334, RiderPose.EXTRA_WIDE, 3.108f, 69, 103, 104, -0.0f, 0.3171f, 427); // Giant Squirrel (other form)
+		put(m, 9666, RiderPose.EXTRA_WIDE, 3.108f, 69, 103, 104, -0.0f, 0.3171f, 427); // Giant Squirrel (other form)
+		put(m, 7219, RiderPose.EXTRA_WIDE, 1.829f, 26, 46, 47, 0.1205f, 0.2339f, 1495); // Scurry (other form)
+		put(m, 16406, RiderPose.WIDE, 1.312f, 168, 42, 41, 0.6321f, 0.0f, 338); // Samoyed (other form)
+		put(m, 16561, RiderPose.WIDE, 1.312f, 168, 42, 41, 0.6321f, 0.0f, 338); // Samoyed (other form)
+		put(m, 6654, RiderPose.EXTRA_WIDE, 1.427f, 210, 277, 211, 0.3678f, 0.5236f, 1130); // Kalphite Princess (other form)
+		put(m, 6651, RiderPose.EXTRA_WIDE, 2.965f, 5, 18, 19, 0.0f, 0.4215f, 278); // Baby Mole (other form)
+		put(m, 12548, RiderPose.WIDE, 2.352f, 141, 188, 187, 0.0f, 0.6389f, 263); // Fox (other form)
+		put(m, 11981, RiderPose.EXTRA_WIDE, 2.891f, 148, 147, 281, 0.3992f, 0.183f, 507); // Venenatis spiderling (other form)
+		put(m, 11843, RiderPose.EXTRA_WIDE, 3.529f, 454, 504, 505, 0.0f, 0.4343f, 1712); // Zebo (other form)
+		put(m, 10764, RiderPose.EXTRA_WIDE, 1.35f, 751, 783, 782, 0.0081f, 0.0466f, 1480); // Lil' Sot (other form)
+		put(m, 16564, RiderPose.WIDE, 1.322f, 249, 295, 296, 0.0f, 0.4445f, 303); // Bernese Mountain Dog (other form)
+		put(m, 16572, RiderPose.WIDE, 2.25f, 105, 108, 109, 0.6709f, 0.0f, 311); // Spaniel (other form)
+		put(m, 8520, RiderPose.WIDE, 2.1f, 747, 1345, 753, 0.4388f, 0.18f, 1455); // Ikkle Hydra (other form)
+		put(m, 16553, RiderPose.WIDE, 1.872f, 203, 217, 218, 0.0f, 0.1027f, 309); // Greyhound (other form)
+		put(m, 16404, RiderPose.WIDE, 1.872f, 203, 217, 218, 0.0f, 0.1027f, 309); // Greyhound (other form)
+		put(m, 10650, RiderPose.EXTRA_WIDE, 2.965f, 5, 18, 19, 0.0f, 0.4215f, 278); // Baby Mole-rat (other form)
+		put(m, 12173, RiderPose.EXTRA_WIDE, 3.502f, 106, 114, 107, 0.0198f, 0.9011f, 331); // Beaver (other form)
+		put(m, 16569, RiderPose.WIDE, 1.591f, 65, 205, 228, 0.7173f, 0.0f, 285); // Shiba (other form)
+		put(m, 16562, RiderPose.WIDE, 1.312f, 168, 42, 41, 0.6327f, 0.0f, 338); // Samoyed (other form)
+		put(m, 5907, RiderPose.CROSS_LEGGED, 3.488f, 61, 65, 66, 0.0667f, 0.0829f, 282); // Chaos Elemental Jr. (other form)
+		put(m, 8729, RiderPose.WIDE, 2.067f, 225, 246, 247, 0.0925f, 0.2074f, 1131); // Youngllef (other form)
+		put(m, 497, RiderPose.WIDE, 1.63f, 93, 101, 102, -0.0f, 0.2785f, 470); // Callisto cub (other form)
+		put(m, 5547, RiderPose.EXTRA_WIDE, 1.3f, 137, 143, 138, 0.0f, 0.1619f, 267); // Scorpia's offspring (other form)
+		put(m, 15058, RiderPose.EXTRA_WIDE, 3.84f, 86, 88, 87, 0.0f, 0.3307f, 274); // Soup (other form)
+		put(m, 6652, RiderPose.EXTRA_WIDE, 2.06f, 734, 792, 793, 0.2544f, 0.6898f, 1414); // Prince Black Dragon (other form)
+		put(m, 6668, RiderPose.WIDE, 2.24f, 74, 116, 117, 0.3975f, 0.1025f, 313); // Hellcat (other form)
+		put(m, 13665, RiderPose.EXTRA_WIDE, 1.315f, 127, 49, 133, 0.861f, 0.0f, 307); // Broav (other form)
+		put(m, 16574, RiderPose.WIDE, 3.0f, 219, 300, 221, 0.0f, 0.5737f, 306); // Yorkie (other form)
+		// Shoulder rides: two-legged pets (and a few other tall ones) carry you up on their shoulders.
+		putShoulders(m, 5883, RiderPose.WIDE, 1.874f, 72, 106, 107, -0.0f, 0.875f, 395); // Abyssal orphan (other form)
+		putShoulders(m, 5884, RiderPose.WIDE, 1.874f, 72, 106, 107, -0.0f, 0.875f, 395); // Abyssal orphan
+		putShoulders(m, 11402, RiderPose.WIDE, 1.918f, 238, 243, 239, 0.0308f, 0.2333f, 499); // Abyssal protector (other form)
+		putShoulders(m, 11429, RiderPose.WIDE, 1.918f, 238, 243, 239, 0.0308f, 0.2333f, 499); // Abyssal protector
+		putShoulders(m, 16317, RiderPose.WIDE, 1.167f, 606, 1061, 1060, 0.2222f, 0.3333f, 1221); // Aggy
+		putShoulders(m, 16334, RiderPose.WIDE, 1.167f, 606, 1061, 1060, 0.2222f, 0.3333f, 1221); // Aggy (other form)
+		putShoulders(m, 10476, RiderPose.WIDE, 1.812f, 916, 920, 917, 0.5175f, 0.3147f, 1287); // Bran (other form)
+		putShoulders(m, 12593, RiderPose.WIDE, 1.812f, 916, 920, 917, 0.5175f, 0.3147f, 1287); // Bran
+		putShoulders(m, 12154, RiderPose.WIDE, 1.725f, 518, 524, 519, 0.4f, 0.1f, 934); // Butch (other form)
+		putShoulders(m, 12158, RiderPose.WIDE, 1.725f, 518, 524, 519, 0.4f, 0.1f, 934); // Butch
+		putShoulders(m, 6627, RiderPose.WIDE, 1.69f, 332, 333, 321, 0.2822f, 0.0f, 360); // Dagannoth Prime Jr. (other form)
+		putShoulders(m, 6629, RiderPose.WIDE, 1.69f, 332, 333, 321, 0.2822f, 0.0f, 360); // Dagannoth Prime Jr.
+		putShoulders(m, 6630, RiderPose.WIDE, 1.922f, 19, 32, 33, 0.2933f, 0.0f, 299); // Dagannoth Rex Jr.
+		putShoulders(m, 6641, RiderPose.WIDE, 1.922f, 19, 32, 33, 0.2933f, 0.0f, 299); // Dagannoth Rex Jr. (other form)
+		putShoulders(m, 6626, RiderPose.WIDE, 1.688f, 320, 321, 309, 0.292f, 0.0f, 338); // Dagannoth Supreme Jr. (other form)
+		putShoulders(m, 6628, RiderPose.WIDE, 1.688f, 320, 321, 309, 0.292f, 0.0f, 338); // Dagannoth Supreme Jr.
+		putShoulders(m, 9511, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Enraged Tektiny (other form)
+		putShoulders(m, 9513, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Enraged Tektiny
+		putShoulders(m, 6632, RiderPose.WIDE, 1.867f, 463, 509, 510, 0.0f, 0.0806f, 1038); // General Graardor Jr.
+		putShoulders(m, 6644, RiderPose.WIDE, 1.867f, 463, 509, 510, 0.0f, 0.0806f, 1038); // General Graardor Jr. (other form)
+		putShoulders(m, 11401, RiderPose.WIDE, 2.228f, 660, 395, 663, 0.0619f, 0.2165f, 1869); // Greatish guardian (other form)
+		putShoulders(m, 11428, RiderPose.WIDE, 2.228f, 660, 395, 663, 0.0619f, 0.2165f, 1869); // Greatish guardian
+		putShoulders(m, 6634, RiderPose.WIDE, 2.614f, 1030, 900, 1033, 0.5233f, 0.2162f, 1400); // K'ril Tsutsaroth Jr.
+		putShoulders(m, 6647, RiderPose.WIDE, 2.614f, 1030, 900, 1033, 0.5233f, 0.2162f, 1400); // K'ril Tsutsaroth Jr. (other form)
+		putShoulders(m, 6640, RiderPose.EXTRA_WIDE, 4.5f, 251, 278, 279, 0.0f, 0.625f, 427); // Kraken
+		putShoulders(m, 6656, RiderPose.EXTRA_WIDE, 4.5f, 251, 278, 279, 0.0f, 0.625f, 427); // Kraken (other form)
+		putShoulders(m, 6631, RiderPose.WIDE, 1.657f, 30, 58, 60, 0.6633f, 0.0f, 902); // Kree'arra Jr.
+		putShoulders(m, 6643, RiderPose.WIDE, 1.657f, 30, 58, 60, 0.6633f, 0.0f, 902); // Kree'arra Jr. (other form)
+		putShoulders(m, 10762, RiderPose.WIDE, 2.267f, 1869, 1868, 1870, 0.11f, 0.11f, 1896); // Lil' Bloat (other form)
+		putShoulders(m, 10871, RiderPose.WIDE, 2.267f, 1869, 1868, 1870, 0.11f, 0.11f, 1896); // Lil' Bloat
+		putShoulders(m, 2833, RiderPose.WIDE, 1.618f, 397, 405, 406, 0.9027f, 0.0262f, 1328); // Lil' Creator (other form)
+		putShoulders(m, 3566, RiderPose.WIDE, 1.618f, 397, 405, 406, 0.9027f, 0.0262f, 1328); // Lil' Creator
+		putShoulders(m, 3564, RiderPose.WIDE, 1.754f, 443, 562, 444, 0.6057f, 0.012f, 1461); // Lil' Destructor (other form)
+		putShoulders(m, 5008, RiderPose.WIDE, 1.754f, 443, 562, 444, 0.6057f, 0.012f, 1461); // Lil' Destructor
+		putShoulders(m, 10870, RiderPose.WIDE, 1.62f, 1229, 1234, 719, 0.285f, 0.4203f, 1644); // Lil' Maiden
+		putShoulders(m, 10765, RiderPose.WIDE, 1.811f, 876, 883, 877, 0.1407f, 0.384f, 1275); // Lil' Xarp (other form)
+		putShoulders(m, 10874, RiderPose.WIDE, 1.811f, 876, 883, 877, 0.1407f, 0.384f, 1275); // Lil' Xarp
+		putShoulders(m, 9398, RiderPose.WIDE, 2.533f, 1623, 1326, 1325, 0.7143f, 0.1688f, 2295); // Little Nightmare (other form)
+		putShoulders(m, 9399, RiderPose.WIDE, 2.533f, 1623, 1326, 1325, 0.7143f, 0.1688f, 2295); // Little Nightmare
+		putShoulders(m, 7890, RiderPose.WIDE, 1.79f, 502, 495, 494, 0.1001f, 0.8629f, 1392); // Midnight (other form)
+		putShoulders(m, 7893, RiderPose.WIDE, 1.79f, 502, 495, 494, 0.1001f, 0.8629f, 1392); // Midnight
+		putShoulders(m, 11276, RiderPose.WIDE, 2.129f, 951, 646, 645, 0.0667f, 0.2f, 1617); // Nexling (other form)
+		putShoulders(m, 11277, RiderPose.WIDE, 2.129f, 951, 646, 645, 0.0667f, 0.2f, 1617); // Nexling
+		putShoulders(m, 7891, RiderPose.WIDE, 1.598f, 1233, 1238, 1234, 0.125f, 0.4357f, 1514); // Noon (other form)
+		putShoulders(m, 7892, RiderPose.WIDE, 1.598f, 1233, 1238, 1234, 0.125f, 0.4357f, 1514); // Noon
+		putShoulders(m, 7519, RiderPose.WIDE, 2.183f, 486, 494, 495, 0.3889f, 0.0f, 1063); // Olmlet (other form)
+		putShoulders(m, 7520, RiderPose.WIDE, 2.183f, 486, 494, 495, 0.3889f, 0.0f, 1063); // Olmlet
+		putShoulders(m, 12592, RiderPose.WIDE, 1.914f, 533, 541, 542, 0.0f, 0.6154f, 1721); // Ric (other form)
+		putShoulders(m, 12595, RiderPose.WIDE, 1.914f, 533, 541, 542, 0.0f, 0.6154f, 1721); // Ric
+		putShoulders(m, 7337, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7338, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7339, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7340, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7341, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7342, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7343, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7344, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7345, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7346, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7347, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7348, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7349, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7350, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7354, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian
+		putShoulders(m, 7355, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7356, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7357, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7358, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7359, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7360, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7361, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7362, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7363, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7364, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7365, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7366, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 7367, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 8024, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 8028, RiderPose.WIDE, 1.712f, 516, 518, 519, 0.8333f, 0.0f, 522); // Rift guardian (other form)
+		putShoulders(m, 2182, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7439, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7440, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7441, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7442, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7443, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7444, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7445, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7446, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7447, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7448, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7449, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7450, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7451, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem
+		putShoulders(m, 7452, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7453, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7454, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7455, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7642, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7643, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7644, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7645, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7646, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7647, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7648, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7711, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7736, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7737, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7738, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7739, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7740, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 7741, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 14923, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 15051, RiderPose.WIDE, 1.588f, 355, 357, 346, 0.3333f, 0.0833f, 571); // Rock Golem (other form)
+		putShoulders(m, 425, RiderPose.WIDE, 1.739f, 222, 227, 228, 0.3854f, 0.3854f, 1159); // Skotos (other form)
+		putShoulders(m, 7671, RiderPose.WIDE, 1.739f, 222, 227, 228, 0.3854f, 0.3854f, 1159); // Skotos
+		putShoulders(m, 12767, RiderPose.WIDE, 1.716f, 1507, 515, 1319, 0.1833f, 0.4733f, 2010); // Smol Heredit (other form)
+		putShoulders(m, 12857, RiderPose.WIDE, 1.716f, 1507, 515, 1319, 0.1833f, 0.4733f, 2010); // Smol Heredit
+		putShoulders(m, 7335, RiderPose.WIDE, 1.506f, 513, 530, 531, 0.2656f, 0.3906f, 573); // Tangleroot (other form)
+		putShoulders(m, 7352, RiderPose.WIDE, 1.506f, 513, 530, 531, 0.2656f, 0.3906f, 573); // Tangleroot
+		putShoulders(m, 8197, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Tektiny (other form)
+		putShoulders(m, 8202, RiderPose.WIDE, 1.963f, 718, 584, 719, 0.1111f, 0.4281f, 1119); // Tektiny
+		putShoulders(m, 8009, RiderPose.WIDE, 2.03f, 547, 570, 548, 0.162f, 0.1978f, 1617); // TzRek-Zuk (other form)
+		putShoulders(m, 8011, RiderPose.WIDE, 2.03f, 547, 570, 548, 0.162f, 0.1978f, 1617); // TzRek-Zuk
+		putShoulders(m, 5536, RiderPose.WIDE, 1.745f, 682, 698, 699, 0.566f, 0.2969f, 1229); // Vet'ion Jr. (other form)
+		putShoulders(m, 5559, RiderPose.WIDE, 1.745f, 682, 698, 699, 0.566f, 0.2969f, 1229); // Vet'ion Jr.
+		putShoulders(m, 14203, RiderPose.WIDE, 1.539f, 807, 816, 817, -0.0f, 0.2532f, 1503); // Yami (other form)
+		putShoulders(m, 14204, RiderPose.WIDE, 1.539f, 807, 816, 817, -0.0f, 0.2532f, 1503); // Yami
+		putShoulders(m, 6633, RiderPose.WIDE, 2.099f, 22, 29, 30, 0.5848f, 0.0539f, 768); // Zilyana Jr.
+		putShoulders(m, 6646, RiderPose.WIDE, 2.099f, 22, 29, 30, 0.5848f, 0.0539f, 768); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		put(m, 8030, RiderPose.EXTRA_WIDE, 0.524f, 429, 413, 412, 0.6073f, 0.3219f, 1002); // Adamant dragon
 		put(m, 7795, RiderPose.EXTRA_WIDE, 0.525f, 175, 411, 412, 0.2168f, 0.0f, 948); // Ancient Wyvern
@@ -461,6 +753,118 @@ final class MountFits
 		m.put(14928, new int[]{0, 10}); // Beaver
 		m.put(14929, new int[]{0, 10}); // Beaver
 		m.put(16316, new int[]{20, 20}); // Mr McGroot
+		// The same pets under their other NPC ids (followers, house and menagerie versions).
+
+		// The same pets under their other NPC ids.
+		m.put(15057, new int[]{0, 10}); // Beaver (other form)
+		m.put(15056, new int[]{0, 10}); // Beaver (other form)
+		m.put(15055, new int[]{0, 10}); // Beaver (other form)
+		m.put(12174, new int[]{0, 10}); // Beaver (other form)
+		m.put(15054, new int[]{0, 10}); // Beaver (other form)
+		m.put(10620, new int[]{-10, 0}); // JalRek-Jad (other form)
+		m.put(12169, new int[]{0, 10}); // Beaver (other form)
+		m.put(14032, new int[]{0, 20}); // Bone Squirrel (other form)
+		m.put(12177, new int[]{0, 10}); // Beaver (other form)
+		m.put(541, new int[]{40, 0}); // Clockwork cat (other form)
+		m.put(6661, new int[]{40, 0}); // Clockwork cat (other form)
+		m.put(540, new int[]{40, 0}); // Clockwork cat (other form)
+		m.put(12172, new int[]{0, 10}); // Beaver (other form)
+		m.put(8008, new int[]{30, 30}); // Corporeal Critter (other form)
+		m.put(12178, new int[]{0, 10}); // Beaver (other form)
+		m.put(6689, new int[]{40, 0}); // Lazy hellcat (other form)
+		m.put(12170, new int[]{0, 10}); // Beaver (other form)
+		m.put(6696, new int[]{40, 0}); // Wily hellcat (other form)
+		m.put(2143, new int[]{30, 30}); // Sraracha (other form)
+		m.put(3077, new int[]{40, 0}); // Phoenix (other form)
+		m.put(5892, new int[]{60, 0}); // TzRek-Jad (other form)
+		m.put(7368, new int[]{40, 0}); // Phoenix (other form)
+		m.put(12175, new int[]{0, 10}); // Beaver (other form)
+		m.put(3078, new int[]{40, 0}); // Phoenix (other form)
+		m.put(12153, new int[]{0, 76}); // Wisp (other form)
+		m.put(11157, new int[]{30, 30}); // Sraracha (other form)
+		m.put(12176, new int[]{0, 10}); // Beaver (other form)
+		m.put(16333, new int[]{20, 20}); // Mr McGroot (other form)
+		m.put(495, new int[]{30, 30}); // Venenatis spiderling (other form)
+		m.put(12768, new int[]{40, 0}); // Quetzin (other form)
+		m.put(3080, new int[]{40, 0}); // Phoenix (other form)
+		m.put(12171, new int[]{0, 10}); // Beaver (other form)
+		m.put(3079, new int[]{40, 0}); // Phoenix (other form)
+		m.put(6642, new int[]{30, 30}); // Penance Pet (other form)
+		m.put(11158, new int[]{30, 30}); // Sraracha (other form)
+		m.put(7219, new int[]{30, 30}); // Scurry (other form)
+		m.put(6654, new int[]{30, 30}); // Kalphite Princess (other form)
+		m.put(6651, new int[]{30, 30}); // Baby Mole (other form)
+		m.put(11981, new int[]{30, 30}); // Venenatis spiderling (other form)
+		m.put(10650, new int[]{30, 30}); // Baby Mole-rat (other form)
+		m.put(12173, new int[]{0, 10}); // Beaver (other form)
+		m.put(497, new int[]{30, 30}); // Callisto cub (other form)
+		m.put(5547, new int[]{30, 30}); // Scorpia's offspring (other form)
+		m.put(6652, new int[]{30, 30}); // Prince Black Dragon (other form)
+		m.put(6668, new int[]{40, 0}); // Hellcat (other form)
+		m.put(13665, new int[]{15, 0}); // Broav (other form)
+		// Shoulder rides: two-legged pets (and a few other tall ones) carry you up on their shoulders.
+		m.put(6627, new int[]{30, 30}); // Dagannoth Prime Jr. (other form)
+		m.put(6629, new int[]{30, 30}); // Dagannoth Prime Jr.
+		m.put(6630, new int[]{30, 30}); // Dagannoth Rex Jr.
+		m.put(6641, new int[]{30, 30}); // Dagannoth Rex Jr. (other form)
+		m.put(9511, new int[]{10, 5}); // Enraged Tektiny (other form)
+		m.put(9513, new int[]{10, 5}); // Enraged Tektiny
+		m.put(6632, new int[]{30, 30}); // General Graardor Jr.
+		m.put(6644, new int[]{30, 30}); // General Graardor Jr. (other form)
+		m.put(11401, new int[]{20, 20}); // Greatish guardian (other form)
+		m.put(11428, new int[]{20, 20}); // Greatish guardian
+		m.put(6634, new int[]{30, 30}); // K'ril Tsutsaroth Jr.
+		m.put(6647, new int[]{30, 30}); // K'ril Tsutsaroth Jr. (other form)
+		m.put(6640, new int[]{30, 30}); // Kraken
+		m.put(6656, new int[]{30, 30}); // Kraken (other form)
+		m.put(6631, new int[]{30, 30}); // Kree'arra Jr.
+		m.put(6643, new int[]{30, 30}); // Kree'arra Jr. (other form)
+		m.put(2182, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7439, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7440, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7441, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7442, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7443, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7444, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7445, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7446, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7447, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7448, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7449, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7450, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7451, new int[]{0, 10}); // Rock Golem
+		m.put(7452, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7453, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7454, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7455, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7642, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7643, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7644, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7645, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7646, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7647, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7648, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7711, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7736, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7737, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7738, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7739, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7740, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(7741, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(14923, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(15051, new int[]{0, 10}); // Rock Golem (other form)
+		m.put(425, new int[]{30, 30}); // Skotos (other form)
+		m.put(7671, new int[]{30, 30}); // Skotos
+		m.put(12767, new int[]{20, 30}); // Smol Heredit (other form)
+		m.put(12857, new int[]{20, 30}); // Smol Heredit
+		m.put(8197, new int[]{10, 5}); // Tektiny (other form)
+		m.put(8202, new int[]{10, 5}); // Tektiny
+		m.put(8009, new int[]{30, 30}); // TzRek-Zuk (other form)
+		m.put(8011, new int[]{30, 30}); // TzRek-Zuk
+		m.put(5536, new int[]{30, 30}); // Vet'ion Jr. (other form)
+		m.put(5559, new int[]{30, 30}); // Vet'ion Jr.
+		m.put(6633, new int[]{30, 30}); // Zilyana Jr.
+		m.put(6646, new int[]{30, 30}); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{15, 15}); // Adamant dragon
 		m.put(11992, new int[]{25, 0}); // Artio
@@ -681,6 +1085,288 @@ final class MountFits
 		m.put(16466, new int[]{6561, 6560, -1});
 		m.put(16467, new int[]{6561, 6560, -1});
 		m.put(16468, new int[]{6561, 6560, -1});
+		// The same pets under their other NPC ids (followers, house and menagerie versions).
+		m.put(16560, new int[]{6561, 6560, -1}); // Pug (other form)
+		m.put(15057, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(15056, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(15055, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(12174, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(15054, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(10620, new int[]{7589, 8857, -1}); // JalRek-Jad (other form)
+		m.put(6718, new int[]{5182, 5181, -1}); // Baby Chinchompa (other form)
+		m.put(6720, new int[]{5182, 5181, -1}); // Baby Chinchompa (other form)
+		m.put(6719, new int[]{5182, 5181, -1}); // Baby Chinchompa (other form)
+		m.put(12169, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(8183, new int[]{8553, 8553, -1}); // Little Parasite (other form)
+		m.put(8518, new int[]{8240, 8239, -1}); // Ikkle Hydra (other form)
+		m.put(6664, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(6665, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(395, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(6667, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(6663, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(6662, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(6666, new int[]{317, 314, -1}); // Cat (other form)
+		m.put(14032, new int[]{11662, 11663, -1}); // Bone Squirrel (other form)
+		m.put(11841, new int[]{9741, 9739, -1}); // Babi (other form)
+		m.put(12177, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(8730, new int[]{8417, 8428, -1}); // Corrupted Youngllef (other form)
+		m.put(541, new int[]{317, 314, -1}); // Clockwork cat (other form)
+		m.put(6661, new int[]{317, 314, -1}); // Clockwork cat (other form)
+		m.put(540, new int[]{317, 314, -1}); // Clockwork cat (other form)
+		m.put(15060, new int[]{12548, 12550, -1}); // Gulliver (other form)
+		m.put(12172, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(3498, new int[]{317, 2662, -1}); // Kitten (other form)
+		m.put(8008, new int[]{1678, 7974, -1}); // Corporeal Critter (other form)
+		m.put(964, new int[]{6561, 6560, -1}); // Hellpuppy (other form)
+		m.put(15059, new int[]{12586, 12587, -1}); // Gull (other form)
+		m.put(16552, new int[]{6561, 6560, -1}); // Greyhound (other form)
+		m.put(6690, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(6693, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(6692, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(6691, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(6695, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(6694, new int[]{317, 314, -1}); // Wily cat (other form)
+		m.put(8517, new int[]{8233, 8232, -1}); // Ikkle Hydra (other form)
+		m.put(16551, new int[]{6561, 6560, -1}); // Corgi (other form)
+		m.put(16402, new int[]{-1, -1, -1}); // Corgi (other form)
+		m.put(16549, new int[]{6561, 6560, -1}); // Corgi (other form)
+		m.put(12178, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(16540, new int[]{6561, 6560, -1}); // Labrador (other form)
+		m.put(15633, new int[]{5852, 5856, -1}); // Beef (other form)
+		m.put(6684, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(6687, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(6686, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(6685, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(6688, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(6683, new int[]{317, 314, -1}); // Lazy cat (other form)
+		m.put(12547, new int[]{2370, 2369, -1}); // Pheasant (other form)
+		m.put(9850, new int[]{7315, 7316, -1}); // Red (other form)
+		m.put(6689, new int[]{317, 314, -1}); // Lazy hellcat (other form)
+		m.put(16542, new int[]{6561, 6560, -1}); // Labrador (other form)
+		m.put(12170, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(16546, new int[]{6561, 6560, -1}); // Border Collie (other form)
+		m.put(16544, new int[]{6561, 6560, -1}); // Chihuahua (other form)
+		m.put(16398, new int[]{-1, -1, -1}); // Chihuahua (other form)
+		m.put(16400, new int[]{-1, -1, -1}); // Border Collie (other form)
+		m.put(16547, new int[]{6561, 6560, -1}); // Border Collie (other form)
+		m.put(9851, new int[]{7315, 7316, -1}); // Ziggy (other form)
+		m.put(14519, new int[]{12401, 12402, -1}); // Dom (other form)
+		m.put(6696, new int[]{317, 314, -1}); // Wily hellcat (other form)
+		m.put(2143, new int[]{8320, 8319, -1}); // Sraracha (other form)
+		m.put(16545, new int[]{6561, 6560, -1}); // Chihuahua (other form)
+		m.put(3077, new int[]{6809, 6808, -1}); // Phoenix (other form)
+		m.put(5892, new int[]{2650, 5805, -1}); // TzRek-Jad (other form)
+		m.put(16565, new int[]{6561, 6560, -1}); // Bernese Mountain Dog (other form)
+		m.put(16568, new int[]{6561, 6560, -1}); // Shiba (other form)
+		m.put(16573, new int[]{6561, 6560, -1}); // Yorkie (other form)
+		m.put(16414, new int[]{-1, -1, -1}); // Yorkie (other form)
+		m.put(16548, new int[]{6561, 6560, -1}); // Border Collie (other form)
+		m.put(7368, new int[]{6809, 6808, -1}); // Phoenix (other form)
+		m.put(6721, new int[]{5182, 5181, -1}); // Baby Chinchompa (other form)
+		m.put(9638, new int[]{7309, 7310, -1}); // Dark Squirrel (other form)
+		m.put(13681, new int[]{11473, 11474, -1}); // Nid (other form)
+		m.put(10763, new int[]{8002, 8003, -1}); // Lil' Nylo (other form)
+		m.put(6296, new int[]{7269, 7280, -1}); // Bloodhound (other form)
+		m.put(12175, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(16555, new int[]{6561, 6560, -1}); // Husky (other form)
+		m.put(3078, new int[]{6809, 6808, -1}); // Phoenix (other form)
+		m.put(16570, new int[]{6561, 6560, -1}); // Spaniel (other form)
+		m.put(16557, new int[]{6561, 6560, -1}); // Husky (other form)
+		m.put(6817, new int[]{6772, 6774, -1}); // Great blue heron (other form)
+		m.put(16550, new int[]{6561, 6560, -1}); // Corgi (other form)
+		m.put(6715, new int[]{6772, 6774, -1}); // Heron (other form)
+		m.put(16556, new int[]{6561, 6560, -1}); // Husky (other form)
+		m.put(16412, new int[]{-1, -1, -1}); // Husky (other form)
+		m.put(12153, new int[]{10230, 10233, -1}); // Wisp (other form)
+		m.put(11157, new int[]{8320, 8319, -1}); // Sraracha (other form)
+		m.put(12176, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(8519, new int[]{8247, 8246, -1}); // Ikkle Hydra (other form)
+		m.put(16333, new int[]{5339, 14449, -1}); // Mr McGroot (other form)
+		m.put(495, new int[]{9986, 9987, -1}); // Venenatis spiderling (other form)
+		m.put(12768, new int[]{10952, 10952, -1}); // Quetzin (other form)
+		m.put(16541, new int[]{6561, 6560, -1}); // Labrador (other form)
+		m.put(16575, new int[]{6561, 6560, -1}); // Yorkie (other form)
+		m.put(16543, new int[]{6561, 6560, -1}); // Chihuahua (other form)
+		m.put(16554, new int[]{6561, 6560, -1}); // Greyhound (other form)
+		m.put(16558, new int[]{6561, 6560, -1}); // Pug (other form)
+		m.put(3080, new int[]{6809, 6808, -1}); // Phoenix (other form)
+		m.put(16563, new int[]{6561, 6560, -1}); // Samoyed (other form)
+		m.put(9512, new int[]{8639, 8639, -1}); // Flying Vespina (other form)
+		m.put(16566, new int[]{6561, 6560, -1}); // Bernese Mountain Dog (other form)
+		m.put(16408, new int[]{-1, -1, -1}); // Bernese Mountain Dog (other form)
+		m.put(12171, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(3079, new int[]{6809, 6808, -1}); // Phoenix (other form)
+		m.put(6642, new int[]{5410, 5409, -1}); // Penance Pet (other form)
+		m.put(16410, new int[]{-1, -1, -1}); // Shiba (other form)
+		m.put(16567, new int[]{6561, 6560, -1}); // Shiba (other form)
+		m.put(8196, new int[]{7417, 7982, -1}); // Puppadile (other form)
+		m.put(8336, new int[]{8120, 8122, -1}); // Lil' Zik (other form)
+		m.put(11158, new int[]{8320, 8319, -1}); // Sraracha (other form)
+		m.put(16571, new int[]{6561, 6560, -1}); // Spaniel (other form)
+		m.put(7336, new int[]{7315, 7316, -1}); // Rocky (other form)
+		m.put(8200, new int[]{7449, 7448, -1}); // Vespina (other form)
+		m.put(8025, new int[]{7948, 7959, -1}); // Vorki (other form)
+		m.put(13682, new int[]{8340, 9139, -1}); // Rax (other form)
+		m.put(16559, new int[]{6561, 6560, -1}); // Pug (other form)
+		m.put(7334, new int[]{7309, 7310, -1}); // Giant Squirrel (other form)
+		m.put(9666, new int[]{-1, -1, -1}); // Giant Squirrel (other form)
+		m.put(7219, new int[]{10687, 10715, -1}); // Scurry (other form)
+		m.put(16406, new int[]{-1, -1, -1}); // Samoyed (other form)
+		m.put(16561, new int[]{6561, 6560, -1}); // Samoyed (other form)
+		m.put(6654, new int[]{6239, 6238, -1}); // Kalphite Princess (other form)
+		m.put(6651, new int[]{3309, 3313, -1}); // Baby Mole (other form)
+		m.put(12548, new int[]{6561, 6560, -1}); // Fox (other form)
+		m.put(11981, new int[]{5326, 5325, -1}); // Venenatis spiderling (other form)
+		m.put(11843, new int[]{2037, 2036, -1}); // Zebo (other form)
+		m.put(10764, new int[]{8137, 8136, -1}); // Lil' Sot (other form)
+		m.put(16564, new int[]{6561, 6560, -1}); // Bernese Mountain Dog (other form)
+		m.put(16572, new int[]{6561, 6560, -1}); // Spaniel (other form)
+		m.put(8520, new int[]{8254, 8253, -1}); // Ikkle Hydra (other form)
+		m.put(16553, new int[]{6561, 6560, -1}); // Greyhound (other form)
+		m.put(16404, new int[]{6561, 6560, -1}); // Greyhound (other form)
+		m.put(10650, new int[]{3309, 3313, -1}); // Baby Mole-rat (other form)
+		m.put(12173, new int[]{7177, 7178, -1}); // Beaver (other form)
+		m.put(16569, new int[]{6561, 6560, -1}); // Shiba (other form)
+		m.put(16562, new int[]{6561, 6560, -1}); // Samoyed (other form)
+		m.put(5907, new int[]{3144, 3145, -1}); // Chaos Elemental Jr. (other form)
+		m.put(8729, new int[]{8417, 8428, -1}); // Youngllef (other form)
+		m.put(497, new int[]{10011, 10010, -1}); // Callisto cub (other form)
+		m.put(5547, new int[]{6258, 6257, -1}); // Scorpia's offspring (other form)
+		m.put(15058, new int[]{13498, 13499, -1}); // Soup (other form)
+		m.put(6652, new int[]{90, 4635, -1}); // Prince Black Dragon (other form)
+		m.put(6668, new int[]{317, 314, -1}); // Hellcat (other form)
+		m.put(13665, new int[]{11232, 11234, -1}); // Broav (other form)
+		m.put(16574, new int[]{6561, 6560, -1}); // Yorkie (other form)
+		// Shoulder rides: two-legged pets (and a few other tall ones) carry you up on their shoulders.
+		m.put(5883, new int[]{7125, 7124, -1}); // Abyssal orphan (other form)
+		m.put(5884, new int[]{7125, 7124, -1}); // Abyssal orphan
+		m.put(11402, new int[]{2185, 2184, -1}); // Abyssal protector (other form)
+		m.put(11429, new int[]{2185, 2184, -1}); // Abyssal protector
+		m.put(16317, new int[]{4588, 4588, -1}); // Aggy
+		m.put(16334, new int[]{4588, 4588, -1}); // Aggy (other form)
+		m.put(10476, new int[]{11970, 11972, -1}); // Bran (other form)
+		m.put(12593, new int[]{11970, 11972, -1}); // Bran
+		m.put(12154, new int[]{10337, 10339, -1}); // Butch (other form)
+		m.put(12158, new int[]{10337, 10339, -1}); // Butch
+		m.put(6627, new int[]{2850, 2849, -1}); // Dagannoth Prime Jr. (other form)
+		m.put(6629, new int[]{2850, 2849, -1}); // Dagannoth Prime Jr.
+		m.put(6630, new int[]{2850, 2849, -1}); // Dagannoth Rex Jr.
+		m.put(6641, new int[]{2850, 2849, -1}); // Dagannoth Rex Jr. (other form)
+		m.put(6626, new int[]{2850, 2849, -1}); // Dagannoth Supreme Jr. (other form)
+		m.put(6628, new int[]{2850, 2849, -1}); // Dagannoth Supreme Jr.
+		m.put(9511, new int[]{7485, 8637, -1}); // Enraged Tektiny (other form)
+		m.put(9513, new int[]{7485, 8637, -1}); // Enraged Tektiny
+		m.put(6632, new int[]{7017, 7016, -1}); // General Graardor Jr.
+		m.put(6644, new int[]{7017, 7016, -1}); // General Graardor Jr. (other form)
+		m.put(11401, new int[]{9379, 9378, -1}); // Greatish guardian (other form)
+		m.put(11428, new int[]{9379, 9378, -1}); // Greatish guardian
+		m.put(6634, new int[]{6935, 4070, -1}); // K'ril Tsutsaroth Jr.
+		m.put(6647, new int[]{6935, 4070, -1}); // K'ril Tsutsaroth Jr. (other form)
+		m.put(6640, new int[]{3989, 3989, -1}); // Kraken
+		m.put(6656, new int[]{3989, 3989, -1}); // Kraken (other form)
+		m.put(6631, new int[]{7166, 7167, -1}); // Kree'arra Jr.
+		m.put(6643, new int[]{6976, 6977, -1}); // Kree'arra Jr. (other form)
+		m.put(10762, new int[]{8080, 8081, -1}); // Lil' Bloat (other form)
+		m.put(10871, new int[]{8080, 9031, -1}); // Lil' Bloat
+		m.put(2833, new int[]{8842, 8846, -1}); // Lil' Creator (other form)
+		m.put(3566, new int[]{8842, 8846, -1}); // Lil' Creator
+		m.put(3564, new int[]{3079, 8847, -1}); // Lil' Destructor (other form)
+		m.put(5008, new int[]{3079, 8847, -1}); // Lil' Destructor
+		m.put(10870, new int[]{14520, 14520, -1}); // Lil' Maiden
+		m.put(10765, new int[]{9033, 9033, -1}); // Lil' Xarp (other form)
+		m.put(10874, new int[]{9033, 9033, -1}); // Lil' Xarp
+		m.put(9398, new int[]{8593, 8634, -1}); // Little Nightmare (other form)
+		m.put(9399, new int[]{8593, 8634, -1}); // Little Nightmare
+		m.put(7890, new int[]{7807, 7806, -1}); // Midnight (other form)
+		m.put(7893, new int[]{7807, 7806, -1}); // Midnight
+		m.put(11276, new int[]{9177, 9176, -1}); // Nexling (other form)
+		m.put(11277, new int[]{9177, 9176, -1}); // Nexling
+		m.put(7891, new int[]{7768, 7768, -1}); // Noon (other form)
+		m.put(7892, new int[]{7768, 7768, -1}); // Noon
+		m.put(7519, new int[]{7396, 7395, -1}); // Olmlet (other form)
+		m.put(7520, new int[]{7396, 7395, -1}); // Olmlet
+		m.put(12592, new int[]{11969, 11971, -1}); // Ric (other form)
+		m.put(12595, new int[]{11969, 11971, -1}); // Ric
+		m.put(7337, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7338, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7339, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7340, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7341, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7342, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7343, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7344, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7345, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7346, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7347, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7348, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7349, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7350, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7354, new int[]{7307, 7306, -1}); // Rift guardian
+		m.put(7355, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7356, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7357, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7358, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7359, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7360, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7361, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7362, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7363, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7364, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7365, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7366, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(7367, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(8024, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(8028, new int[]{7307, 7306, -1}); // Rift guardian (other form)
+		m.put(2182, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7439, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7440, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7441, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7442, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7443, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7444, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7445, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7446, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7447, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7448, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7449, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7450, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7451, new int[]{7180, 7181, -1}); // Rock Golem
+		m.put(7452, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7453, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7454, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7455, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7642, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7643, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7644, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7645, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7646, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7647, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7648, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7711, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7736, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7737, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7738, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7739, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7740, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(7741, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(14923, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(15051, new int[]{7180, 7181, -1}); // Rock Golem (other form)
+		m.put(425, new int[]{6935, 4070, -1}); // Skotos (other form)
+		m.put(7671, new int[]{6935, 4070, -1}); // Skotos
+		m.put(12767, new int[]{10874, 10880, -1}); // Smol Heredit (other form)
+		m.put(12857, new int[]{10874, 10880, -1}); // Smol Heredit
+		m.put(7335, new int[]{7312, 7313, -1}); // Tangleroot (other form)
+		m.put(7352, new int[]{7312, 7313, -1}); // Tangleroot
+		m.put(8197, new int[]{7476, 7477, -1}); // Tektiny (other form)
+		m.put(8202, new int[]{7476, 7983, -1}); // Tektiny
+		m.put(8009, new int[]{7975, 7977, -1}); // TzRek-Zuk (other form)
+		m.put(8011, new int[]{7975, 7977, -1}); // TzRek-Zuk
+		m.put(5536, new int[]{9965, 9967, -1}); // Vet'ion Jr. (other form)
+		m.put(5559, new int[]{9965, 9967, -1}); // Vet'ion Jr.
+		m.put(14203, new int[]{12140, 12143, -1}); // Yami (other form)
+		m.put(14204, new int[]{12140, 12143, -1}); // Yami
+		m.put(6633, new int[]{6966, 6965, -1}); // Zilyana Jr.
+		m.put(6646, new int[]{6966, 6965, -1}); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{90, 79, -1}); // Adamant dragon
 		m.put(7795, new int[]{7650, 7650, -1}); // Ancient Wyvern
@@ -870,6 +1556,41 @@ final class MountFits
 		m.put("Youngllef", 8737);
 		m.put("Zebo", 11849);
 		m.put("Ziggy", 9853);
+		m.put("Abyssal orphan", 5884);
+		m.put("Abyssal protector", 11429);
+		m.put("Aggy", 16317);
+		m.put("Bran", 12593);
+		m.put("Butch", 12158);
+		m.put("Dagannoth Prime Jr.", 6629);
+		m.put("Dagannoth Rex Jr.", 6630);
+		m.put("Dagannoth Supreme Jr.", 6628);
+		m.put("Enraged Tektiny", 9513);
+		m.put("General Graardor Jr.", 6632);
+		m.put("Greatish guardian", 11428);
+		m.put("K'ril Tsutsaroth Jr.", 6634);
+		m.put("Kraken", 6640);
+		m.put("Kree'arra Jr.", 6631);
+		m.put("Lil' Bloat", 10871);
+		m.put("Lil' Creator", 3566);
+		m.put("Lil' Destructor", 5008);
+		m.put("Lil' Maiden", 10870);
+		m.put("Lil' Xarp", 10874);
+		m.put("Little Nightmare", 9399);
+		m.put("Midnight", 7893);
+		m.put("Nexling", 11277);
+		m.put("Noon", 7892);
+		m.put("Olmlet", 7520);
+		m.put("Ric", 12595);
+		m.put("Rift guardian", 7354);
+		m.put("Rock Golem", 7451);
+		m.put("Skotos", 7671);
+		m.put("Smol Heredit", 12857);
+		m.put("Tangleroot", 7352);
+		m.put("Tektiny", 8202);
+		m.put("TzRek-Zuk", 8011);
+		m.put("Vet'ion Jr.", 5559);
+		m.put("Yami", 14204);
+		m.put("Zilyana Jr.", 6633);
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put("Adamant dragon", 8030);
 		m.put("Ancient Wyvern", 7795);

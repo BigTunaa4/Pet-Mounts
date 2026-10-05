@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
  *
  * Order of checks:
  * 1. The player's own "always allow" / "never allow" lists from the config
- * 2. Pets that are awkward or unrealistic to ride (objects, pets standing on two legs, snakes, fish...)
+ * 2. Pets that are awkward or unrealistic to ride (objects, snakes, fish...). Two-legged pets carry you on their
+ *    shoulders instead.
  * 3. Pets checked and tuned as mounts
  * 4. For anything else (pets released later), the model's shape: tall-and-thin (upright) models are refused.
  *
@@ -67,57 +68,22 @@ final class PetRules
 	private static final Map<String, Reason> NOT_RIDEABLE = ImmutableMap.<String, Reason>builder()
 		// Objects
 		.put("smolcano", Reason.OBJECT)
-		.put("tangleroot", Reason.OBJECT)
 		.put("vanguard", Reason.OBJECT)
 		// Too small
 		.put("maggot marquess", Reason.TOO_SMALL)
 		// Stand upright on two legs
-		.put("abyssal orphan", Reason.HUMANOID)
-		.put("abyssal protector", Reason.HUMANOID)
-		.put("aggy", Reason.HUMANOID)
 		.put("akkhito", Reason.HUMANOID)
-		.put("bran", Reason.HUMANOID)
-		.put("butch", Reason.HUMANOID)
-		.put("dagannoth prime jr.", Reason.HUMANOID)
-		.put("dagannoth rex jr.", Reason.HUMANOID)
-		.put("dagannoth supreme jr.", Reason.HUMANOID)
 		.put("elidinis' damaged guardian", Reason.HUMANOID)
 		.put("elidinis' guardian", Reason.HUMANOID)
-		.put("enraged tektiny", Reason.HUMANOID)
-		.put("general graardor jr.", Reason.HUMANOID)
-		.put("greatish guardian", Reason.HUMANOID)
-		.put("k'ril tsutsaroth jr.", Reason.HUMANOID)
-		.put("kree'arra jr.", Reason.HUMANOID)
-		.put("lil' bloat", Reason.HUMANOID)
-		.put("lil' creator", Reason.HUMANOID)
-		.put("lil' destructor", Reason.HUMANOID)
-		.put("lil' maiden", Reason.HUMANOID)
-		.put("lil' xarp", Reason.HUMANOID)
-		.put("little nightmare", Reason.HUMANOID)
-		.put("midnight", Reason.HUMANOID)
 		.put("moxi", Reason.HUMANOID)
-		.put("nexling", Reason.HUMANOID)
-		.put("noon", Reason.HUMANOID)
-		.put("olmlet", Reason.HUMANOID)
-		.put("ric", Reason.HUMANOID)
-		.put("rift guardian", Reason.HUMANOID)
-		.put("rock golem", Reason.HUMANOID)
-		.put("skotos", Reason.HUMANOID)
-		.put("smol heredit", Reason.HUMANOID)
-		.put("tektiny", Reason.HUMANOID)
 		.put("tumeken's damaged guardian", Reason.HUMANOID)
 		.put("tumeken's guardian", Reason.HUMANOID)
-		.put("tzrek-zuk", Reason.HUMANOID)
-		.put("vet'ion jr.", Reason.HUMANOID)
-		.put("yami", Reason.HUMANOID)
-		.put("zilyana jr.", Reason.HUMANOID)
 		// Snakes and worms
 		.put("huberte", Reason.SLITHERS)
 		.put("jal-nib-rek", Reason.SLITHERS)
 		.put("lil'viathan", Reason.SLITHERS)
 		.put("snakeling", Reason.SLITHERS)
 		// Water creatures
-		.put("kraken", Reason.AQUATIC)
 		.put("tiny tempor", Reason.AQUATIC)
 		// Not shaped for riding
 		.put("baron", Reason.SHAPE)
@@ -134,19 +100,23 @@ final class PetRules
 
 	/** Pets checked and tuned as mounts, by their in-game name (lower case). */
 	private static final Set<String> RIDEABLE = ImmutableSet.of(
-		"babi", "baby chinchompa", "baby mole", "baby mole-rat", "beaver", "beef", "bernese mountain dog",
-		"bernese mountain dog puppy", "bloodhound", "bone squirrel", "border collie", "border collie puppy",
-		"broav", "callisto cub", "cat", "chaos elemental jr.", "chihuahua", "chihuahua puppy", "chompy chick",
-		"clockwork cat", "corgi", "corgi puppy", "corporeal critter", "corrupted youngllef", "dark core",
-		"dark squirrel", "dom", "flying vespina", "fox", "giant squirrel", "great blue heron", "greyhound",
-		"greyhound puppy", "gull", "gulliver", "hell-kitten", "hellcat", "hellpuppy", "herbi", "heron", "husky",
-		"husky puppy", "ikkle hydra", "jalrek-jad", "kalphite princess", "kitten", "labrador", "labrador puppy",
-		"lazy cat", "lazy hellcat", "lil' nylo", "lil' sot", "lil' zik", "little parasite", "mr mcgroot", "nid",
-		"overgrown cat", "overgrown hellcat", "penance pet", "pheasant", "phoenix", "prince black dragon", "pug",
-		"pug puppy", "puppadile", "quetzin", "rax", "red", "rocky", "samoyed", "samoyed puppy",
-		"scorpia's offspring", "scurry", "shiba", "shiba puppy", "soup", "spaniel", "spaniel puppy", "sraracha",
-		"tzrek-jad", "venenatis spiderling", "vespina", "vorki", "wily cat", "wily hellcat", "wisp", "yorkie",
-		"yorkie puppy", "youngllef", "zebo", "ziggy"
+		"abyssal orphan", "abyssal protector", "aggy", "babi", "baby chinchompa", "baby mole", "baby mole-rat", "beaver",
+		"beef", "bernese mountain dog", "bernese mountain dog puppy", "bloodhound", "bone squirrel", "border collie",
+		"border collie puppy", "bran", "broav", "butch", "callisto cub", "cat", "chaos elemental jr.", "chihuahua",
+		"chihuahua puppy", "chompy chick", "clockwork cat", "corgi", "corgi puppy", "corporeal critter",
+		"corrupted youngllef", "dagannoth prime jr.", "dagannoth rex jr.", "dagannoth supreme jr.", "dark core",
+		"dark squirrel", "dom", "enraged tektiny", "flying vespina", "fox", "general graardor jr.", "giant squirrel",
+		"great blue heron", "greatish guardian", "greyhound", "greyhound puppy", "gull", "gulliver", "hell-kitten",
+		"hellcat", "hellpuppy", "herbi", "heron", "husky", "husky puppy", "ikkle hydra", "jalrek-jad",
+		"k'ril tsutsaroth jr.", "kalphite princess", "kitten", "kraken", "kree'arra jr.", "labrador", "labrador puppy",
+		"lazy cat", "lazy hellcat", "lil' bloat", "lil' creator", "lil' destructor", "lil' maiden", "lil' nylo", "lil' sot",
+		"lil' xarp", "lil' zik", "little nightmare", "little parasite", "midnight", "mr mcgroot", "nexling", "nid", "noon",
+		"olmlet", "overgrown cat", "overgrown hellcat", "penance pet", "pheasant", "phoenix", "prince black dragon", "pug",
+		"pug puppy", "puppadile", "quetzin", "rax", "red", "ric", "rift guardian", "rock golem", "rocky", "samoyed",
+		"samoyed puppy", "scorpia's offspring", "scurry", "shiba", "shiba puppy", "skotos", "smol heredit", "soup",
+		"spaniel", "spaniel puppy", "sraracha", "tangleroot", "tektiny", "tzrek-jad", "tzrek-zuk", "venenatis spiderling",
+		"vespina", "vet'ion jr.", "vorki", "wily cat", "wily hellcat", "wisp", "yami", "yorkie", "yorkie puppy", "youngllef",
+		"zebo", "ziggy", "zilyana jr."
 	);
 
 	private PetRules()

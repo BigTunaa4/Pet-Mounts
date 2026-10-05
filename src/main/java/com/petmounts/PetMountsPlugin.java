@@ -557,6 +557,8 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 
+		addMountOptions();
+
 		// Always offered while riding. Index 1 sits just above "Cancel", so it never becomes the left-click option.
 		client.getMenu().createMenuEntry(1)
 			.setOption("Dismount")
@@ -564,6 +566,55 @@ public class PetMountsPlugin extends Plugin
 			.setType(MenuAction.RUNELITE)
 			.setDeprioritized(true)
 			.onClick(me -> setRiding(false, true));
+	}
+
+	/** The game's options for an NPC's five right-click actions, in order. */
+	private static final MenuAction[] NPC_OPTIONS = {
+		MenuAction.NPC_FIRST_OPTION, MenuAction.NPC_SECOND_OPTION, MenuAction.NPC_THIRD_OPTION,
+		MenuAction.NPC_FOURTH_OPTION, MenuAction.NPC_FIFTH_OPTION
+	};
+
+	/**
+	 * The pet you're riding is hidden from the game, so you can't right-click it. Put its own options (a cat's
+	 * Chase, a dog's Dig, Interact...) on the mount instead, so it can still do its tricks while you ride.
+	 */
+	private void addMountOptions()
+	{
+		NPC pet = client.getFollower();
+		net.runelite.api.Point mouse = client.getMouseCanvasPosition();
+		if (!riding || chosenMount() > 0 || pet == null || rig == null || !rig.isVisible() || mouse == null)
+		{
+			return;
+		}
+		java.awt.Shape area = rig.screenArea();
+		if (area == null || !area.contains(mouse.getX(), mouse.getY()))
+		{
+			return;
+		}
+		NPCComposition comp = pet.getTransformedComposition();
+		if (comp == null)
+		{
+			comp = pet.getComposition();
+		}
+		String[] actions = comp == null ? null : comp.getActions();
+		if (actions == null)
+		{
+			return;
+		}
+		String target = "<col=ffff00>" + comp.getName() + "</col>";
+		// Added last-option first, so the first option ends up on top as in the game's own menu.
+		for (int i = Math.min(actions.length, NPC_OPTIONS.length) - 1; i >= 0; i--)
+		{
+			if (actions[i] == null || actions[i].isEmpty())
+			{
+				continue;
+			}
+			client.getMenu().createMenuEntry(-1)
+				.setOption(actions[i])
+				.setTarget(target)
+				.setType(NPC_OPTIONS[i])
+				.setIdentifier(pet.getIndex());
+		}
 	}
 
 	/**

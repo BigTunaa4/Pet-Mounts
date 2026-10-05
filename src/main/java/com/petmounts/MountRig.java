@@ -221,7 +221,7 @@ final class MountRig
 		look.apply(player, style.hideHeld, style.hideCape);
 
 		boolean idle = animationId == idleAnimationId;
-		if (style.saddle && idle && (!saddleTried || saddlePose != pose))
+		if (saddleOn(style) && idle && (!saddleTried || saddlePose != pose))
 		{
 			buildSaddle(style, pose);
 		}
@@ -246,9 +246,9 @@ final class MountRig
 		{
 			mount.setActive(true);
 		}
-		if (saddle != null && saddle.isActive() != style.saddle)
+		if (saddle != null && saddle.isActive() != saddleOn(style))
 		{
-			saddle.setActive(style.saddle);
+			saddle.setActive(saddleOn(style));
 		}
 		if (!client.isRuneLiteObjectRegistered(rider))
 		{
@@ -294,6 +294,12 @@ final class MountRig
 	// ------------------------------------------------------------------
 	// Mount animation
 	// ------------------------------------------------------------------
+
+	/** Shoulder rides have no saddle: you sit on the pet itself. */
+	private boolean saddleOn(Style style)
+	{
+		return style.saddle && !built.shoulders;
+	}
 
 	/** 8 to 18 seconds of standing still, in client ticks. */
 	private static int nextExtraDelay()
@@ -475,7 +481,7 @@ final class MountRig
 		saddle = client.createRuneLiteObject();
 		saddle.setModel(model);
 		saddleLift = mesh.seatThickness;
-		saddle.setActive(style.saddle);
+		saddle.setActive(saddleOn(style));
 	}
 
 	/** Blanket colour: from the pet's colours, deepened so it reads as cloth, or the colour from settings. */
@@ -518,7 +524,8 @@ final class MountRig
 		LocalPoint lp, int plane, int orientation, int ground)
 	{
 		int[][] hands = ReinMesh.handsFor(pose);
-		if (!style.reins || hands == null || bit == null || m == null || m.getVerticesCount() != bitVertexCount)
+		if (!style.reins || built.shoulders || hands == null || bit == null || m == null
+			|| m.getVerticesCount() != bitVertexCount)
 		{
 			setActive(reins, false);
 			return;

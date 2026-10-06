@@ -243,11 +243,11 @@ public interface PetMountsConfig extends Config
 		return false;
 	}
 
-	@Range(min = 1, max = 30)
+	@Range(min = 1, max = 2000)
 	@ConfigItem(
 		keyName = "everyoneRidesLimit",
 		name = "Riders shown",
-		description = "The most other players shown riding at once, nearest first. Lower it if busy areas feel slow",
+		description = "The most other players shown riding at once, nearest first. Set it high to show everyone; lower it if busy areas feel slow",
 		position = 2,
 		section = othersSection
 	)

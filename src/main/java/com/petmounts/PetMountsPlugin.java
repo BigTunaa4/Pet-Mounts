@@ -147,8 +147,6 @@ public class PetMountsPlugin extends Plugin
 	private int hiddenUntil;
 	/** Picks a random mount on the next login, if that's switched on. */
 	private boolean pickOnLogin = true;
-	/** "Everyone rides" pauses itself in very crowded places, to keep the game smooth. */
-	private static final int CROWD_LIMIT = 120;
 	/**
 	 * Animation smoothing blends each frame into the next. The seated poses hold one frame of an emote (or loop
 	 * part of one), so blending made riders' arms and legs twitch toward the next frame and snap back. Riding
@@ -927,7 +925,7 @@ public class PetMountsPlugin extends Plugin
 		{
 			others.clear();
 		}
-		else if (shiftHeld || settling || !others.allowedHere() || crowded())
+		else if (shiftHeld || settling || !others.allowedHere())
 		{
 			others.hideAll();
 		}
@@ -936,13 +934,6 @@ public class PetMountsPlugin extends Plugin
 			others.update(tickCount, config.everyoneRidesLimit());
 		}
 		keepRidersApart();
-	}
-
-	/** Whether there are so many players around that drawing everyone riding would slow the game down. */
-	private boolean crowded()
-	{
-		return client.getTopLevelWorldView() != null
-			&& client.getTopLevelWorldView().players().stream().count() > CROWD_LIMIT;
 	}
 
 	/**

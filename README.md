@@ -106,11 +106,10 @@ Walk into the Grand Exchange and see everyone on their pets.
 - Right-click a rider as usual to follow, trade with or report them. You can also **hold Shift** to see
   everyone normally.
 - It's always off in the Wilderness and on PvP worlds.
-- **Riders shown** sets how many riders are drawn at once, nearest first (10 by default).
+- **Riders shown** sets how many riders are drawn at once, nearest first (10 by default, up to 2000 to show everyone).
 - Players step off while they're skilling or fighting, just like you.
 - Riders side by side are nudged a little apart so their mounts don't overlap.
-- It pauses itself in very crowded places, and for a moment after each loading screen, to keep the game
-  smooth.
+- It works everywhere, however crowded. It only pauses for a moment after each loading screen.
 
 ## Riding in style
 

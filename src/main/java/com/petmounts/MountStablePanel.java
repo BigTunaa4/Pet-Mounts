@@ -45,6 +45,17 @@ class MountStablePanel extends PluginPanel
 
 		/** Rides this pet (NPC id), or the pet following you for 0. */
 		void chooseMount(int npcId);
+
+		/** Stars or unstars this mount (NPC id). */
+		void toggleFavourite(int npcId);
+
+		/** Picks a random mount: a favourite if any are starred. */
+		void randomMount();
+
+		void setSaddleStyle(SaddleStyle style);
+
+		/** Copies details of the current mount, for a bug report. */
+		void copyMountInfo();
 	}
 
 	/** What the panel shows; built by the plugin on the client thread. */
@@ -63,10 +74,16 @@ class MountStablePanel extends PluginPanel
 		final boolean hideCape;
 		/** The pet picked to ride (NPC id), or 0 for the pet following you. */
 		final int chosen;
+		/** Starred mounts (NPC ids). */
+		final java.util.Set<Integer> favourites;
+		final SaddleStyle saddleStyle;
 
 		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks,
-			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape, int chosen)
+			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape, int chosen,
+			java.util.Set<Integer> favourites, SaddleStyle saddleStyle)
 		{
+			this.favourites = favourites;
+			this.saddleStyle = saddleStyle;
 			this.petName = petName;
 			this.status = status;
 			this.canRide = canRide;
@@ -85,7 +102,8 @@ class MountStablePanel extends PluginPanel
 		{
 			return o != null && java.util.Objects.equals(petName, o.petName) && status.equals(o.status)
 				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
-				&& hideCape == o.hideCape && chosen == o.chosen && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
+				&& hideCape == o.hideCape && chosen == o.chosen && favourites.equals(o.favourites)
+				&& saddleStyle == o.saddleStyle && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
 				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
 	}
@@ -107,6 +125,12 @@ class MountStablePanel extends PluginPanel
 	private final JCheckBox heldBox = new JCheckBox("Hide weapon and shield");
 	private final JCheckBox capeBox = new JCheckBox("Hide cape");
 	private final JComboBox<RiderPose> poseBox = new JComboBox<>(RiderPose.values());
+	private final JComboBox<SaddleStyle> saddleStyleBox = new JComboBox<>(SaddleStyle.values());
+	private final JButton favouriteButton = new JButton("Favourite");
+	private final JButton randomButton = new JButton("Random");
+	private final MountCell mountCell = new MountCell(new MountIcons());
+	/** Favourites shown first in the Mount list, as last built. */
+	private java.util.Set<Integer> listedFavourites = java.util.Collections.emptySet();
 	private final JSlider sizeSlider = slider(60, 160, 100);
 	private final JSlider heightSlider = slider(-40, 40, 0);
 	private final JSlider forwardSlider = slider(-60, 60, 0);
@@ -146,12 +170,8 @@ class MountStablePanel extends PluginPanel
 
 		// What to ride: your follower, or any rideable pet or creature, even a pet you haven't got yet.
 		content.add(left(small("Mount")));
-		mountBox.addItem(YOUR_PET);
-		for (String name : MountFits.choices().keySet())
-		{
-			mountBox.addItem(name);
-		}
-		mountBox.setRenderer(new MountCell(new MountIcons()));
+		fillMountList(java.util.Collections.emptySet());
+		mountBox.setRenderer(mountCell);
 		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, MountIcons.HEIGHT + 12));
 		mountBox.setMaximumRowCount(6);
 		mountBox.setToolTipText("Ride the pet following you, or pick any pet or creature to ride: dragons, unicorns, the battle tortoise, even a pet rock");
@@ -165,6 +185,26 @@ class MountStablePanel extends PluginPanel
 			}
 		});
 		content.add(left(mountBox));
+		content.add(Box.createRigidArea(new Dimension(0, 4)));
+
+		// Star the mount you're on, or let fate pick one.
+		JPanel picks = new JPanel(new GridLayout(1, 2, 4, 0));
+		favouriteButton.setFocusPainted(false);
+		favouriteButton.setToolTipText("Star this mount: favourites are listed first and in gold");
+		favouriteButton.addActionListener(e ->
+		{
+			if (shown != null && shown.chosen > 0)
+			{
+				actions.toggleFavourite(shown.chosen);
+			}
+		});
+		randomButton.setFocusPainted(false);
+		randomButton.setToolTipText("Ride a random mount: one of your favourites if you've starred any");
+		randomButton.addActionListener(e -> actions.randomMount());
+		picks.add(favouriteButton);
+		picks.add(randomButton);
+		picks.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
+		content.add(left(picks));
 		content.add(Box.createRigidArea(new Dimension(0, 6)));
 
 		rideButton.setFont(FontManager.getRunescapeBoldFont());
@@ -187,6 +227,18 @@ class MountStablePanel extends PluginPanel
 		content.add(left(everyoneBox));
 		content.add(left(heldBox));
 		content.add(left(capeBox));
+		content.add(Box.createRigidArea(new Dimension(0, 6)));
+		content.add(left(small("Saddle style")));
+		saddleStyleBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
+		saddleStyleBox.setToolTipText("The look of the saddle and blanket. Classic matches the blanket to your pet");
+		saddleStyleBox.addActionListener(e ->
+		{
+			if (!updating && saddleStyleBox.getSelectedItem() != null)
+			{
+				actions.setSaddleStyle((SaddleStyle) saddleStyleBox.getSelectedItem());
+			}
+		});
+		content.add(left(saddleStyleBox));
 		content.add(Box.createRigidArea(new Dimension(0, 12)));
 
 		// Adjustments remembered for this pet.
@@ -219,6 +271,23 @@ class MountStablePanel extends PluginPanel
 		tip.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		content.add(left(tip));
 
+		// Something look wrong? Copy the details to paste into a bug report.
+		content.add(Box.createRigidArea(new Dimension(0, 8)));
+		JLabel report = new JLabel("<html><u>Copy mount info</u> for a bug report</html>");
+		report.setFont(FontManager.getRunescapeSmallFont());
+		report.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		report.setToolTipText("Copies the mount, its size and seat settings to your clipboard, to paste into a report");
+		report.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		report.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				actions.copyMountInfo();
+			}
+		});
+		content.add(left(report));
+
 		// Optional tip link. Nothing is locked behind it.
 		content.add(Box.createRigidArea(new Dimension(0, 12)));
 		JLabel support = new JLabel("<html>Enjoying Pet Mounts? It's free, but you can <u>leave a tip</u>.</html>");
@@ -249,7 +318,8 @@ class MountStablePanel extends PluginPanel
 		content.add(left(support));
 
 		add(content, BorderLayout.NORTH);
-		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0));
+		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0,
+				java.util.Collections.emptySet(), SaddleStyle.CLASSIC));
 	}
 
 	/** Shows the latest state. Call on the Swing thread. */
@@ -266,7 +336,14 @@ class MountStablePanel extends PluginPanel
 		statusLabel.setForeground(s.riding || s.canRide ? READY : ColorScheme.LIGHT_GRAY_COLOR);
 		rideButton.setText(s.riding ? "Dismount" : "Ride");
 		rideButton.setEnabled(s.riding || s.canRide);
+		if (!s.favourites.equals(listedFavourites))
+		{
+			fillMountList(s.favourites);
+		}
 		mountBox.setSelectedItem(nameOfChoice(s.chosen));
+		favouriteButton.setText(s.favourites.contains(s.chosen) ? "Unfavourite" : "Favourite");
+		favouriteButton.setEnabled(s.chosen > 0);
+		saddleStyleBox.setSelectedItem(s.saddleStyle);
 		saddleBox.setSelected(s.saddle);
 		reinsBox.setSelected(s.reins);
 		motionBox.setSelected(s.motion);
@@ -282,6 +359,33 @@ class MountStablePanel extends PluginPanel
 		updating = false;
 	}
 
+	/** Fills the Mount list: your pet, then favourites, then every other mount, each alphabetically. */
+	private void fillMountList(java.util.Set<Integer> favourites)
+	{
+		boolean was = updating;
+		updating = true;
+		listedFavourites = new java.util.HashSet<>(favourites);
+		mountCell.favourites.clear();
+		mountBox.removeAllItems();
+		mountBox.addItem(YOUR_PET);
+		for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+		{
+			if (favourites.contains(e.getValue()))
+			{
+				mountBox.addItem(e.getKey());
+				mountCell.favourites.add(e.getKey());
+			}
+		}
+		for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+		{
+			if (!favourites.contains(e.getValue()))
+			{
+				mountBox.addItem(e.getKey());
+			}
+		}
+		updating = was;
+	}
+
 	/** One row of the Mount list: the mount's picture and its name, like a card. */
 	private static final class MountCell extends JPanel implements ListCellRenderer<String>
 	{
@@ -289,6 +393,8 @@ class MountStablePanel extends PluginPanel
 		private final MountIcons icons;
 		private final JLabel picture = new JLabel();
 		private final JLabel name = new JLabel();
+		/** Names of starred mounts, shown in gold. */
+		final java.util.Set<String> favourites = new java.util.HashSet<>();
 
 		MountCell(MountIcons icons)
 		{
@@ -310,7 +416,8 @@ class MountStablePanel extends PluginPanel
 			picture.setIcon(icon);
 			picture.setVisible(icon != null);
 			name.setText(value);
-			setToolTipText(value);
+			name.setForeground(favourites.contains(value) ? GOLD : Color.WHITE);
+			setToolTipText(favourites.contains(value) ? value + " (favourite)" : value);
 			boolean inList = index >= 0;
 			setBackground(inList && selected ? ColorScheme.DARK_GRAY_COLOR : ColorScheme.DARKER_GRAY_COLOR);
 			setBorder(BorderFactory.createCompoundBorder(

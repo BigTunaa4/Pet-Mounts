@@ -11,7 +11,7 @@ public class SaddleMeshTest
 	@Test
 	public void fitsInTheTemplateAndSitsOnTheBack()
 	{
-		SaddleMesh m = SaddleMesh.build(BACK, 105, false, true, SaddleMesh.hsl(40, 5, 40), SaddleMesh.GOLD, 788, 1576);
+		SaddleMesh m = SaddleMesh.build(BACK, 105, false, true, SaddleMesh.hsl(40, 5, 40), SaddleMesh.GOLD, SaddleStyle.CLASSIC, 788, 1576);
 		assertTrue(m.vertexCount > 100 && m.vertexCount <= 788);
 		assertTrue(m.faceCount > 100 && m.faceCount <= 1576);
 		assertTrue("rider sits on top of the saddle", m.seatThickness > 3 && m.seatThickness < 12);
@@ -28,15 +28,15 @@ public class SaddleMeshTest
 	@Test
 	public void blanketOnlyForSittingCrossLegged()
 	{
-		SaddleMesh withSaddle = SaddleMesh.build(BACK, 105, false, true, (short) 0, (short) 0, 788, 1576);
-		SaddleMesh rug = SaddleMesh.build(BACK, 105, false, false, (short) 0, (short) 0, 788, 1576);
+		SaddleMesh withSaddle = SaddleMesh.build(BACK, 105, false, true, (short) 0, (short) 0, SaddleStyle.CLASSIC, 788, 1576);
+		SaddleMesh rug = SaddleMesh.build(BACK, 105, false, false, (short) 0, (short) 0, SaddleStyle.CLASSIC, 788, 1576);
 		assertTrue(rug.faceCount < withSaddle.faceCount);
 	}
 
 	@Test
 	public void neverOverflowsASmallTemplate()
 	{
-		SaddleMesh m = SaddleMesh.build(BACK, 105, true, true, (short) 0, (short) 0, 120, 200);
+		SaddleMesh m = SaddleMesh.build(BACK, 105, true, true, (short) 0, (short) 0, SaddleStyle.CLASSIC, 120, 200);
 		assertTrue(m.vertexCount <= 120 && m.faceCount <= 200);
 	}
 
@@ -57,7 +57,7 @@ public class SaddleMeshTest
 	public void blanketStaysInProportionOnBroadBacks()
 	{
 		SaddleMesh.Surface flat = (dx, dz) -> 0f; // a very broad, flat back
-		SaddleMesh m = SaddleMesh.build(flat, 90, true, true, (short) 0, SaddleMesh.GOLD, 788, 1576);
+		SaddleMesh m = SaddleMesh.build(flat, 90, true, true, (short) 0, SaddleMesh.GOLD, SaddleStyle.CLASSIC, 788, 1576);
 		float widest = 0, longest = 0;
 		for (int v = 0; v < m.vertexCount; v++)
 		{
@@ -66,5 +66,25 @@ public class SaddleMeshTest
 		}
 		assertTrue("blanket not wider than it should be", widest <= SaddleMesh.MAX_BLANKET_HALF_WIDTH + 6);
 		assertTrue("blanket not longer than it should be", longest <= SaddleMesh.MAX_BLANKET_LENGTH / 2 + 6);
+	}
+
+	@Test
+	public void saddleStylesChangeTheLeatherAndMetal()
+	{
+		SaddleMesh classic = SaddleMesh.build(BACK, 105, false, true, (short) 0, (short) 0, SaddleStyle.CLASSIC, 788, 1576);
+		SaddleMesh skull = SaddleMesh.build(BACK, 105, false, true, (short) 0, (short) 0, SaddleStyle.SKULL, 788, 1576);
+		java.util.Set<Short> a = new java.util.HashSet<>(), b = new java.util.HashSet<>();
+		for (int i = 0; i < classic.faceCount; i++)
+		{
+			a.add(classic.color[i]);
+		}
+		for (int i = 0; i < skull.faceCount; i++)
+		{
+			b.add(skull.color[i]);
+		}
+		org.junit.Assert.assertTrue(a.contains(SaddleMesh.LEATHER));
+		org.junit.Assert.assertFalse(b.contains(SaddleMesh.LEATHER));
+		org.junit.Assert.assertTrue(b.contains(SaddleStyle.SKULL.metal));
+		org.junit.Assert.assertEquals(classic.faceCount, skull.faceCount);
 	}
 }

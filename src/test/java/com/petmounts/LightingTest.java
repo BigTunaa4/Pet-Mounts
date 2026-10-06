@@ -52,9 +52,28 @@ public class LightingTest
 	@Test
 	public void dogsDig()
 	{
-		org.junit.Assert.assertEquals(MountFits.DIG, MountFits.idleExtra(16361)); // Labrador
-		org.junit.Assert.assertEquals(MountFits.DIG_SMALL, MountFits.idleExtra(16433)); // Labrador puppy
-		org.junit.Assert.assertEquals(MountFits.DIG, MountFits.idleExtra(106)); // Wolf
-		org.junit.Assert.assertEquals(-1, MountFits.idleExtra(1619)); // Cat
+		org.junit.Assert.assertArrayEquals(new int[]{MountExtras.DIG}, MountExtras.tricks(16361)); // Labrador
+		org.junit.Assert.assertArrayEquals(new int[]{MountExtras.DIG_SMALL}, MountExtras.tricks(16433)); // Labrador puppy
+		org.junit.Assert.assertArrayEquals(new int[]{MountExtras.DIG}, MountExtras.tricks(106)); // Wolf
+		org.junit.Assert.assertArrayEquals(new int[]{1823, 2663}, MountExtras.tricks(1619)); // Cat: arch back, paw
+		org.junit.Assert.assertNull(MountExtras.tricks(6635)); // Baby mole: none
+	}
+
+	@Test
+	public void mountsHaveTheirOwnSoundsAndTrails()
+	{
+		org.junit.Assert.assertEquals(340, MountExtras.sound(1619)); // a cat purrs
+		org.junit.Assert.assertEquals(-1, MountExtras.sound(6635));
+		org.junit.Assert.assertEquals(MountExtras.Trail.LAVA, MountExtras.trail("Lava dragon"));
+		org.junit.Assert.assertEquals(MountExtras.Trail.FIRE, MountExtras.trail("Phoenix"));
+		org.junit.Assert.assertNull(MountExtras.trail("Cat"));
+		// every mount with tricks or sounds is a real, tuned mount
+		for (int id = 0; id < 20000; id++)
+		{
+			if (MountExtras.tricks(id) != null || MountExtras.sound(id) != -1)
+			{
+				org.junit.Assert.assertNotNull("tuned: " + id, MountFits.get(id));
+			}
+		}
 	}
 }

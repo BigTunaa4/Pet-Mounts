@@ -66,9 +66,10 @@ final class SaddleMesh
 	 * @param saddle     include the leather saddle and stirrups (false = just the blanket, for sitting cross-legged)
 	 * @param blanket    blanket colour
 	 * @param trim       blanket edge colour
+	 * @param style      leather and metal colours of the saddle
 	 */
 	static SaddleMesh build(Surface surface, float seatHeight, boolean wideSeat, boolean saddle,
-		short blanket, short trim, int maxVertices, int maxFaces)
+		short blanket, short trim, SaddleStyle style, int maxVertices, int maxFaces)
 	{
 		SaddleMesh m = new SaddleMesh(maxVertices, maxFaces);
 		float back = backHalfWidth(surface, seatHeight);
@@ -93,7 +94,7 @@ final class SaddleMesh
 
 		// Seat: leather on the blanket, with a raised cantle at the back and pommel at the front.
 		float[][] seatGround = drape(surface, 7, 7, sw, sl);
-		m.sheet(seatGround, 7, 7, sw, sl, onBlanket, SEAT_THICKNESS, 9, 6, LEATHER, LEATHER_DARK);
+		m.sheet(seatGround, 7, 7, sw, sl, onBlanket, SEAT_THICKNESS, 9, 6, style.leather, style.leatherDark);
 		m.seatThickness = seatGround[3][3] + onBlanket + SEAT_THICKNESS;
 
 		// Stirrup straps and stirrups hanging from each side of the seat.
@@ -103,11 +104,11 @@ final class SaddleMesh
 			float sx = side * sw * 0.97f;
 			float edge = seatGround[3][side < 0 ? 0 : 6] + onBlanket; // height of the seat's side edge
 			float top = -edge + 1;
-			m.box(sx - 1.2f, sx + 1.2f, top, top + strap, -2.5f, 2.5f, LEATHER_DARK);
+			m.box(sx - 1.2f, sx + 1.2f, top, top + strap, -2.5f, 2.5f, style.leatherDark);
 			float sy = top + strap;
-			m.box(sx - 3.5f, sx + 3.5f, sy, sy + 1.5f, -4.5f, 4.5f, STEEL);
-			m.box(sx - 3.5f, sx - 2.5f, sy - 5, sy, -4.5f, 4.5f, STEEL);
-			m.box(sx + 2.5f, sx + 3.5f, sy - 5, sy, -4.5f, 4.5f, STEEL);
+			m.box(sx - 3.5f, sx + 3.5f, sy, sy + 1.5f, -4.5f, 4.5f, style.metal);
+			m.box(sx - 3.5f, sx - 2.5f, sy - 5, sy, -4.5f, 4.5f, style.metal);
+			m.box(sx + 2.5f, sx + 3.5f, sy - 5, sy, -4.5f, 4.5f, style.metal);
 		}
 
 		// A small horn on the pommel.

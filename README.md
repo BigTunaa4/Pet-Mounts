@@ -46,6 +46,11 @@ Click the saddle icon in the RuneLite sidebar to open the **Mount Stable**:
   hiding your cape
 - **Adjustments for this pet**: riding pose, size, seat height and seat forward/back. These are
   remembered for each pet, so every mount can be fitted exactly how you like it
+- **Favourite** stars the mount you've picked: favourites are listed first, in gold. **Random** picks a
+  mount for you (one of your favourites if you've starred a few), and **Random mount each login** in the
+  settings does it every time you log in
+- **Saddle style**: Classic (the blanket matches your pet), Plain leather, Royal, Skull and bones, or Holiday
+- **Copy mount info** copies the details of your mount to paste into a bug report
 
 There's also a small **on-screen mount button** (Alt-drag to move it, or turn it off in settings).
 
@@ -73,6 +78,24 @@ You ride with your mount rather than sitting stiffly on top of it:
 
 Turn it off with **Natural riding motion** if you'd rather sit perfectly still.
 
+## Tricks, sounds and trails
+
+Your mount has a life of its own:
+
+- **Tricks**: now and then, while you stand still, it does something. Dogs, wolves and hounds dig, cats
+  arch their backs and paw, dragons rear up and breathe fire, bears rear and stomp, unicorns rear and kick,
+  cows and goats graze, camels eat, Cerberus howls, penguins flap, preen and wave, and frogs hop. It shows
+  off when you climb on, too. These are the game's own animations for each creature.
+- **Sounds**: a purr, a bark, a roar or a howl now and then, quietly. They're the creature's own sounds and
+  follow your sound effect volume (muted means muted).
+- **Special effects**: showpiece mounts leave a trail. Fiery ones (the phoenix, hellcats, hellhounds,
+  Cerberus, red dragons, Elvarg, the Jad pets) drop little flames, the lava dragon leaves glowing lava
+  footprints, Vorkath, Vorki and frost dragons trail icy mist, and ghostly mounts trail a spectral mist.
+- **Climbing on and off**: you drop into the saddle on the way up, and slide off the side on the way down.
+- **Turning**: you lean into turns, more at a run.
+
+Each of these can be switched off in the settings under Effects.
+
 ## Everyone rides
 
 Turn on **Everyone rides** (in the Mount Stable or under **Other players** in the settings) to see other
@@ -85,6 +108,9 @@ Walk into the Grand Exchange and see everyone on their pets.
 - It's always off in the Wilderness and on PvP worlds.
 - **Riders shown** sets how many riders are drawn at once, nearest first (10 by default).
 - Players step off while they're skilling or fighting, just like you.
+- Riders side by side are nudged a little apart so their mounts don't overlap.
+- It pauses itself in very crowded places, and for a moment after each loading screen, to keep the game
+  smooth.
 
 ## Riding in style
 

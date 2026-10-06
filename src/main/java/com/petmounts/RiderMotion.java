@@ -7,6 +7,7 @@ package com.petmounts;
  *     <li><b>Settling:</b> you drop onto the saddle after the poof and give a small bounce.</li>
  *     <li><b>Stride sway:</b> a gentle side-to-side sway in time with the mount's walk or run cycle.</li>
  *     <li><b>Surge:</b> you rock back a little when the mount sets off and forward when it stops.</li>
+ *     <li><b>Lean:</b> you lean into turns, more at a run.</li>
  * </ul>
  *
  * These are offsets from the seat, in the mount's model space (x sideways, y pointing down, z toward the tail).
@@ -27,10 +28,13 @@ final class RiderMotion
 	private static final float MAX_SURGE = 6f;
 	private static final float SWAY_WALK = 2.5f, SWAY_RUN = 3.5f;
 	private static final float SWAY_EASE = 5f;
+	/** Sideways lean per unit of turning (orientation units per client tick), and the most it leans. */
+	private static final float LEAN_PER_TURN = 0.12f, MAX_LEAN = 5f, LEAN_EASE = 8f;
 
 	private float settle, settleV;
 	private float surge, surgeV;
 	private float sway;
+	private float lean;
 	private int lastGait = -1;
 
 	/** Offset from the seat this tick. */
@@ -44,6 +48,7 @@ final class RiderMotion
 		surge = 0;
 		surgeV = 0;
 		sway = 0;
+		lean = 0;
 		lastGait = -1;
 		x = 0;
 		y = dropIn ? -settle : 0;
@@ -59,9 +64,18 @@ final class RiderMotion
 	 */
 	void update(int gait, float cycle, boolean natural)
 	{
+		update(gait, cycle, natural, 0);
+	}
+
+	/**
+	 * @param turn how fast the mount is turning, in orientation units (2048 a full circle) per client tick;
+	 *             positive turns right
+	 */
+	void update(int gait, float cycle, boolean natural, float turn)
+	{
 		if (!natural)
 		{
-			settle = settleV = surge = surgeV = sway = 0;
+			settle = settleV = surge = surgeV = sway = lean = 0;
 			lastGait = gait;
 			x = y = z = 0;
 			return;
@@ -93,7 +107,12 @@ final class RiderMotion
 		float target = gait == 0 ? 0 : gait == 1 ? SWAY_WALK : SWAY_RUN;
 		sway += (target - sway) * Math.min(1, SWAY_EASE * DT);
 
-		x = sway * (float) Math.sin(2 * Math.PI * cycle);
+		// Lean into turns: the rider's right is model -x. Only while moving, and more at a run.
+		float leanTarget = gait == 0 ? 0
+			: Math.max(-MAX_LEAN, Math.min(MAX_LEAN, -turn * LEAN_PER_TURN * (gait == 2 ? 1f : 0.5f)));
+		lean += (leanTarget - lean) * Math.min(1, LEAN_EASE * DT);
+
+		x = sway * (float) Math.sin(2 * Math.PI * cycle) + lean;
 		y = -settle; // y points down: settling from above
 		z = surge;
 	}

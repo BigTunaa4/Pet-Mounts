@@ -114,8 +114,54 @@ class MountEffects
 	private RuneLiteObject spawn(int graphicId, Color color, int height, boolean loop)
 	{
 		Player me = client.getLocalPlayer();
+		if (me == null)
+		{
+			return null;
+		}
+		RuneLiteObject obj = create(graphicId, color, (short) 0, 128, loop);
+		if (obj == null)
+		{
+			return null;
+		}
+		place(obj, me, height);
+		obj.setActive(true);
+		active.add(obj);
+		return obj;
+	}
+
+	/**
+	 * Plays a graphic once at a spot in the world, e.g. a flame under a fiery mount.
+	 *
+	 * @param recolorTo if not 0, every face is recoloured to this colour (keeping its lightness)
+	 * @param scale size, 128 = as the game draws it
+	 */
+	RuneLiteObject spawnAt(int graphicId, short recolorTo, LocalPoint lp, int plane, int height, int orientation,
+		int scale)
+	{
+		if (lp == null || active.size() >= MAX_ACTIVE)
+		{
+			return null;
+		}
+		RuneLiteObject obj = create(graphicId, null, recolorTo, scale, false);
+		if (obj == null)
+		{
+			return null;
+		}
+		obj.setLocation(lp, plane);
+		obj.setZ(Perspective.getTileHeight(client, lp, plane) - height);
+		obj.setOrientation(orientation);
+		obj.setActive(true);
+		active.add(obj);
+		return obj;
+	}
+
+	/** Effects on screen at once, at most: plenty for trails, and keeps a crowd of fiery mounts cheap. */
+	private static final int MAX_ACTIVE = 40;
+
+	private RuneLiteObject create(int graphicId, Color color, short recolorTo, int scale, boolean loop)
+	{
 		Graphic g = graphic(graphicId);
-		if (me == null || g == null)
+		if (g == null)
 		{
 			return null;
 		}
@@ -145,11 +191,16 @@ class MountEffects
 		{
 			md = md.cloneVertices().rotateY90Ccw();
 		}
-		if (g.resizeX != 128 || g.resizeY != 128)
+		int sx = g.resizeX * scale / 128, sy = g.resizeY * scale / 128;
+		if (sx != 128 || sy != 128)
 		{
-			md = md.cloneVertices().scale(g.resizeX, g.resizeY, g.resizeX);
+			md = md.cloneVertices().scale(Math.max(1, sx), Math.max(1, sy), Math.max(1, sx));
 		}
 		tint(md, color);
+		if (recolorTo != 0)
+		{
+			recolor(md, recolorTo);
+		}
 
 		Model model = md.light(AMBIENT + g.ambient, CONTRAST + g.contrast, -30, -50, -30);
 		if (model == null)
@@ -165,13 +216,27 @@ class MountEffects
 
 		RuneLiteObject obj = client.createRuneLiteObject();
 		obj.setModel(model);
-		place(obj, me, height);
 		// Looping effects stay until removed; one-shots switch themselves off when their animation ends.
 		obj.setShouldLoop(loop);
 		obj.setAnimation(anim);
-		obj.setActive(true);
-		active.add(obj);
 		return obj;
+	}
+
+	/** Recolours every face to this colour's hue and saturation, keeping each face's own lightness. */
+	private static void recolor(ModelData md, short target)
+	{
+		short[] colors = md.getFaceColors();
+		if (colors == null)
+		{
+			return;
+		}
+		int hue = JagexColor.unpackHue(target), sat = JagexColor.unpackSaturation(target);
+		int lum = JagexColor.unpackLuminance(target);
+		for (int i = 0; i < colors.length; i++)
+		{
+			int own = JagexColor.unpackLuminance(colors[i]);
+			colors[i] = JagexColor.packHSL(hue, sat, Math.min(127, (own + lum) / 2));
+		}
 	}
 
 	private void place(RuneLiteObject obj, Player me, int height)

@@ -25,7 +25,7 @@ public interface PetMountsConfig extends Config
 
 	@ConfigSection(
 		name = "Effects",
-		description = "The climb-on animation and poof",
+		description = "The climb-on animation, tricks, sounds and trails",
 		position = 20
 	)
 	String effectsSection = "effects";
@@ -216,6 +216,18 @@ public interface PetMountsConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(
+		keyName = "saddleStyle",
+		name = "Saddle style",
+		description = "The look of the saddle and blanket. Classic matches the blanket to your pet",
+		position = 20,
+		section = riderSection
+	)
+	default SaddleStyle saddleStyle()
+	{
+		return SaddleStyle.CLASSIC;
+	}
+
 	// ---------- Other players ----------
 
 	@ConfigItem(
@@ -282,6 +294,58 @@ public interface PetMountsConfig extends Config
 		return new Color(0xA64DFF);
 	}
 
+	@ConfigItem(
+		keyName = "idleTricks",
+		name = "Mount tricks",
+		description = "Now and then, while you stand still, your mount does something: dogs dig, cats arch their backs, "
+			+ "dragons rear up and breathe fire, cows graze. It also shows off when you climb on",
+		position = 24,
+		section = effectsSection
+	)
+	default boolean idleTricks()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "mountSounds",
+		name = "Mount sounds",
+		description = "Your mount makes its own sound now and then (a purr, a bark, a roar), quietly. "
+			+ "Follows your sound effect volume",
+		position = 25,
+		section = effectsSection
+	)
+	default boolean mountSounds()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "mountTrails",
+		name = "Special mount effects",
+		description = "Showpiece mounts leave a trail: fiery ones drop little flames, the lava dragon leaves glowing "
+			+ "footprints, Vorkath and frost dragons trail icy mist, and ghostly mounts a spectral mist",
+		position = 26,
+		section = effectsSection
+	)
+	default boolean mountTrails()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "randomMount",
+		name = "Random mount each login",
+		description = "Pick a random mount every time you log in: one of your favourites if you've starred any, "
+			+ "or any mount if not",
+		position = 27,
+		section = effectsSection
+	)
+	default boolean randomMount()
+	{
+		return false;
+	}
+
 	// ---------- Which pets ----------
 
 	@ConfigItem(
@@ -328,6 +392,17 @@ public interface PetMountsConfig extends Config
 		hidden = true
 	)
 	void wasMounted(boolean mounted);
+
+	@ConfigItem(
+		keyName = "favouriteMounts",
+		name = "",
+		description = "Starred mounts (NPC ids), shown first in the Mount list. Set in the Mount Stable",
+		hidden = true
+	)
+	default String favouriteMounts()
+	{
+		return "";
+	}
 
 	@ConfigItem(
 		keyName = "chosenMount",

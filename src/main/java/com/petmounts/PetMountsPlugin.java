@@ -23,6 +23,7 @@ import net.runelite.api.Player;
 import net.runelite.api.Renderable;
 import net.runelite.api.Scene;
 import net.runelite.api.TileObject;
+import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.CommandExecuted;
@@ -86,6 +87,9 @@ public class PetMountsPlugin extends Plugin
 	private MountEffects effects;
 
 	@Inject
+	private MountFlair flair;
+
+	@Inject
 	private ConfigManager configManager;
 
 	@Inject
@@ -131,6 +135,20 @@ public class PetMountsPlugin extends Plugin
 	private final SpeedTracker speed = new SpeedTracker();
 	private int lastBusyTick = -100;
 	private int tickCount;
+	/** Client ticks (20 ms) since start, for timing within a game tick. */
+	private int clientTicks;
+	/** Sliding off the mount: client ticks so far, or -1 when not. */
+	private int slidingOff = -1;
+	private boolean slideAnnounce;
+	/** How long sliding off takes, in client ticks. */
+	private static final int SLIDE_TICKS = 18;
+	/** After a loading screen, mounts wait this many client ticks before showing again (safe mode). */
+	private static final int SETTLE_AFTER_LOADING = 40;
+	private int hiddenUntil;
+	/** Picks a random mount on the next login, if that's switched on. */
+	private boolean pickOnLogin = true;
+	/** "Everyone rides" pauses itself in very crowded places, to keep the game smooth. */
+	private static final int CROWD_LIMIT = 120;
 	/**
 	 * Animation smoothing blends each frame into the next. The seated poses hold one frame of an emote (or loop
 	 * part of one), so blending made riders' arms and legs twitch toward the next frame and snap back. Riding
@@ -267,6 +285,35 @@ public class PetMountsPlugin extends Plugin
 			public void chooseMount(int npcId)
 			{
 				configManager.setConfiguration(PetMountsConfig.GROUP, "chosenMount", Math.max(0, npcId));
+			}
+
+			@Override
+			public void toggleFavourite(int npcId)
+			{
+				java.util.Set<Integer> favs = favourites();
+				if (!favs.remove(npcId))
+				{
+					favs.add(npcId);
+				}
+				configManager.setConfiguration(PetMountsConfig.GROUP, "favouriteMounts", joinIds(favs));
+			}
+
+			@Override
+			public void randomMount()
+			{
+				clientThread.invoke(PetMountsPlugin.this::pickRandomMount);
+			}
+
+			@Override
+			public void setSaddleStyle(SaddleStyle style)
+			{
+				configManager.setConfiguration(PetMountsConfig.GROUP, "saddleStyle", style);
+			}
+
+			@Override
+			public void copyMountInfo()
+			{
+				clientThread.invoke(PetMountsPlugin.this::copyMountInfoToClipboard);
 			}
 		});
 		navButton = NavigationButton.builder()
@@ -471,7 +518,29 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 
+		if (slidingOff >= 0)
+		{
+			return; // already getting off
+		}
 		boolean wasVisible = rig != null && rig.isVisible();
+		if (wasVisible && config.mountEffects() && !speed.isMoving())
+		{
+			// Slide off the side first; the mount goes away once you're down (see updateOwnMount).
+			slidingOff = 0;
+			slideAnnounce = announce;
+			return;
+		}
+		finishDismount(announce, wasVisible);
+	}
+
+	/** Gets off for real: the mount goes away in a poof. */
+	private void finishDismount(boolean announce, boolean wasVisible)
+	{
+		slidingOff = -1;
+		if (rig != null)
+		{
+			rig.setSlide(0);
+		}
 		riding = false;
 		config.wasMounted(false);
 		hideMount();
@@ -736,8 +805,13 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged e)
 	{
+		if (e.getGameState() == GameState.LOGIN_SCREEN)
+		{
+			pickOnLogin = true;
+		}
 		if (e.getGameState() == GameState.LOGIN_SCREEN || e.getGameState() == GameState.HOPPING)
 		{
+			slidingOff = -1;
 			cancelMounting(null);
 			effects.clear();
 			pausedForAction = false;
@@ -752,9 +826,20 @@ public class PetMountsPlugin extends Plugin
 		}
 		else if (e.getGameState() == GameState.LOADING)
 		{
-			// Scene is being rebuilt; re-register objects afterwards.
+			// Scene is being rebuilt (a teleport, a house, a new area): hide everything and wait a moment for the
+			// new scene to settle before showing the mounts again.
 			hideMount();
 			others.hideAll();
+			effects.clear();
+			hiddenUntil = clientTicks + SETTLE_AFTER_LOADING;
+		}
+		else if (e.getGameState() == GameState.LOGGED_IN && pickOnLogin)
+		{
+			pickOnLogin = false;
+			if (config.randomMount())
+			{
+				pickRandomMount();
+			}
 		}
 	}
 
@@ -827,6 +912,7 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 
+		clientTicks++;
 		speed.track(me);
 		effects.tick();
 		if (++panelTicks % 10 == 0) // about five times a second is plenty for the side panel
@@ -836,11 +922,12 @@ public class PetMountsPlugin extends Plugin
 
 		updateOwnMount(me, pet);
 
+		boolean settling = clientTicks < hiddenUntil;
 		if (!config.everyoneRides())
 		{
 			others.clear();
 		}
-		else if (shiftHeld || !others.allowedHere())
+		else if (shiftHeld || settling || !others.allowedHere() || crowded())
 		{
 			others.hideAll();
 		}
@@ -848,7 +935,74 @@ public class PetMountsPlugin extends Plugin
 		{
 			others.update(tickCount, config.everyoneRidesLimit());
 		}
+		keepRidersApart();
 	}
+
+	/** Whether there are so many players around that drawing everyone riding would slow the game down. */
+	private boolean crowded()
+	{
+		return client.getTopLevelWorldView() != null
+			&& client.getTopLevelWorldView().players().stream().count() > CROWD_LIMIT;
+	}
+
+	/**
+	 * Riders on neighbouring tiles: big mounts would overlap, so shift each a little apart (never far, so the
+	 * rider stays over their own tile).
+	 */
+	private void keepRidersApart()
+	{
+		java.util.List<MountRig> rigs = new java.util.ArrayList<>(others.visibleRigs());
+		if (rig != null && rig.isVisible())
+		{
+			rigs.add(rig);
+		}
+		int n = rigs.size();
+		if (n > 40)
+		{
+			n = 40; // plenty for a busy spot
+		}
+		float[] nx = new float[n], ny = new float[n];
+		for (int i = 0; i < n; i++)
+		{
+			LocalPoint a = rigs.get(i).player().getLocalLocation();
+			for (int j = i + 1; j < n && a != null; j++)
+			{
+				LocalPoint b = rigs.get(j).player().getLocalLocation();
+				if (b == null)
+				{
+					continue;
+				}
+				float dx = b.getX() - a.getX(), dy = b.getY() - a.getY();
+				float d = (float) Math.sqrt(dx * dx + dy * dy);
+				float overlap = rigs.get(i).halfWidth() + rigs.get(j).halfWidth() - d;
+				if (overlap <= 0 || d < 1)
+				{
+					continue; // apart already, or on the same tile (nothing sensible to do)
+				}
+				float push = Math.min(MAX_NUDGE, overlap / 2) / d;
+				nx[i] -= dx * push;
+				ny[i] -= dy * push;
+				nx[j] += dx * push;
+				ny[j] += dy * push;
+			}
+		}
+		for (int i = 0; i < rigs.size(); i++)
+		{
+			if (i < n)
+			{
+				int x = Math.round(Math.max(-MAX_NUDGE, Math.min(MAX_NUDGE, nx[i])));
+				int y = Math.round(Math.max(-MAX_NUDGE, Math.min(MAX_NUDGE, ny[i])));
+				rigs.get(i).setNudge(x, y);
+			}
+			else
+			{
+				rigs.get(i).setNudge(0, 0);
+			}
+		}
+	}
+
+	/** The furthest a mount is shifted to keep it from overlapping a neighbour: a quarter of a tile. */
+	private static final int MAX_NUDGE = 32;
 
 	private void updateOwnMount(Player me, NPC pet)
 	{
@@ -871,6 +1025,24 @@ public class PetMountsPlugin extends Plugin
 
 		boolean visible = rig != null && rig.isVisible();
 		boolean busy = config.hopOffForActions() && tickCount - lastBusyTick < ACTION_GRACE_TICKS;
+
+		// Sliding off the side: when down (or if you walk off first), the mount goes away.
+		if (slidingOff >= 0)
+		{
+			if (++slidingOff >= SLIDE_TICKS || speed.isMoving() || busy || rig == null || !visible)
+			{
+				finishDismount(slideAnnounce, visible);
+				return;
+			}
+			rig.setSlide(slidingOff / (float) SLIDE_TICKS);
+		}
+
+		// Safe mode: just after a loading screen, wait for the new scene to settle.
+		if (clientTicks < hiddenUntil)
+		{
+			hideMount();
+			return;
+		}
 		if (riding && busy && visible)
 		{
 			// Hopping off to do something: a small puff hides the mount leaving.
@@ -919,8 +1091,19 @@ public class PetMountsPlugin extends Plugin
 		NPC ridden = chosen > 0 ? null : pet;
 		int[] animations = ridden != null ? new int[]{ridden.getIdlePoseAnimation(), ridden.getWalkAnimation(),
 			ridden.getRunAnimation()} : MountFits.animations(chosen);
+		boolean climbedOn = dropIn;
 		rig.update(ridden, animations, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
 		dropIn = false;
+		if (climbedOn)
+		{
+			// Show off a little as you climb on (a dragon rears up, a dog digs in).
+			flair.reset();
+			if (config.idleTricks() && config.mountEffects() && !pausedForAction)
+			{
+				rig.showOff();
+			}
+		}
+		flair.tick(rig, me, speed.gait(), config.mountSounds(), config.mountTrails());
 
 		if (pausedForAction)
 		{
@@ -1010,6 +1193,8 @@ public class PetMountsPlugin extends Plugin
 		s.hideHeld = config.hideHeldItems();
 		s.hideCape = config.hideCape();
 		s.blanket = config.matchPetColors() ? null : config.effectColor();
+		s.saddleStyle = config.saddleStyle();
+		s.tricks = config.idleTricks();
 		return s;
 	}
 
@@ -1107,13 +1292,107 @@ public class PetMountsPlugin extends Plugin
 		}
 		MountStablePanel.State s = new MountStablePanel.State(name, status, canRide, riding || mountingSince != 0, t,
 			config.showSaddle(), config.showReins(), config.naturalMotion(), config.everyoneRides(),
-			config.hideHeldItems(), config.hideCape(), chosen);
+			config.hideHeldItems(), config.hideCape(), chosen, favourites(), config.saddleStyle());
 		if (!s.sameAs(panelState))
 		{
 			panelState = s;
 			MountStablePanel p = panel;
 			javax.swing.SwingUtilities.invokeLater(() -> p.show(s));
 		}
+	}
+
+	// ------------------------------------------------------------------
+	// Favourites, random mounts and bug reports
+	// ------------------------------------------------------------------
+
+	/** Starred mounts (NPC ids) that are still in the Mount list. */
+	private java.util.Set<Integer> favourites()
+	{
+		java.util.Set<Integer> ids = new java.util.LinkedHashSet<>();
+		for (String part : config.favouriteMounts().split(","))
+		{
+			try
+			{
+				int id = Integer.parseInt(part.trim());
+				if (MountFits.choices().containsValue(id))
+				{
+					ids.add(id);
+				}
+			}
+			catch (NumberFormatException e)
+			{
+				// skip anything that isn't an id
+			}
+		}
+		return ids;
+	}
+
+	private static String joinIds(java.util.Collection<Integer> ids)
+	{
+		StringBuilder b = new StringBuilder();
+		for (int id : ids)
+		{
+			if (b.length() > 0)
+			{
+				b.append(',');
+			}
+			b.append(id);
+		}
+		return b.toString();
+	}
+
+	/** Rides a random mount: one of the favourites if any are starred, otherwise any mount. */
+	private void pickRandomMount()
+	{
+		java.util.List<Integer> pool = new java.util.ArrayList<>(favourites());
+		if (pool.size() < 2)
+		{
+			pool = new java.util.ArrayList<>(MountFits.choices().values());
+		}
+		pool.remove(Integer.valueOf(config.chosenMount())); // something different from now
+		if (pool.isEmpty())
+		{
+			return;
+		}
+		int id = pool.get((int) (Math.random() * pool.size()));
+		configManager.setConfiguration(PetMountsConfig.GROUP, "chosenMount", id);
+		String name = PetModels.nameOf(client.getNpcDefinition(id));
+		message("Your mount for now: " + (name != null ? name : "a surprise") + ".");
+	}
+
+	/** Copies what's needed to look into a problem with the current mount. */
+	private void copyMountInfoToClipboard()
+	{
+		NPCComposition comp = mountComposition();
+		StringBuilder b = new StringBuilder("Pet Mounts report\n");
+		if (comp == null)
+		{
+			b.append("No mount picked and no pet following\n");
+		}
+		else
+		{
+			PetTweaks t = tweaksFor(comp);
+			MountFits.Fit fit = MountFits.get(comp.getId());
+			b.append("Mount: ").append(comp.getName()).append(" (npc ").append(comp.getId()).append(")\n");
+			b.append("Tuned: ").append(fit != null ? "yes, " + fit.pose + (fit.shoulders ? ", shoulders" : "") : "no")
+				.append('\n');
+			b.append("Ridden: ").append(chosenMount() > 0 ? "picked in the Mount Stable" : "your own pet").append('\n');
+			b.append("Size: ").append(config.sizeMultiplier()).append("% x ").append(t.size).append("%\n");
+			b.append("Pose: ").append(t.pose != RiderPose.AUTO ? t.pose : config.riderPose()).append('\n');
+			b.append("Seat height/forward: ").append(config.seatHeightAdjust() + t.seatHeight).append(" / ")
+				.append(config.seatForwardAdjust() + t.seatForward).append('\n');
+			b.append("Saddle: ").append(config.showSaddle() ? config.saddleStyle() : "off").append(", reins: ")
+				.append(config.showReins() ? "on" : "off").append('\n');
+		}
+		Player me = client.getLocalPlayer();
+		if (me != null && me.getWorldLocation() != null)
+		{
+			b.append("Where: ").append(me.getWorldLocation()).append('\n');
+		}
+		String text = b.toString();
+		java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
+			.setContents(new java.awt.datatransfer.StringSelection(text), null);
+		message("Mount info copied. Paste it into your report.");
 	}
 
 	/** Saves the panel's adjustments for the pet following you and rebuilds the mounts with them. */

@@ -77,44 +77,6 @@ final class MountFits
 		return CHOICES;
 	}
 
-	/** Dog dig animations. Every dog, wolf and hound shares one skeleton, so they can all dig. */
-	static final int DIG = 14498, DIG_SMALL = 14499;
-	private static final int[] DIGGERS = {
-		7232, 12550, 16361, 16362, 16363, 16367, 16368, 16369, 16370, 16371, 16372, 16373, 16374, 16375, 16376,
-		16377, 16378, 16382, 16383, 16384, 16385, 16386, 16387, 16388, 16389, 16390, 16391, 16392, 16393, 109,
-		3426, 14237, 114, 104, 4185, 107, 106
-	};
-	/** Puppies and small breeds have their own, smaller dig. */
-	private static final int[] SMALL_DIGGERS = {
-		3099, 16364, 16365, 16366, 16379, 16380, 16381, 16394, 16395, 16396, 16433, 16434, 16435, 16436, 16437,
-		16438, 16439, 16440, 16441, 16442, 16443, 16444, 16445, 16446, 16447, 16448, 16449, 16450, 16451, 16452,
-		16453, 16454, 16455, 16456, 16457, 16458, 16459, 16460, 16461, 16462, 16463, 16464, 16465, 16466, 16467,
-		16468
-	};
-
-	/**
-	 * Something the mount does now and then while standing still (a dog digging), or -1. Played once, then back
-	 * to idle.
-	 */
-	static int idleExtra(int npcId)
-	{
-		for (int id : SMALL_DIGGERS)
-		{
-			if (id == npcId)
-			{
-				return DIG_SMALL;
-			}
-		}
-		for (int id : DIGGERS)
-		{
-			if (id == npcId)
-			{
-				return DIG;
-			}
-		}
-		return -1;
-	}
-
 	static int size()
 	{
 		return FITS.size();

@@ -39,6 +39,10 @@ final class MountRig
 		boolean hideCape = true;
 		/** Blanket colour, or null to take it from the pet. */
 		Color blanket;
+		/** Saddle design. */
+		SaddleStyle saddleStyle = SaddleStyle.CLASSIC;
+		/** Whether the mount does its tricks now and then. */
+		boolean tricks = true;
 		/** How far a rein end may move before the reins are rebuilt. Coarser for other riders, to save work. */
 		float reinStep = 0.3f;
 	}
@@ -58,15 +62,25 @@ final class MountRig
 	private int animationId = -2;
 	private int idleAnimationId = -1;
 	/** Something the mount does now and then while standing still (a dog digging), or -1. */
-	private final int idleExtra;
+	/** Tricks the mount does now and then while standing still (a dog digging, a dragon rearing up), or null. */
+	private final int[] tricks;
 	private int stillTicks;
 	private int nextExtraAt;
-	private boolean playingExtra;
+	/** The trick being played, or -1. */
+	private int playingTrick = -1;
+	/** A trick asked for right away (climbing on), or -1. */
+	private int queuedTrick = -1;
+	/** A trick that started this tick, for its sound and effects, or -1. */
+	private int trickStarted = -1;
+	private int lastOrientation = -1;
+	private float slide;
+	private int nudgeX, nudgeY;
 
 	private RuneLiteObject saddle;
 	private boolean saddleTried;
 	private float saddleLift;
 	private RiderPose saddlePose;
+	private SaddleStyle saddleLook;
 
 	private RuneLiteObject reins;
 	private final ReinMesh reinMesh = new ReinMesh();
@@ -94,7 +108,7 @@ final class MountRig
 		this.poser = new RiderPoser(client);
 		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = new MountObject(client, built);
-		idleExtra = MountFits.idleExtra(built.npcId);
+		tricks = MountExtras.tricks(built.npcId);
 		nextExtraAt = nextExtraDelay();
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
@@ -122,7 +136,7 @@ final class MountRig
 	 */
 	java.awt.Shape screenArea()
 	{
-		LocalPoint lp = player.getLocalLocation();
+		LocalPoint lp = drawnAt();
 		if (!visible || lp == null)
 		{
 			return null;
@@ -159,6 +173,17 @@ final class MountRig
 	NPC pet()
 	{
 		return pet;
+	}
+
+	String petName()
+	{
+		return built.petName;
+	}
+
+	/** How tall the mount is, in local units. */
+	int mountHeight()
+	{
+		return built.mountHeight;
 	}
 
 	int npcId()
@@ -216,12 +241,12 @@ final class MountRig
 
 		// When the pet itself does something (a cat pouncing on a rat, a dog digging), the mount does it too.
 		int action = pet != null ? pet.getAnimation() : -1;
-		updateAnimation(animations, gait, action);
+		updateAnimation(animations, gait, action, style.tricks);
 		poser.apply(player, pose);
 		look.apply(player, style.hideHeld, style.hideCape);
 
 		boolean idle = animationId == idleAnimationId;
-		if (saddleOn(style) && idle && (!saddleTried || saddlePose != pose))
+		if (saddleOn(style) && idle && (!saddleTried || saddlePose != pose || saddleLook != style.saddleStyle))
 		{
 			buildSaddle(style, pose);
 		}
@@ -237,7 +262,10 @@ final class MountRig
 		// The motion (settle, sway, surge) steps once per client tick; where everything goes is worked out every
 		// frame in place(), on the exact animation frame being drawn.
 		float cycle = animation != null && gait > 0 ? animation.cycle() : 0;
-		motion.update(gait, cycle, style.naturalMotion);
+		int orientation = player.getCurrentOrientation();
+		int turn = lastOrientation < 0 ? 0 : ((orientation - lastOrientation + 3072) % 2048) - 1024;
+		lastOrientation = orientation;
+		motion.update(gait, cycle, style.naturalMotion, turn);
 		placePose = pose;
 		placeStyle = style;
 		place();
@@ -295,6 +323,60 @@ final class MountRig
 	// Mount animation
 	// ------------------------------------------------------------------
 
+	/** Has the mount do one of its tricks as soon as it's standing still (when you climb on). Returns whether it has one. */
+	boolean showOff()
+	{
+		if (tricks == null)
+		{
+			return false;
+		}
+		queuedTrick = tricks[(int) (Math.random() * tricks.length)];
+		return true;
+	}
+
+	/**
+	 * Sliding off the side when dismounting: 0 seated, 1 on the ground beside the mount. The rider goes to the
+	 * mount's left.
+	 */
+	void setSlide(float slide)
+	{
+		this.slide = Math.max(0, Math.min(1, slide));
+	}
+
+	/** Shifts the whole mount a little on screen (in local units), to keep riders side by side from overlapping. */
+	void setNudge(int x, int y)
+	{
+		nudgeX = x;
+		nudgeY = y;
+	}
+
+	/** Where the mount is drawn, including any nudge, or null. */
+	LocalPoint drawnAt()
+	{
+		LocalPoint lp = player.getLocalLocation();
+		return lp == null ? null : new LocalPoint(lp.getX() + nudgeX, lp.getY() + nudgeY, lp.getWorldView());
+	}
+
+	/** Half the mount's width, in local units. */
+	float halfWidth()
+	{
+		return Math.max(-minX, maxX);
+	}
+
+	/** Half the mount's length, in local units. */
+	float halfLength()
+	{
+		return Math.max(-minZ, maxZ);
+	}
+
+	/** The trick that just started (once), or -1. */
+	int takeTrickStarted()
+	{
+		int t = trickStarted;
+		trickStarted = -1;
+		return t;
+	}
+
 	/** Shoulder rides have no saddle: you sit on the pet itself. */
 	private boolean saddleOn(Style style)
 	{
@@ -307,7 +389,7 @@ final class MountRig
 		return 400 + (int) (Math.random() * 500);
 	}
 
-	private void updateAnimation(int[] animations, int gait, int action)
+	private void updateAnimation(int[] animations, int gait, int action, boolean allowTricks)
 	{
 		int walk = animations == null ? -1 : animations[1];
 		int run = animations == null ? -1 : animations[2];
@@ -318,15 +400,21 @@ final class MountRig
 		if (!still)
 		{
 			stillTicks = 0;
-			playingExtra = false;
+			playingTrick = -1;
+			queuedTrick = -1;
 		}
-		else if (idleExtra != -1 && !playingExtra && ++stillTicks >= nextExtraAt)
+		else if (queuedTrick != -1 && playingTrick == -1)
 		{
-			playingExtra = true;
+			playingTrick = queuedTrick;
+			queuedTrick = -1;
 		}
-		if (playingExtra && animationId == idleExtra && (animation == null || animation.playedOnce()))
+		else if (tricks != null && allowTricks && playingTrick == -1 && ++stillTicks >= nextExtraAt)
 		{
-			playingExtra = false;
+			playingTrick = tricks[(int) (Math.random() * tricks.length)];
+		}
+		if (playingTrick != -1 && animationId == playingTrick && (animation == null || animation.playedOnce()))
+		{
+			playingTrick = -1;
 			stillTicks = 0;
 			nextExtraAt = nextExtraDelay();
 		}
@@ -337,9 +425,9 @@ final class MountRig
 		{
 			anim = action;
 		}
-		else if (playingExtra)
+		else if (playingTrick != -1)
 		{
-			anim = idleExtra;
+			anim = playingTrick;
 		}
 		else if (gait == 2 && run != -1 && run != walk)
 		{
@@ -358,6 +446,10 @@ final class MountRig
 
 		if (anim != animationId)
 		{
+			if (anim == playingTrick)
+			{
+				trickStarted = anim;
+			}
 			animationId = anim;
 			Animation a = anim == -1 ? null : client.loadAnimation(anim);
 			animation = a == null ? null : new PacedAnimationController(client, a);
@@ -387,7 +479,7 @@ final class MountRig
 		}
 		RiderPose pose = placePose;
 		Style style = placeStyle;
-		LocalPoint lp = player.getLocalLocation();
+		LocalPoint lp = drawnAt();
 		int plane = player.getWorldView().getPlane();
 		int orientation = player.getCurrentOrientation();
 
@@ -401,7 +493,8 @@ final class MountRig
 		// The rider sits on the seat, plus settling, stride sway and surge (see RiderMotion).
 		// Where the rider's feet go, in the mount's own space: the seat, shifted so the pose's contact point
 		// lands on it, plus the forward adjustment. Model x is sideways and z points toward the tail.
-		float mx = seat.x + motion.x;
+		// Sliding off: out to the left side (model +x) and down to the ground.
+		float mx = seat.x + motion.x + slide * (halfWidth() + 24);
 		float mz = seat.z + motion.z - pose.getContactBack() - style.seatForward;
 
 		// Turn that to face the way the mount faces (orientation 0 faces south).
@@ -426,10 +519,22 @@ final class MountRig
 		rider.setOrientation(orientation);
 		// Settling lifts the rider a little above the seat just after they appear.
 		float riderLift = seatLift(style) - pose.getContactHeight() - motion.y; // y points down
+		if (slide > 0)
+		{
+			// Ease down to standing height as the rider slides off.
+			riderLift = riderLift * (1 - slide * slide);
+		}
 		rider.setZ(ground - Math.round(riderLift)); // negative Z is up
 		topHeight = Math.max(built.mountHeight, Math.round(riderLift) + RIDER_HEIGHT);
 
-		updateReins(frame, pose, style, mx, riderLift, mz, lp, plane, orientation, ground);
+		if (slide > 0)
+		{
+			setActive(reins, false); // let go of the reins while getting off
+		}
+		else
+		{
+			updateReins(frame, pose, style, mx, riderLift, mz, lp, plane, orientation, ground);
+		}
 	}
 
 	// ------------------------------------------------------------------
@@ -440,6 +545,7 @@ final class MountRig
 	private void buildSaddle(Style style, RiderPose pose)
 	{
 		saddleTried = true;
+		saddleLook = style.saddleStyle;
 		saddlePose = pose;
 		Model idle = mount.getModel();
 		if (idle == null || !seat.isSet())
@@ -467,9 +573,11 @@ final class MountRig
 		}
 
 		boolean onTop = pose == RiderPose.CROSS_LEGGED || pose == RiderPose.STANDING;
+		SaddleStyle look = style.saddleStyle != null ? style.saddleStyle : SaddleStyle.CLASSIC;
+		short trim = look.trim != -1 ? look.trim : style.blanket != null ? SaddleMesh.GOLD : built.trim;
+		short blanket = look.blanket != -1 ? look.blanket : blanketColor(style);
 		SaddleMesh mesh = SaddleMesh.build(surface, seatHeight, pose == RiderPose.EXTRA_WIDE, !onTop,
-			blanketColor(style), style.blanket != null ? SaddleMesh.GOLD : built.trim, md.getVerticesCount(),
-			md.getFaceCount());
+			blanket, trim, look, md.getVerticesCount(), md.getFaceCount());
 
 		fill(md, mesh.x, mesh.y, mesh.z, mesh.vertexCount, mesh.f1, mesh.f2, mesh.f3, mesh.faceCount, mesh.color, (short) 0);
 		Model model = md.light(64, 850, -30, -50, -30);

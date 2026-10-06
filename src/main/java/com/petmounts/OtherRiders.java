@@ -75,6 +75,20 @@ final class OtherRiders
 		return hidden.contains(renderable);
 	}
 
+	/** Mounts of other players being shown right now. */
+	java.util.List<MountRig> visibleRigs()
+	{
+		java.util.List<MountRig> out = new ArrayList<>();
+		for (MountRig rig : rigs.values())
+		{
+			if (rig.isVisible())
+			{
+				out.add(rig);
+			}
+		}
+		return out;
+	}
+
 	/** The players shown riding under this point on screen, nearest last (as the game lists them). */
 	List<Player> ridersAt(java.awt.Point mouse)
 	{

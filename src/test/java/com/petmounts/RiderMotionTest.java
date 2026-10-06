@@ -79,4 +79,21 @@ public class RiderMotionTest
 		assertEquals(0, m.y, 0);
 		assertEquals(0, m.z, 0);
 	}
+
+	@Test
+	public void leansIntoTurnsAtARun()
+	{
+		RiderMotion m = new RiderMotion();
+		m.reset(false);
+		for (int i = 0; i < ONE_SECOND; i++)
+		{
+			m.update(2, 0, true, 32); // running, turning right
+		}
+		assertTrue("leans right (model -x)", m.x < -2.5f && m.x >= -5.01f);
+		for (int i = 0; i < ONE_SECOND; i++)
+		{
+			m.update(0, 0, true, 32); // standing still: no lean
+		}
+		assertEquals(0, m.x, 0.3);
+	}
 }

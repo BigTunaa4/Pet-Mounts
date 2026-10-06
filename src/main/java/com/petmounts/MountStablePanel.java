@@ -172,6 +172,8 @@ class MountStablePanel extends PluginPanel
 		content.add(left(small("Mount")));
 		fillMountList(java.util.Collections.emptySet());
 		mountBox.setRenderer(mountCell);
+		// Size the list from one row, so pictures only load as rows come into view.
+		mountBox.setPrototypeDisplayValue(YOUR_PET);
 		mountBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, MountIcons.HEIGHT + 12));
 		mountBox.setMaximumRowCount(6);
 		mountBox.setToolTipText("Ride the pet following you, or pick any pet or creature to ride: dragons, unicorns, the battle tortoise, even a pet rock");
@@ -318,7 +320,7 @@ class MountStablePanel extends PluginPanel
 		content.add(left(support));
 
 		add(content, BorderLayout.NORTH);
-		show(new State(null, "Summon one of your pets to ride it.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0,
+		show(new State(null, "Summon one of your pets, or pick a mount below.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0,
 				java.util.Collections.emptySet(), SaddleStyle.CLASSIC));
 	}
 

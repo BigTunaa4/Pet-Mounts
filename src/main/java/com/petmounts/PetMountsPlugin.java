@@ -53,7 +53,7 @@ import net.runelite.client.util.ImageUtil;
 @Slf4j
 @PluginDescriptor(
 	name = "Pet Mounts",
-	description = "Ride your pet like a mount. Your pet grows to a rideable size and carries you around.",
+	description = "Ride your pets like mounts, with a saddle, reins, tricks, sounds and effects",
 	tags = {"pet", "mount", "ride", "follower", "cosmetic", "fun", "wow"}
 )
 public class PetMountsPlugin extends Plugin
@@ -153,8 +153,67 @@ public class PetMountsPlugin extends Plugin
 	 * poses are left out of the smoothing; everything else is smoothed exactly as before.
 	 */
 	private IntPredicate smoothingFilter;
-	private final IntPredicate riderPoseFilter = id -> !isRidingPose(id) && smoothingFilter != null
+	private final IntPredicate riderPoseFilter = id -> (this.failed || !isRidingPose(id)) && smoothingFilter != null
 		&& smoothingFilter.test(id);
+
+	/**
+	 * Set when the plugin keeps hitting errors. It then hides every mount and stays out of the way for the rest of
+	 * the session, so a bug can never freeze or slow the game.
+	 */
+	private volatile boolean failed;
+	/** Ordinary errors so far this session. */
+	private int errorCount;
+	private static final int ERRORS_BEFORE_STOPPING = 3;
+
+	/**
+	 * Records an error from code the game calls. Serious errors (like a missing or inaccessible class) switch the
+	 * plugin off at once; ordinary ones after a few.
+	 */
+	private void fail(String where, Throwable t)
+	{
+		if (t instanceof VirtualMachineError)
+		{
+			throw (VirtualMachineError) t;
+		}
+		if (failed)
+		{
+			return;
+		}
+		boolean serious = !(t instanceof RuntimeException);
+		log.warn("Pet Mounts error in {}", where, t);
+		if (!serious && ++errorCount < ERRORS_BEFORE_STOPPING)
+		{
+			return;
+		}
+		failed = true;
+		clientThread.invokeLater(() ->
+		{
+			try
+			{
+				if (client.getAnimationInterpolationFilter() == riderPoseFilter)
+				{
+					client.setAnimationInterpolationFilter(smoothingFilter);
+				}
+				effects.clear();
+				hideMount();
+				rig = null;
+				others.clear();
+			}
+			catch (Throwable cleanup)
+			{
+				log.debug("Couldn't tidy up after the error", cleanup);
+			}
+			try
+			{
+				message("Pet Mounts ran into a problem and switched itself off so your game keeps running."
+					+ " Turn the plugin off and on again to retry, and please report it.");
+			}
+			catch (Throwable ignored)
+			{
+				// Nothing more to do.
+			}
+		});
+	}
 
 	/** Held to see everyone normally (to click on them) while "Everyone rides" is on. */
 	private volatile boolean shiftHeld;
@@ -165,6 +224,10 @@ public class PetMountsPlugin extends Plugin
 		public boolean addEntity(Renderable renderable, boolean ui)
 		{
 			// Called while the game draws the scene: if anything goes wrong, just draw the entity normally.
+			if (failed)
+			{
+				return true;
+			}
 			try
 			{
 				return shouldDraw(renderable, ui);
@@ -174,11 +237,20 @@ public class PetMountsPlugin extends Plugin
 				log.debug("Render check failed", e);
 				return true;
 			}
+			catch (Throwable t)
+			{
+				fail("drawing", t);
+				return true;
+			}
 		}
 
 		@Override
 		public boolean drawObject(Scene scene, TileObject object)
 		{
+			if (failed)
+			{
+				return true;
+			}
 			try
 			{
 				return shouldDrawObject(object);
@@ -186,6 +258,11 @@ public class PetMountsPlugin extends Plugin
 			catch (RuntimeException e)
 			{
 				log.debug("Draw check failed", e);
+				return true;
+			}
+			catch (Throwable t)
+			{
+				fail("drawing", t);
 				return true;
 			}
 		}
@@ -247,6 +324,8 @@ public class PetMountsPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		failed = false; // turning the plugin off and on gives it a fresh try
+		errorCount = 0;
 		models = new PetModels(client);
 		others = new OtherRiders(client, models, this::isRideable, this::sizeFor, this::otherStyleFor);
 		tweaks.clear();
@@ -323,7 +402,7 @@ public class PetMountsPlugin extends Plugin
 		clientToolbar.addNavigation(navButton);
 
 		mountButton = new MountButtonOverlay(this, ImageUtil.loadImageResource(getClass(), "button_icon.png"),
-			() -> config.showMountButton() && client.getGameState() == GameState.LOGGED_IN,
+			() -> !failed && config.showMountButton() && client.getGameState() == GameState.LOGGED_IN,
 			() -> riding || mountingSince != 0,
 			() -> panelState != null && panelState.canRide,
 			() -> clientThread.invoke(this::toggleRiding));
@@ -601,6 +680,22 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onCommandExecuted(CommandExecuted e)
 	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			commandExecuted(e);
+		}
+		catch (Throwable t)
+		{
+			fail("a command", t);
+		}
+	}
+
+	private void commandExecuted(CommandExecuted e)
+	{
 		switch (e.getCommand().toLowerCase())
 		{
 			case "ride":
@@ -615,6 +710,22 @@ public class PetMountsPlugin extends Plugin
 
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded e)
+	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			menuEntryAdded(e);
+		}
+		catch (Throwable t)
+		{
+			fail("the right-click menu", t);
+		}
+	}
+
+	private void menuEntryAdded(MenuEntryAdded e)
 	{
 		if (!config.showMenuOptions() || riding || mountingSince != 0)
 		{
@@ -646,6 +757,22 @@ public class PetMountsPlugin extends Plugin
 
 	@Subscribe
 	public void onMenuOpened(MenuOpened e)
+	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			menuOpened(e);
+		}
+		catch (Throwable t)
+		{
+			fail("the right-click menu", t);
+		}
+	}
+
+	private void menuOpened(MenuOpened e)
 	{
 		addRiderOptions();
 		if (!riding && mountingSince == 0)
@@ -778,6 +905,10 @@ public class PetMountsPlugin extends Plugin
 		boolean rebuildMounts = REBUILD_KEYS.contains(key) || key.startsWith(PetTweaks.KEY_PREFIX);
 		clientThread.invoke(() ->
 		{
+			if (failed)
+			{
+				return;
+			}
 			// Most settings are read live every tick; only the look of the mounts themselves needs a rebuild.
 			styles.clear();
 			otherStyles.clear();
@@ -802,6 +933,22 @@ public class PetMountsPlugin extends Plugin
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged e)
+	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			gameStateChanged(e);
+		}
+		catch (Throwable t)
+		{
+			fail("a loading screen or login", t);
+		}
+	}
+
+	private void gameStateChanged(GameStateChanged e)
 	{
 		if (e.getGameState() == GameState.LOGIN_SCREEN)
 		{
@@ -848,6 +995,22 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick e)
 	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			gameTick(e);
+		}
+		catch (Throwable t)
+		{
+			fail("a game tick", t);
+		}
+	}
+
+	private void gameTick(GameTick e)
+	{
 		tickCount++;
 		others.gameTick(tickCount);
 		keepPosesSteady(); // in case smoothing was switched on (or changed) since
@@ -885,6 +1048,10 @@ public class PetMountsPlugin extends Plugin
 	@Subscribe
 	public void onBeforeRender(BeforeRender e)
 	{
+		if (failed)
+		{
+			return;
+		}
 		try
 		{
 			if (rig != null && rig.isVisible())
@@ -897,10 +1064,30 @@ public class PetMountsPlugin extends Plugin
 		{
 			log.debug("Couldn't place the riders this frame", ex);
 		}
+		catch (Throwable t)
+		{
+			fail("placing the riders", t);
+		}
 	}
 
 	@Subscribe
 	public void onClientTick(ClientTick e)
+	{
+		if (failed)
+		{
+			return;
+		}
+		try
+		{
+			clientTick(e);
+		}
+		catch (Throwable t)
+		{
+			fail("a frame", t);
+		}
+	}
+
+	private void clientTick(ClientTick e)
 	{
 		Player me = client.getLocalPlayer();
 		NPC pet = client.getFollower();

@@ -45,6 +45,14 @@ class MountEffects
 
 	private final Client client;
 	private final Map<Integer, Graphic> graphics = new HashMap<>();
+	/** Graphics that couldn't be read, so they aren't looked up again every time. */
+	private final java.util.Set<Integer> missing = new java.util.HashSet<>();
+	/**
+	 * Recoloured, lit effect models, reused for every flame or puff that looks the same instead of being rebuilt
+	 * each time. Cleared with the effects.
+	 */
+	private final Map<String, Model> models = new HashMap<>();
+	private static final int MAX_MODELS = 32;
 	private final List<RuneLiteObject> active = new ArrayList<>();
 	private RuneLiteObject windup;
 
@@ -107,6 +115,7 @@ class MountEffects
 		}
 		active.clear();
 		windup = null;
+		models.clear();
 	}
 
 	// ------------------------------------------------------------------
@@ -165,7 +174,39 @@ class MountEffects
 		{
 			return null;
 		}
+		Animation anim = g.animation >= 0 ? client.loadAnimation(g.animation) : null;
+		if (anim == null && !loop)
+		{
+			return null; // a one-shot needs its animation to know when to end
+		}
 
+		String key = graphicId + ":" + (color == null ? "-" : color.getRGB()) + ":" + recolorTo + ":" + scale;
+		Model model = models.get(key);
+		if (model == null)
+		{
+			model = buildModel(g, color, recolorTo, scale);
+			if (model == null)
+			{
+				return null;
+			}
+			if (models.size() >= MAX_MODELS)
+			{
+				models.clear();
+			}
+			models.put(key, model);
+		}
+
+		RuneLiteObject obj = client.createRuneLiteObject();
+		obj.setModel(model);
+		// Looping effects stay until removed; one-shots switch themselves off when their animation ends.
+		obj.setShouldLoop(loop);
+		obj.setAnimation(anim);
+		return obj;
+	}
+
+	/** The graphic's model, resized, recoloured and lit. Null if it isn't loaded. */
+	private Model buildModel(Graphic g, Color color, short recolorTo, int scale)
+	{
 		ModelData md = client.loadModelData(g.model);
 		if (md == null)
 		{
@@ -202,24 +243,7 @@ class MountEffects
 			recolor(md, recolorTo);
 		}
 
-		Model model = md.light(AMBIENT + g.ambient, CONTRAST + g.contrast, -30, -50, -30);
-		if (model == null)
-		{
-			return null;
-		}
-
-		Animation anim = g.animation >= 0 ? client.loadAnimation(g.animation) : null;
-		if (anim == null && !loop)
-		{
-			return null; // a one-shot needs its animation to know when to end
-		}
-
-		RuneLiteObject obj = client.createRuneLiteObject();
-		obj.setModel(model);
-		// Looping effects stay until removed; one-shots switch themselves off when their animation ends.
-		obj.setShouldLoop(loop);
-		obj.setAnimation(anim);
-		return obj;
+		return md.light(AMBIENT + g.ambient, CONTRAST + g.contrast, -30, -50, -30);
 	}
 
 	/** Recolours every face to this colour's hue and saturation, keeping each face's own lightness. */
@@ -242,6 +266,10 @@ class MountEffects
 	private void place(RuneLiteObject obj, Player me, int height)
 	{
 		LocalPoint lp = me.getLocalLocation();
+		if (lp == null || me.getWorldView() == null)
+		{
+			return;
+		}
 		int plane = me.getWorldView().getPlane();
 		obj.setLocation(lp, plane);
 		obj.setZ(Perspective.getTileHeight(client, lp, plane) - height);
@@ -280,7 +308,7 @@ class MountEffects
 	private Graphic graphic(int id)
 	{
 		Graphic cached = graphics.get(id);
-		if (cached != null)
+		if (cached != null || missing.contains(id))
 		{
 			return cached;
 		}
@@ -288,7 +316,7 @@ class MountEffects
 		byte[] data = configs == null ? null : configs.loadData(SPOTANIM_ARCHIVE, id);
 		if (data == null)
 		{
-			return null;
+			return null; // the cache may not be ready yet: try again later
 		}
 		try
 		{
@@ -297,11 +325,16 @@ class MountEffects
 			{
 				graphics.put(id, g);
 			}
+			else
+			{
+				missing.add(id);
+			}
 			return g;
 		}
 		catch (RuntimeException e)
 		{
 			log.debug("Couldn't read graphic {}", id, e);
+			missing.add(id);
 			return null;
 		}
 	}

@@ -61,7 +61,6 @@ final class MountRig
 	private PacedAnimationController animation;
 	private int animationId = -2;
 	private int idleAnimationId = -1;
-	/** Something the mount does now and then while standing still (a dog digging), or -1. */
 	/** Tricks the mount does now and then while standing still (a dog digging, a dragon rearing up), or null. */
 	private final int[] tricks;
 	private int stillTicks;
@@ -137,7 +136,7 @@ final class MountRig
 	java.awt.Shape screenArea()
 	{
 		LocalPoint lp = drawnAt();
-		if (!visible || lp == null)
+		if (!visible || lp == null || player.getWorldView() == null)
 		{
 			return null;
 		}
@@ -473,7 +472,7 @@ final class MountRig
 	 */
 	void place()
 	{
-		if (placeStyle == null || player.getLocalLocation() == null)
+		if (placeStyle == null || player.getLocalLocation() == null || player.getWorldView() == null)
 		{
 			return;
 		}

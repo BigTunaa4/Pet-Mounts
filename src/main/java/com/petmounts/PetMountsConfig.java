@@ -338,8 +338,7 @@ public interface PetMountsConfig extends Config
 		name = "Random mount each login",
 		description = "Pick a random mount every time you log in: one of your favourites if you've starred any, "
 			+ "or any mount if not",
-		position = 27,
-		section = effectsSection
+		position = 6
 	)
 	default boolean randomMount()
 	{

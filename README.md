@@ -58,7 +58,9 @@ There's also a small **on-screen mount button** (Alt-drag to move it, or turn it
 
 Every mount gets a leather saddle with stirrups over a blanket in your pet's colours. The
 blanket is moulded to that pet's back, so it drapes over broad pets and fits snugly on thin ones.
-Floating pets get just the blanket, as a rug to sit on cross-legged.
+Floating pets get just the blanket, as a rug to sit on cross-legged, and shoulder rides have none.
+Pick a **Saddle style** in the Mount Stable or the settings: Classic, Plain leather, Royal, Skull and
+bones, or Holiday.
 
 ## Reins
 
@@ -94,7 +96,7 @@ Your mount has a life of its own:
 - **Climbing on and off**: you drop into the saddle on the way up, and slide off the side on the way down.
 - **Turning**: you lean into turns, more at a run.
 
-Each of these can be switched off in the settings under Effects.
+Tricks, sounds and special effects can each be switched off in the settings under Effects.
 
 ## Everyone rides
 
@@ -135,16 +137,16 @@ Moving during the climb-on cancels it.
 Only **your own pets** can be ridden: the pet has to be your follower and be a real pet
 you can pick up, so quest companions and other followers don't count.
 
-Every ownable pet in the game (145 pets, 291 in-game versions) was checked by looking at
-its model in its idle pose. 91 pets make sense to ride; the rest are refused with a chat
-message saying why:
+Every ownable pet in the game was checked by looking at its model in its idle pose. Most can be
+ridden, two-legged pets carry you on their shoulders, and the few that really can't carry you are
+refused with a chat message saying why:
 
 | Refused because | Pets |
 |---|---|
-| They stand on two legs | Abyssal orphan, Abyssal protector, Aggy, Akkhito, Bran, Butch, the Dagannoth Jr.s, Elidinis' and Tumeken's guardians, the God Wars Jr.s, Greatish guardian, Lil' Bloat, Lil' Creator, Lil' Destructor, Lil' Maiden, Lil' Xarp, Little Nightmare, Midnight, Moxi, Nexling, Noon, Olmlet, Ric, Rift guardian, Rock Golem, Skotos, Smol Heredit, Tektiny, TzRek-Zuk, Vet'ion Jr., Yami, the upright Kalphite Princess |
+| They stand upright and can't carry you | Abyssal protector, Akkhito, Elidinis' and Tumeken's guardians, Moxi, Tektiny, Yami, the upright Kalphite Princess |
 | Snakes and worms | Huberte, Jal-Nib-Rek, Lil'viathan, Snakeling |
-| Water creatures | Kraken, Tiny Tempor |
-| Objects | Smolcano, Tangleroot, Vanguard |
+| Water creatures | Tiny Tempor |
+| Objects | Smolcano, Vanguard |
 | Not shaped for riding | Baron, Kephriti, Muphin, Smoke Devil, Vasa Minirio |
 | Too small | Maggot marquess |
 
@@ -168,8 +170,8 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 - **Seat:** the exact spot on the pet's back where you sit. The plugin follows that spot
   every frame, so you rise, dip and sway with the pet as it walks and idles.
 - **Pose:** Wide (legs down both sides, like a horse) for most pets, Extra wide (knees
-  spread) for broad pets like spiders, moles and dragons, and Cross-legged on top of
-  floating pets.
+  spread) for broad pets like spiders, moles and dragons, Cross-legged on top of
+  floating pets, and up on the shoulders of two-legged pets.
 
 **Seat height** and **Seat forward/back** are there for fine-tuning if a pet looks off.
 
@@ -179,20 +181,23 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 |---|---|
 | Mount / dismount hotkey | Toggle riding |
 | Right-click "Ride" option | Show "Ride" on your pet ("Dismount" is always in the menu while riding) |
-| Mount-up animation | The ~1-2 second beckon, sparkles and poof |
-| Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
+| On-screen mount button | Show or hide the button |
 | Hop off for actions | Step off while fighting, skilling or teleporting, then climb back on |
 | Stay mounted between sessions | Remount automatically after logging in |
-| On-screen mount button | Show or hide the button |
+| Random mount each login | Pick a random mount (a favourite, if you've starred any) every time you log in |
 | Mount size | Make every mount bigger or smaller |
 | Riding pose | Automatic (the pose fitted to each pet), or choose one yourself |
 | Seat height / Seat forward-back | Fine-tune where you sit (per-pet adjustments are in the Mount Stable) |
+| Saddle and blanket / Saddle style | Show the saddle and blanket, and pick their look |
+| Reins | Hold reins running to your mount's mouth |
+| Hide weapon and shield / Hide cape | Keep held items and capes from poking through the mount |
+| Natural riding motion | Settle in, sway with the stride, rock when starting and stopping, lean into turns |
+| Mount-up animation | The ~1 second beckon, sparkles and poof |
+| Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
+| Mount tricks / Mount sounds / Special mount effects | Switch each of the mount's extras on or off |
 | Everyone rides | Show other players riding their pets too (hold Shift to see them normally) |
 | Riders shown | The most other riders drawn at once |
-| Saddle and blanket | Show the saddle and blanket |
-| Reins | Hold reins running to your mount's mouth |
-| Natural riding motion | Settle in, sway with the stride and rock when starting and stopping |
-| Hide weapon and shield / Hide cape | Keep held items and capes from poking through the mount |
+| Always allow / Never allow | Your own exceptions to which pets can be ridden |
 
 ## Good to know
 

@@ -1,7 +1,7 @@
 package com.petmounts;
 
 /** Saddle and blanket designs to choose from. Colours are the game's own HSL colours. */
-enum SaddleStyle
+public enum SaddleStyle
 {
 	CLASSIC("Classic", -1, -1, SaddleMesh.LEATHER, SaddleMesh.LEATHER_DARK, SaddleMesh.STEEL),
 	LEATHER("Plain leather", SaddleMesh.hsl(6, 3, 24), SaddleMesh.hsl(7, 4, 50), SaddleMesh.hsl(6, 4, 34),

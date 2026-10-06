@@ -44,7 +44,6 @@ final class MountFits
 	private static final Map<Integer, int[]> ANIMATIONS = buildAnimations();
 	private static final Map<String, Integer> CHOICES = buildChoices();
 	private static final int[] NORMAL_LIGHTING = {0, 0};
-	private static final Map<Integer, Integer> SADDLE_SIZES = buildSaddleSizes();
 
 	private MountFits()
 	{
@@ -1623,25 +1622,5 @@ final class MountFits
 		m.put("Wolf", 106);
 		m.put("Wyrm", 8610);
 		return java.util.Collections.unmodifiableMap(m);
-	}
-
-	/**
-	 * The saddle and blanket size (percent) fitted to this mount. The saddle already measures each mount's back;
-	 * this corrects the ones where the measured size still looks wrong.
-	 */
-	static int saddleSize(int npcId)
-	{
-		return SADDLE_SIZES.getOrDefault(npcId, 100);
-	}
-
-	private static Map<Integer, Integer> buildSaddleSizes()
-	{
-		Map<Integer, Integer> m = new HashMap<>();
-		// Short, rounded backs: the saddle swamped them.
-		m.put(6636, 80); // Prince Black Dragon
-		m.put(6652, 80); // Prince Black Dragon (other form)
-		m.put(8010, 75); // Corporeal Critter
-		m.put(8008, 75); // Corporeal Critter (other form)
-		return m;
 	}
 }

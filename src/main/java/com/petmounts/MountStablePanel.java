@@ -104,8 +104,7 @@ class MountStablePanel extends PluginPanel
 				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
 				&& hideCape == o.hideCape && chosen == o.chosen && favourites.equals(o.favourites)
 				&& saddleStyle == o.saddleStyle && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
-				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose
-				&& tweaks.saddle == o.tweaks.saddle && tweaks.saddleSize == o.tweaks.saddleSize;
+				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
 	}
 
@@ -127,8 +126,6 @@ class MountStablePanel extends PluginPanel
 	private final JCheckBox capeBox = new JCheckBox("Hide cape");
 	private final JComboBox<RiderPose> poseBox = new JComboBox<>(RiderPose.values());
 	private final JComboBox<SaddleStyle> saddleStyleBox = new JComboBox<>(SaddleStyle.values());
-	/** This pet's own saddle style; the first entry (a String) means "use the default style". */
-	private final JComboBox<Object> petSaddleBox = new JComboBox<>();
 	private final JButton favouriteButton = new JButton("Favourite");
 	private final JButton randomButton = new JButton("Random");
 	private final MountCell mountCell = new MountCell(new MountIcons());
@@ -136,7 +133,6 @@ class MountStablePanel extends PluginPanel
 	private java.util.Set<Integer> listedFavourites = java.util.Collections.emptySet();
 	private final JSlider sizeSlider = slider(60, 160, 100);
 	private final JSlider heightSlider = slider(-40, 40, 0);
-	private final JSlider saddleSizeSlider = slider(PetTweaks.SADDLE_MIN, PetTweaks.SADDLE_MAX, 100);
 	private final JSlider forwardSlider = slider(-60, 60, 0);
 	private final JPanel tweakPanel = new JPanel();
 	private final JLabel tweakTitle = new JLabel();
@@ -232,9 +228,9 @@ class MountStablePanel extends PluginPanel
 		content.add(left(heldBox));
 		content.add(left(capeBox));
 		content.add(Box.createRigidArea(new Dimension(0, 6)));
-		content.add(left(small("Default saddle style")));
+		content.add(left(small("Saddle style")));
 		saddleStyleBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
-		saddleStyleBox.setToolTipText("The saddle and blanket for every mount without its own style. Classic matches the blanket to your pet");
+		saddleStyleBox.setToolTipText("The look of the saddle and blanket. Classic matches the blanket to your pet");
 		saddleStyleBox.addActionListener(e ->
 		{
 			if (!updating && saddleStyleBox.getSelectedItem() != null)
@@ -257,13 +253,6 @@ class MountStablePanel extends PluginPanel
 		poseBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
 		poseBox.addActionListener(e -> tweaksChanged());
 		tweakPanel.add(left(poseBox));
-		tweakPanel.add(Box.createRigidArea(new Dimension(0, 4)));
-		tweakPanel.add(left(small("Saddle style")));
-		petSaddleBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
-		petSaddleBox.setToolTipText("A saddle style just for this pet, or the default style");
-		petSaddleBox.addActionListener(e -> tweaksChanged());
-		tweakPanel.add(left(petSaddleBox));
-		tweakPanel.add(labelled("Saddle size (%)", saddleSizeSlider));
 		tweakPanel.add(labelled("Size (%)", sizeSlider));
 		tweakPanel.add(labelled("Seat height", heightSlider));
 		tweakPanel.add(labelled("Seat forward / back", forwardSlider));
@@ -363,16 +352,8 @@ class MountStablePanel extends PluginPanel
 		capeBox.setSelected(s.hideCape);
 		tweakTitle.setText(s.petName == null ? "Adjustments for your pet" : "Adjustments for " + s.petName);
 		poseBox.setSelectedItem(s.tweaks.pose);
-		petSaddleBox.removeAllItems();
-		petSaddleBox.addItem("Default (" + s.saddleStyle + ")");
-		for (SaddleStyle style : SaddleStyle.values())
-		{
-			petSaddleBox.addItem(style);
-		}
-		petSaddleBox.setSelectedIndex(s.tweaks.saddle == null ? 0 : s.tweaks.saddle.ordinal() + 1);
 		sizeSlider.setValue(s.tweaks.size);
 		heightSlider.setValue(s.tweaks.seatHeight);
-		saddleSizeSlider.setValue(s.tweaks.saddleSize > 0 ? s.tweaks.saddleSize : 100);
 		forwardSlider.setValue(s.tweaks.seatForward);
 		setEnabledDeep(tweakPanel, s.petName != null && s.canRide);
 		updating = false;
@@ -471,10 +452,7 @@ class MountStablePanel extends PluginPanel
 			return;
 		}
 		RiderPose pose = (RiderPose) poseBox.getSelectedItem();
-		Object picked = petSaddleBox.getSelectedItem();
-		SaddleStyle saddle = picked instanceof SaddleStyle ? (SaddleStyle) picked : null;
-		actions.saveTweaks(new PetTweaks(sizeSlider.getValue(), heightSlider.getValue(), forwardSlider.getValue(), pose,
-			saddle, saddleSizeSlider.getValue()));
+		actions.saveTweaks(new PetTweaks(sizeSlider.getValue(), heightSlider.getValue(), forwardSlider.getValue(), pose));
 	}
 
 	private void checkbox(JCheckBox box, String key)

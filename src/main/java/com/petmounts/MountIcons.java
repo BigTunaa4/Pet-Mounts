@@ -21,8 +21,8 @@ import net.runelite.client.util.ImageUtil;
 @Slf4j
 final class MountIcons
 {
-	static final int WIDTH = 80;
-	static final int HEIGHT = 50;
+	static final int WIDTH = 40;
+	static final int HEIGHT = 25;
 	private static final int COLUMNS = 16;
 
 	private final Map<String, ImageIcon> icons = new HashMap<>();

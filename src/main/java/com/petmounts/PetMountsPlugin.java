@@ -1193,7 +1193,8 @@ public class PetMountsPlugin extends Plugin
 		s.hideHeld = config.hideHeldItems();
 		s.hideCape = config.hideCape();
 		s.blanket = config.matchPetColors() ? null : config.effectColor();
-		s.saddleStyle = config.saddleStyle();
+		s.saddleStyle = t.saddleOr(config.saddleStyle());
+		s.saddleSize = t.saddleSize > 0 ? t.saddleSize : MountFits.saddleSize(comp.getId());
 		s.tricks = config.idleTricks();
 		return s;
 	}
@@ -1265,7 +1266,7 @@ public class PetMountsPlugin extends Plugin
 			NPCComposition comp = client.getNpcDefinition(chosen);
 			name = PetModels.nameOf(comp);
 			canRide = true;
-			t = comp == null ? PetTweaks.NONE : tweaksFor(comp);
+			t = comp == null ? PetTweaks.NONE : tweaksFor(comp).withSaddleSizeOr(MountFits.saddleSize(comp.getId()));
 			status = riding ? "You're riding " + name + "."
 				: mountingSince != 0 ? "Climbing on..."
 				: "Ready to ride.";
@@ -1284,7 +1285,7 @@ public class PetMountsPlugin extends Plugin
 			}
 			String refusal = refusalFor(pet);
 			canRide = refusal == null;
-			t = comp == null ? PetTweaks.NONE : tweaksFor(comp);
+			t = comp == null ? PetTweaks.NONE : tweaksFor(comp).withSaddleSizeOr(MountFits.saddleSize(comp.getId()));
 			status = riding ? "You're riding " + name + "."
 				: mountingSince != 0 ? "Climbing on..."
 				: canRide ? "Ready to ride."
@@ -1381,7 +1382,9 @@ public class PetMountsPlugin extends Plugin
 			b.append("Pose: ").append(t.pose != RiderPose.AUTO ? t.pose : config.riderPose()).append('\n');
 			b.append("Seat height/forward: ").append(config.seatHeightAdjust() + t.seatHeight).append(" / ")
 				.append(config.seatForwardAdjust() + t.seatForward).append('\n');
-			b.append("Saddle: ").append(config.showSaddle() ? config.saddleStyle() : "off").append(", reins: ")
+			b.append("Saddle: ").append(config.showSaddle() ? t.saddleOr(config.saddleStyle())
+				+ (t.saddle != null ? " (this pet)" : "") + ", size "
+				+ (t.saddleSize > 0 ? t.saddleSize : MountFits.saddleSize(comp.getId())) + "%" : "off").append(", reins: ")
 				.append(config.showReins() ? "on" : "off").append('\n');
 		}
 		Player me = client.getLocalPlayer();

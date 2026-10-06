@@ -67,19 +67,27 @@ final class SaddleMesh
 	 * @param blanket    blanket colour
 	 * @param trim       blanket edge colour
 	 * @param style      leather and metal colours of the saddle
+	 * @param scale      the size fitted to this mount (1 = as measured from its back)
 	 */
 	static SaddleMesh build(Surface surface, float seatHeight, boolean wideSeat, boolean saddle,
-		short blanket, short trim, SaddleStyle style, int maxVertices, int maxFaces)
+		short blanket, short trim, SaddleStyle style, float scale, int maxVertices, int maxFaces)
 	{
 		SaddleMesh m = new SaddleMesh(maxVertices, maxFaces);
 		float back = backHalfWidth(surface, seatHeight);
+		float length = backLength(surface, seatHeight);
 
-		// The saddle is sized for the rider; the blanket is sized for the pet.
+		// The saddle is sized for the rider; the blanket is sized for the pet. Both fit this pet's back, both
+		// across and front to back, so short-backed pets get a shorter saddle.
 		float sw = Math.max(12, Math.min(wideSeat ? 24 : 19, back * 0.85f));
-		float sl = 38;
+		float sl = Math.max(26, Math.min(38, length * 0.8f));
 		// The blanket covers the back but stays in proportion to the rider, even on very broad, flat pets.
 		float bw = Math.max(sw + 5, Math.min(Math.min(sw + 12, MAX_BLANKET_HALF_WIDTH), back * 1.1f));
-		float bl = Math.max(46, Math.min(MAX_BLANKET_LENGTH, bw * 1.6f));
+		float bl = Math.max(sl + 8, Math.min(Math.min(MAX_BLANKET_LENGTH, bw * 1.6f), length * 1.1f));
+		scale = Math.max(0.5f, Math.min(1.5f, scale));
+		sw *= scale;
+		sl *= scale;
+		bw *= scale;
+		bl *= scale;
 
 		// Blanket: cloth over the back, hanging down both sides, with a trimmed edge.
 		float[][] blanketGround = drape(surface, 9, 6, bw, bl);
@@ -207,6 +215,32 @@ final class SaddleMesh
 			widest = Math.max(widest, reach);
 		}
 		return Math.max(10, widest);
+	}
+
+	/**
+	 * Length of the pet's back around the seat: twice the shorter of how far it stays roughly level toward the
+	 * head and toward the tail, before the neck rises or the rump or shoulders fall away.
+	 */
+	static float backLength(Surface surface, float seatHeight)
+	{
+		float fall = Math.max(6, seatHeight * 0.25f);
+		float rise = Math.max(5, seatHeight * 0.2f);
+		float shortest = Float.MAX_VALUE;
+		for (int dir = -1; dir <= 1; dir += 2)
+		{
+			float reach = 0;
+			for (float dz = 2; dz <= 60; dz += 2)
+			{
+				float h = surface.heightAt(0, dir * dz);
+				if (Float.isNaN(h) || h < -fall || h > rise)
+				{
+					break;
+				}
+				reach = dz;
+			}
+			shortest = Math.min(shortest, reach);
+		}
+		return Math.max(20, 2 * shortest);
 	}
 
 	/**

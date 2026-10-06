@@ -41,6 +41,8 @@ final class MountRig
 		Color blanket;
 		/** Saddle design. */
 		SaddleStyle saddleStyle = SaddleStyle.CLASSIC;
+		/** Saddle and blanket size, in percent of the size fitted to the mount's back. */
+		int saddleSize = 100;
 		/** Whether the mount does its tricks now and then. */
 		boolean tricks = true;
 		/** How far a rein end may move before the reins are rebuilt. Coarser for other riders, to save work. */
@@ -81,6 +83,7 @@ final class MountRig
 	private float saddleLift;
 	private RiderPose saddlePose;
 	private SaddleStyle saddleLook;
+	private int saddleScale;
 
 	private RuneLiteObject reins;
 	private final ReinMesh reinMesh = new ReinMesh();
@@ -246,7 +249,8 @@ final class MountRig
 		look.apply(player, style.hideHeld, style.hideCape);
 
 		boolean idle = animationId == idleAnimationId;
-		if (saddleOn(style) && idle && (!saddleTried || saddlePose != pose || saddleLook != style.saddleStyle))
+		if (saddleOn(style) && idle && (!saddleTried || saddlePose != pose || saddleLook != style.saddleStyle
+			|| saddleScale != style.saddleSize))
 		{
 			buildSaddle(style, pose);
 		}
@@ -546,6 +550,7 @@ final class MountRig
 	{
 		saddleTried = true;
 		saddleLook = style.saddleStyle;
+		saddleScale = style.saddleSize;
 		saddlePose = pose;
 		Model idle = mount.getModel();
 		if (idle == null || !seat.isSet())
@@ -577,7 +582,7 @@ final class MountRig
 		short trim = look.trim != -1 ? look.trim : style.blanket != null ? SaddleMesh.GOLD : built.trim;
 		short blanket = look.blanket != -1 ? look.blanket : blanketColor(style);
 		SaddleMesh mesh = SaddleMesh.build(surface, seatHeight, pose == RiderPose.EXTRA_WIDE, !onTop,
-			blanket, trim, look, md.getVerticesCount(), md.getFaceCount());
+			blanket, trim, look, style.saddleSize / 100f, md.getVerticesCount(), md.getFaceCount());
 
 		fill(md, mesh.x, mesh.y, mesh.z, mesh.vertexCount, mesh.f1, mesh.f2, mesh.f3, mesh.faceCount, mesh.color, (short) 0);
 		Model model = md.light(64, 850, -30, -50, -30);

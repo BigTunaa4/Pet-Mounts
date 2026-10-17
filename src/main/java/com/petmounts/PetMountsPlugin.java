@@ -111,6 +111,8 @@ public class PetMountsPlugin extends Plugin
 
 	private PetModels models;
 	private EarnedMounts earned;
+	/** An animation to try on your mount (::mountanim), or -1. */
+	private int previewAnimation = -1;
 	private OtherRiders others;
 
 	// ----- state -----
@@ -738,6 +740,24 @@ public class PetMountsPlugin extends Plugin
 				break;
 			case "dismount":
 				setRiding(false, true);
+				break;
+			case "mountanim":
+				// Try any of the game's animations on your mount, e.g. to find a creature's flying animation.
+				previewAnimation = -1;
+				if (e.getArguments().length > 0)
+				{
+					try
+					{
+						previewAnimation = Integer.parseInt(e.getArguments()[0]);
+					}
+					catch (NumberFormatException ex)
+					{
+						message("Usage: ::mountanim <animation id>, or ::mountanim on its own to stop.");
+						break;
+					}
+				}
+				message(previewAnimation == -1 ? "Your mount is back to its own animations."
+					: "Your mount is playing animation " + previewAnimation + ". Type ::mountanim to stop.");
 				break;
 		}
 	}
@@ -1370,7 +1390,8 @@ public class PetMountsPlugin extends Plugin
 		int[] animations = ridden != null ? new int[]{ridden.getIdlePoseAnimation(), ridden.getWalkAnimation(),
 			ridden.getRunAnimation()} : petBlinked ? lastPetAnimations : MountFits.animations(chosen);
 		boolean climbedOn = dropIn;
-		rig.setGlideEnabled(config.glideFlyingMounts());
+		rig.setFlightEnabled(config.glideFlyingMounts());
+		rig.setPreviewAnimation(previewAnimation);
 		rig.update(ridden, animations, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
 		dropIn = false;
 		if (climbedOn)

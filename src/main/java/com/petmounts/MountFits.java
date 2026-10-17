@@ -1448,6 +1448,50 @@ final class MountFits
 		return m;
 	}
 
+	/**
+	 * The game's own flying animation for mounts that have one: wings beating, legs tucked back, body level. Every
+	 * adult dragon shares the dragons' skeleton and its flight loop (the one dragons use in cutscenes). Wyverns
+	 * already hover in their own idle and walk, and other winged mounts have no flight animation in the game, so
+	 * they stay on the ground.
+	 */
+	private static final int DRAGON_FLIGHT = 7870;
+	private static final Map<Integer, Integer> FLIGHT = buildFlight();
+
+	/** The mount's flying animation, or -1 if it can't fly. */
+	static int flightAnimation(int npcId)
+	{
+		return FLIGHT.getOrDefault(npcId, -1);
+	}
+
+	private static Map<Integer, Integer> buildFlight()
+	{
+		Map<Integer, Integer> m = new HashMap<>();
+		m.put(8030, DRAGON_FLIGHT); // Adamant dragon
+		m.put(252, DRAGON_FLIGHT); // Black dragon
+		m.put(268, DRAGON_FLIGHT); // Blue dragon
+		m.put(270, DRAGON_FLIGHT); // Bronze dragon
+		m.put(7275, DRAGON_FLIGHT); // Brutal black dragon
+		m.put(7273, DRAGON_FLIGHT); // Brutal blue dragon
+		m.put(2918, DRAGON_FLIGHT); // Brutal green dragon
+		m.put(7274, DRAGON_FLIGHT); // Brutal red dragon
+		m.put(9047, DRAGON_FLIGHT); // Corrupted Dragon
+		m.put(9033, DRAGON_FLIGHT); // Crystalline Dragon
+		m.put(817, DRAGON_FLIGHT); // Elvarg
+		m.put(14922, DRAGON_FLIGHT); // Frost dragon
+		m.put(260, DRAGON_FLIGHT); // Green dragon
+		m.put(272, DRAGON_FLIGHT); // Iron dragon
+		m.put(239, DRAGON_FLIGHT); // King Black Dragon
+		m.put(6593, DRAGON_FLIGHT); // Lava dragon
+		m.put(2919, DRAGON_FLIGHT); // Mithril dragon
+		m.put(6652, DRAGON_FLIGHT); // Prince Black Dragon (other form)
+		m.put(7039, DRAGON_FLIGHT); // Reanimated dragon
+		m.put(248, DRAGON_FLIGHT); // Red dragon
+		m.put(7940, DRAGON_FLIGHT); // Revenant dragon
+		m.put(8031, DRAGON_FLIGHT); // Rune dragon
+		m.put(274, DRAGON_FLIGHT); // Steel dragon
+		return m;
+	}
+
 	private static Map<String, Integer> buildChoices()
 	{
 		Map<String, Integer> m = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);

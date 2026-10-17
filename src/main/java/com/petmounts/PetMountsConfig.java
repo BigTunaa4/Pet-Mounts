@@ -360,9 +360,9 @@ public interface PetMountsConfig extends Config
 
 	@ConfigItem(
 		keyName = "glideFlyingMounts",
-		name = "Flying mounts glide",
-		description = "Gryphons, dragons, wyverns and other winged mounts lift off and glide a little when you run, "
-			+ "and settle back down when you stop",
+		name = "Dragons fly",
+		description = "Dragons take off when you run, wings beating and legs tucked back (the game's own flying "
+			+ "animation), and land again when you slow down",
 		position = 27,
 		section = effectsSection
 	)

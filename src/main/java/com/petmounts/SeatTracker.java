@@ -51,6 +51,12 @@ final class SeatTracker
 		return a >= 0;
 	}
 
+	/** Where the seat is with the mount standing still (y points down). */
+	float restY()
+	{
+		return restY;
+	}
+
 	void clear()
 	{
 		a = -1;

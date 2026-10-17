@@ -75,16 +75,19 @@ final class MountRig
 	private float slide;
 	private int nudgeX, nudgeY;
 
-	/** A winged mount (dragon, wyvern, gryphon, phoenix): lifts off and glides when you run. */
-	private final boolean flies;
-	private boolean glideEnabled;
-	/** How high the mount is gliding right now, and the client ticks spent gliding (for a gentle rise and fall). */
-	private float glide;
-	private int glideTicks;
-	/** Highest a gliding mount rises above the ground, in local units (about a third of a tile). */
-	private static final float GLIDE_HEIGHT = 44;
-	/** How far it bobs up and down while gliding. */
-	private static final float GLIDE_BOB = 5;
+	/**
+	 * The mount's own flying animation (wings beating, legs tucked back), or -1 if it can't fly. It takes off
+	 * into it when you run and lands again when you slow down.
+	 */
+	private final int flightAnimation;
+	private boolean flightEnabled;
+	/** How far into the air the mount is, 0 on the ground to 1 fully flying (eases the take-off and landing). */
+	private float flight;
+	/** An animation to show on the mount instead of its own (the ::mountanim command), or -1. */
+	private int previewAnimation = -1;
+	/** Take-off and landing speed, per client tick (about 0.6 s up, 0.4 s down). */
+	private static final float TAKE_OFF = 0.033f;
+	private static final float LANDING = 0.05f;
 
 	private RuneLiteObject saddle;
 	private boolean saddleTried;
@@ -119,7 +122,7 @@ final class MountRig
 		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = new MountObject(client, built);
 		tricks = MountExtras.tricks(built.npcId);
-		flies = isWinged(built);
+		flightAnimation = built.floating || built.shoulders ? -1 : MountFits.flightAnimation(built.npcId);
 		nextExtraAt = nextExtraDelay();
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
@@ -252,6 +255,19 @@ final class MountRig
 
 		// When the pet itself does something (a cat pouncing on a rat, a dog digging), the mount does it too.
 		int action = pet != null ? pet.getAnimation() : -1;
+		stepFlight(gait);
+		if (previewAnimation != -1)
+		{
+			animations = new int[]{previewAnimation, previewAnimation, previewAnimation};
+			action = -1;
+		}
+		else if (flight > 0)
+		{
+			// In the air: the flying animation, at its own pace, whatever the legs would be doing on the ground.
+			animations = new int[]{flightAnimation, flightAnimation, flightAnimation};
+			action = -1;
+			gait = 1;
+		}
 		updateAnimation(animations, gait, action, style.tricks);
 		poser.apply(player, pose);
 		look.apply(player, style.hideHeld, style.hideCape);
@@ -277,7 +293,6 @@ final class MountRig
 		int turn = lastOrientation < 0 ? 0 : ((orientation - lastOrientation + 3072) % 2048) - 1024;
 		lastOrientation = orientation;
 		motion.update(gait, cycle, style.naturalMotion, turn);
-		stepGlide(gait);
 		placePose = pose;
 		placeStyle = style;
 		place();
@@ -297,58 +312,35 @@ final class MountRig
 		visible = true;
 	}
 
-	/** Whether winged mounts glide when running (a setting). */
-	void setGlideEnabled(boolean enabled)
+	/** Whether mounts that can fly take off when you run (a setting). */
+	void setFlightEnabled(boolean enabled)
 	{
-		glideEnabled = enabled;
+		flightEnabled = enabled;
 	}
 
-	/** Dragons, wyverns, gryphons and phoenixes; not babies, floating pets or shoulder rides. */
-	static boolean isWinged(String name, boolean floating, boolean shoulders)
+	/** Shows this animation on the mount instead of its own, or -1 to go back (for the ::mountanim command). */
+	void setPreviewAnimation(int animation)
 	{
-		if (name == null || floating || shoulders)
-		{
-			return false;
-		}
-		String n = name.toLowerCase();
-		if (n.startsWith("baby "))
-		{
-			return false;
-		}
-		return n.contains("dragon") || n.contains("wyvern") || n.contains("gryphon") || n.contains("phoenix")
-			|| n.equals("elvarg") || n.equals("vorkath");
+		previewAnimation = animation;
 	}
 
-	private static boolean isWinged(PetModels.Built built)
+	/** Whether this mount can fly. */
+	boolean canFly()
 	{
-		return isWinged(built.petName, built.floating, built.shoulders);
+		return flightAnimation != -1;
 	}
 
-	/**
-	 * Steps the glide once per client tick: up while running, back down when you slow or stop. Rises gently and
-	 * lands a little quicker, with a slow bob in the air.
-	 */
-	private void stepGlide(int gait)
+	/** Steps the take-off and landing once per client tick: up while running, back down when you slow or stop. */
+	private void stepFlight(int gait)
 	{
-		boolean up = flies && glideEnabled && gait == 2 && slide == 0;
-		float target = up ? GLIDE_HEIGHT : 0;
-		glide += (target - glide) * (up ? 0.035f : 0.07f);
-		if (glide < 0.5f && !up)
-		{
-			glide = 0;
-		}
-		glideTicks = glide > 0 ? glideTicks + 1 : 0;
+		boolean up = flightAnimation != -1 && flightEnabled && gait == 2 && slide == 0 && previewAnimation == -1;
+		flight = up ? Math.min(1, flight + TAKE_OFF) : Math.max(0, flight - LANDING);
 	}
 
-	/** Height above the ground right now from gliding (0 on the ground). */
-	private float glideLift()
+	/** Smooth start and finish for the take-off and landing. */
+	private static float ease(float t)
 	{
-		if (glide <= 0)
-		{
-			return 0;
-		}
-		float bob = (float) Math.sin(glideTicks * 0.08) * GLIDE_BOB * (glide / GLIDE_HEIGHT);
-		return glide + bob;
+		return t * t * (3 - 2 * t);
 	}
 
 	/** Takes the rider off the mount and shows the real player again. */
@@ -551,16 +543,24 @@ final class MountRig
 
 		mount.setOrientation(orientation);
 		mount.setLocation(lp, plane);
-		// Gliding: everything (mount, saddle, rider, reins) goes up together.
-		int lift = Math.round(glideLift());
-		if (lift != 0)
-		{
-			mount.setZ(mount.getZ() - lift); // negative Z is up
-		}
 
 		// Follow the seat on the mount's back as it animates.
 		Model frame = mount.getModel();
 		seat.update(frame);
+
+		// Taking off or landing: the flying animation holds the mount up in the air. Partway through, hold it
+		// that much nearer the ground, so it rises smoothly into the air and comes back down again. Everything
+		// (mount, saddle, rider, reins) moves together.
+		int drop = 0;
+		if (flight > 0 && flight < 1 && seat.isSet())
+		{
+			float above = seat.restY() - seat.y; // how much higher the seat is than standing (y points down)
+			if (above > 0)
+			{
+				drop = Math.round((1 - ease(flight)) * above);
+				mount.setZ(mount.getZ() + drop); // positive Z is down
+			}
+		}
 
 		// The rider sits on the seat, plus settling, stride sway and surge (see RiderMotion).
 		// Where the rider's feet go, in the mount's own space: the seat, shifted so the pose's contact point
@@ -575,7 +575,7 @@ final class MountRig
 		double cos = Math.cos(rad);
 		int dx = (int) Math.round(mx * cos + mz * sin);
 		int dy = (int) Math.round(mz * cos - mx * sin);
-		int ground = Perspective.getTileHeight(client, lp, plane) - lift;
+		int ground = Perspective.getTileHeight(client, lp, plane) + drop;
 
 		if (saddle != null && saddle.isActive())
 		{

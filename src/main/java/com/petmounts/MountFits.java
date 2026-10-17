@@ -11,7 +11,8 @@ import java.util.Map;
  * the pet animates, so the rider moves with the pet's back. The vertex count guards against model updates:
  * if the pet's model changes, the plugin falls back to finding a seat automatically.
  *
- * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 91 creatures.
+ * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 92 creatures.
+ * Manticore (Fortis Colosseum) added from cache revision 2026-10-14 (rev 241).
  */
 final class MountFits
 {
@@ -621,6 +622,7 @@ final class MountFits
 		put(m, 7597, RiderPose.EXTRA_WIDE, 3.897f, 84, 108, 85, -0.0f, 0.3247f, 229); // Lizard
 		put(m, 7792, RiderPose.EXTRA_WIDE, 0.6f, 175, 411, 412, 0.2168f, 0.0f, 948); // Long-tailed Wyvern
 		put(m, 6604, RiderPose.WIDE, 0.448f, 18, 37, 19, 0.407f, 0.093f, 313); // Mammoth
+		put(m, 12818, RiderPose.WIDE, 0.607f, 416, 433, 434, 0.0f, 0.5422f, 726); // Manticore
 		put(m, 2919, RiderPose.EXTRA_WIDE, 0.609f, 428, 347, 346, 0.3606f, 0.1258f, 1021); // Mithril dragon
 		put(m, 12465, RiderPose.EXTRA_WIDE, 0.444f, 734, 691, 738, 0.824f, 0.1538f, 873); // Mutated Tortoise
 		put(m, 7561, RiderPose.CROSS_LEGGED, 0.635f, 727, 732, 733, 0.2709f, 0.2709f, 753); // Muttadile
@@ -829,6 +831,7 @@ final class MountFits
 		m.put(8612, new int[]{0, 44}); // Drake
 		m.put(14922, new int[]{20, 30}); // Frost dragon
 		m.put(272, new int[]{15, 15}); // Iron dragon
+		m.put(12818, new int[]{25, 20}); // Manticore
 		m.put(2919, new int[]{15, 15}); // Mithril dragon
 		m.put(12465, new int[]{15, 15}); // Mutated Tortoise
 		m.put(2796, new int[]{15, 0}); // Pig
@@ -1367,6 +1370,7 @@ final class MountFits
 		m.put(7597, new int[]{2774, 2775, -1}); // Lizard
 		m.put(7792, new int[]{7650, 7650, -1}); // Long-tailed Wyvern
 		m.put(6604, new int[]{306, 303, -1}); // Mammoth
+		m.put(12818, new int[]{10863, 10864, -1}); // Manticore
 		m.put(2919, new int[]{90, 79, -1}); // Mithril dragon
 		m.put(12465, new int[]{10435, 10434, -1}); // Mutated Tortoise
 		m.put(7561, new int[]{7425, 7419, -1}); // Muttadile
@@ -1587,6 +1591,7 @@ final class MountFits
 		m.put("Lizard", 7597);
 		m.put("Long-tailed Wyvern", 7792);
 		m.put("Mammoth", 6604);
+		m.put("Manticore", 12818);
 		m.put("Mithril dragon", 2919);
 		m.put("Mutated Tortoise", 12465);
 		m.put("Muttadile", 7561);

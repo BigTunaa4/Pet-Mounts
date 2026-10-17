@@ -24,7 +24,7 @@ The list also has creatures from all over Gielinor: every kind of dragon (green 
 frost, crystalline, corrupted and revenant dragons, plus the King Black Dragon, Elvarg and Vorkath), drakes,
 wyrms and wyverns, the gnomes' battle tortoise, unicorns, camels, cows, bulls, rams, bears, wolves, hellhounds,
 Cerberus, Callisto, crocodiles, kalphites, Venenatis, Sarachnis, a mammoth, a rhino, a giant frog, a
-penguin, a chicken and, of course, a pet rock. Each one is sized and fitted with a saddle so you sit on its back.
+penguin, a chicken, the Manticore from the Fortis Colosseum and, of course, a pet rock. Each one is sized and fitted with a saddle so you sit on its back.
 
 Two-legged pets carry you on their shoulders instead of under a saddle: General Graardor Jr., Kree'arra Jr.,
 K'ril Tsutsaroth Jr., Zilyana Jr., Noon and Midnight, Skotos, Lil' Bloat, the Dagannoth kings, Vet'ion Jr., Olmlet,

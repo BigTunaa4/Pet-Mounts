@@ -77,11 +77,14 @@ class MountStablePanel extends PluginPanel
 		/** Starred mounts (NPC ids). */
 		final java.util.Set<Integer> favourites;
 		final SaddleStyle saddleStyle;
+		/** Mounts locked under "Earned boss mounts", by name, with why. */
+		final java.util.Map<String, String> locked;
 
 		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks,
 			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape, int chosen,
-			java.util.Set<Integer> favourites, SaddleStyle saddleStyle)
+			java.util.Set<Integer> favourites, SaddleStyle saddleStyle, java.util.Map<String, String> locked)
 		{
+			this.locked = locked;
 			this.favourites = favourites;
 			this.saddleStyle = saddleStyle;
 			this.petName = petName;
@@ -102,7 +105,7 @@ class MountStablePanel extends PluginPanel
 		{
 			return o != null && java.util.Objects.equals(petName, o.petName) && status.equals(o.status)
 				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
-				&& hideCape == o.hideCape && chosen == o.chosen && favourites.equals(o.favourites)
+				&& hideCape == o.hideCape && chosen == o.chosen && favourites.equals(o.favourites) && locked.equals(o.locked)
 				&& saddleStyle == o.saddleStyle && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
 				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
@@ -321,7 +324,7 @@ class MountStablePanel extends PluginPanel
 
 		add(content, BorderLayout.NORTH);
 		show(new State(null, "Summon one of your pets, or pick a mount below.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0,
-				java.util.Collections.emptySet(), SaddleStyle.CLASSIC));
+				java.util.Collections.emptySet(), SaddleStyle.CLASSIC, java.util.Collections.emptyMap()));
 	}
 
 	/** Shows the latest state. Call on the Swing thread. */
@@ -341,6 +344,12 @@ class MountStablePanel extends PluginPanel
 		if (!s.favourites.equals(listedFavourites))
 		{
 			fillMountList(s.favourites);
+		}
+		if (!s.locked.equals(mountCell.locked))
+		{
+			mountCell.locked.clear();
+			mountCell.locked.putAll(s.locked);
+			mountBox.repaint();
 		}
 		mountBox.setSelectedItem(nameOfChoice(s.chosen));
 		favouriteButton.setText(s.favourites.contains(s.chosen) ? "Unfavourite" : "Favourite");
@@ -397,6 +406,8 @@ class MountStablePanel extends PluginPanel
 		private final JLabel name = new JLabel();
 		/** Names of starred mounts, shown in gold. */
 		final java.util.Set<String> favourites = new java.util.HashSet<>();
+		/** Mounts not earned yet ("Earned boss mounts"), greyed out, with why. */
+		final java.util.Map<String, String> locked = new java.util.HashMap<>();
 
 		MountCell(MountIcons icons)
 		{
@@ -417,9 +428,10 @@ class MountStablePanel extends PluginPanel
 			ImageIcon icon = icons.get(value);
 			picture.setIcon(icon);
 			picture.setVisible(icon != null);
-			name.setText(value);
-			name.setForeground(favourites.contains(value) ? GOLD : Color.WHITE);
-			setToolTipText(favourites.contains(value) ? value + " (favourite)" : value);
+			String lock = locked.get(value);
+			name.setText(lock != null ? value + " (locked)" : value);
+			name.setForeground(lock != null ? ColorScheme.MEDIUM_GRAY_COLOR : favourites.contains(value) ? GOLD : Color.WHITE);
+			setToolTipText(lock != null ? lock : favourites.contains(value) ? value + " (favourite)" : value);
 			boolean inList = index >= 0;
 			setBackground(inList && selected ? ColorScheme.DARK_GRAY_COLOR : ColorScheme.DARKER_GRAY_COLOR);
 			setBorder(BorderFactory.createCompoundBorder(

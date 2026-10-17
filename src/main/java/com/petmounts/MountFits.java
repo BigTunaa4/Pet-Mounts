@@ -11,8 +11,9 @@ import java.util.Map;
  * the pet animates, so the rider moves with the pet's back. The vertex count guards against model updates:
  * if the pet's model changes, the plugin falls back to finding a seat automatically.
  *
- * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 101 creatures.
- * Manticore, the Varlamore jaguars and antelopes, and the gryphons added from cache revision 2026-10-14 (rev 241).
+ * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 107 creatures.
+ * Manticore, the Varlamore jaguars and antelopes, the gryphons, Araxxor, the Alchemical Hydra, the terrorbirds,
+ * the alpaca and the yak added from cache revision 2026-10-14 (rev 241).
  */
 final class MountFits
 {
@@ -566,7 +567,10 @@ final class MountFits
 		putShoulders(m, 6646, RiderPose.WIDE, 2.07f, 29, 351, 30, 0.15f, 0.0343f, 768); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		put(m, 8030, RiderPose.EXTRA_WIDE, 0.524f, 429, 413, 412, 0.6073f, 0.3219f, 1002); // Adamant dragon
+		put(m, 8615, RiderPose.EXTRA_WIDE, 0.483f, 124, 130, 125, 0.9405f, 0.0595f, 1556); // Alchemical Hydra
+		put(m, 12986, RiderPose.WIDE, 0.772f, 60, 275, 276, 0.5f, 0.1047f, 326); // Alpaca
 		put(m, 7795, RiderPose.EXTRA_WIDE, 0.525f, 175, 411, 412, 0.2168f, 0.0f, 948); // Ancient Wyvern
+		put(m, 13668, RiderPose.EXTRA_WIDE, 0.802f, 512, 510, 1017, 0.4673f, 0.1671f, 2220); // Araxxor
 		put(m, 11992, RiderPose.WIDE, 0.588f, 93, 101, 102, -0.0f, 0.2785f, 470); // Artio
 		put(m, 1871, RiderPose.EXTRA_WIDE, 1.06f, 278, 298, 299, 0.2662f, 0.1631f, 1008); // Baby black dragon
 		put(m, 243, RiderPose.EXTRA_WIDE, 1.063f, 281, 282, 283, 0.0487f, 0.9513f, 1012); // Baby blue dragon
@@ -630,6 +634,7 @@ final class MountFits
 		put(m, 12818, RiderPose.WIDE, 0.607f, 416, 433, 434, 0.0f, 0.5422f, 726); // Manticore
 		put(m, 2919, RiderPose.EXTRA_WIDE, 0.609f, 428, 347, 346, 0.3606f, 0.1258f, 1021); // Mithril dragon
 		put(m, 13132, RiderPose.WIDE, 1.108f, 41, 62, 63, 0.6439f, 0.3182f, 473); // Moonlight antelope
+		put(m, 12464, RiderPose.WIDE, 0.551f, 411, 459, 460, 0.0f, 0.576f, 737); // Mutated Terrorbird
 		put(m, 12465, RiderPose.EXTRA_WIDE, 0.444f, 734, 691, 738, 0.824f, 0.1538f, 873); // Mutated Tortoise
 		put(m, 7561, RiderPose.CROSS_LEGGED, 0.635f, 727, 732, 733, 0.2709f, 0.2709f, 753); // Muttadile
 		put(m, 2946, RiderPose.WIDE, 0.911f, 213, 151, 223, 0.0412f, 0.3294f, 499); // Nail beast
@@ -662,10 +667,12 @@ final class MountFits
 		put(m, 2837, RiderPose.WIDE, 0.722f, 129, 151, 152, -0.0f, 0.2621f, 421); // Unicorn
 		put(m, 6504, RiderPose.EXTRA_WIDE, 0.539f, 148, 147, 281, 0.4134f, 0.1827f, 507); // Venenatis
 		put(m, 8061, RiderPose.EXTRA_WIDE, 0.384f, 347, 81, 348, 0.1142f, 0.0961f, 1497); // Vorkath
+		put(m, 12491, RiderPose.WIDE, 0.76f, 401, 405, 325, 0.4913f, 0.0f, 530); // Warped Terrorbird
 		put(m, 12979, RiderPose.WIDE, 0.743f, 198, 334, 333, 0.0276f, 0.4862f, 525); // White jaguar
 		put(m, 107, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // White wolf
 		put(m, 106, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // Wolf
 		put(m, 8610, RiderPose.EXTRA_WIDE, 1.135f, 7, 20, 21, 0.2542f, 0.4232f, 1139); // Wyrm
+		put(m, 5816, RiderPose.WIDE, 0.667f, 80, 62, 81, 0.0f, 0.4289f, 519); // Yak
 		return m;
 	}
 
@@ -828,6 +835,8 @@ final class MountFits
 		m.put(6646, new int[]{30, 30}); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{15, 15}); // Adamant dragon
+		m.put(8615, new int[]{30, 44}); // Alchemical Hydra
+		m.put(12986, new int[]{10, 20}); // Alpaca
 		m.put(11992, new int[]{25, 0}); // Artio
 		m.put(6076, new int[]{10, 15}); // Battle tortoise
 		m.put(109, new int[]{30, 0}); // Big Wolf
@@ -845,6 +854,7 @@ final class MountFits
 		m.put(12818, new int[]{25, 20}); // Manticore
 		m.put(2919, new int[]{15, 15}); // Mithril dragon
 		m.put(13132, new int[]{15, 0}); // Moonlight antelope
+		m.put(12464, new int[]{15, 15}); // Mutated Terrorbird
 		m.put(12465, new int[]{15, 15}); // Mutated Tortoise
 		m.put(2796, new int[]{15, 0}); // Pig
 		m.put(7940, new int[]{40, 40}); // Revenant dragon
@@ -853,6 +863,7 @@ final class MountFits
 		m.put(274, new int[]{15, 15}); // Steel dragon
 		m.put(13133, new int[]{15, 0}); // Sunlight antelope
 		m.put(2837, new int[]{25, 0}); // Unicorn
+		m.put(12491, new int[]{15, 15}); // Warped Terrorbird
 		m.put(12979, new int[]{30, 20}); // White jaguar
 		m.put(107, new int[]{50, 0}); // White wolf
 		return m;
@@ -1328,7 +1339,10 @@ final class MountFits
 		m.put(6646, new int[]{6966, 6965, -1}); // Zilyana Jr. (other form)
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{90, 79, -1}); // Adamant dragon
+		m.put(8615, new int[]{8233, 8232, -1}); // Alchemical Hydra
+		m.put(12986, new int[]{6374, 6373, -1}); // Alpaca
 		m.put(7795, new int[]{7650, 7650, -1}); // Ancient Wyvern
+		m.put(13668, new int[]{11473, 11474, -1}); // Araxxor
 		m.put(11992, new int[]{10011, 10009, -1}); // Artio
 		m.put(1871, new int[]{27, 21, -1}); // Baby black dragon
 		m.put(243, new int[]{27, 21, -1}); // Baby blue dragon
@@ -1392,6 +1406,7 @@ final class MountFits
 		m.put(12818, new int[]{10863, 10864, -1}); // Manticore
 		m.put(2919, new int[]{90, 79, -1}); // Mithril dragon
 		m.put(13132, new int[]{6374, 6373, -1}); // Moonlight antelope
+		m.put(12464, new int[]{10450, 10451, -1}); // Mutated Terrorbird
 		m.put(12465, new int[]{10435, 10434, -1}); // Mutated Tortoise
 		m.put(7561, new int[]{7425, 7419, -1}); // Muttadile
 		m.put(2946, new int[]{5986, 5987, -1}); // Nail beast
@@ -1424,10 +1439,12 @@ final class MountFits
 		m.put(2837, new int[]{6374, 6373, -1}); // Unicorn
 		m.put(6504, new int[]{5318, 5317, -1}); // Venenatis
 		m.put(8061, new int[]{7948, 7947, -1}); // Vorkath
+		m.put(12491, new int[]{10450, 10451, -1}); // Warped Terrorbird
 		m.put(12979, new int[]{9091, 9090, -1}); // White jaguar
 		m.put(107, new int[]{6580, 6556, -1}); // White wolf
 		m.put(106, new int[]{6580, 6556, -1}); // Wolf
 		m.put(8610, new int[]{8266, 8266, -1}); // Wyrm
+		m.put(5816, new int[]{5785, 5781, -1}); // Yak
 		return m;
 	}
 
@@ -1558,7 +1575,10 @@ final class MountFits
 		m.put("Zilyana Jr.", 6633);
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put("Adamant dragon", 8030);
+		m.put("Alchemical Hydra", 8615);
+		m.put("Alpaca", 12986);
 		m.put("Ancient Wyvern", 7795);
+		m.put("Araxxor", 13668);
 		m.put("Artio", 11992);
 		m.put("Baby black dragon", 1871);
 		m.put("Baby blue dragon", 243);
@@ -1622,6 +1642,7 @@ final class MountFits
 		m.put("Manticore", 12818);
 		m.put("Mithril dragon", 2919);
 		m.put("Moonlight antelope", 13132);
+		m.put("Mutated Terrorbird", 12464);
 		m.put("Mutated Tortoise", 12465);
 		m.put("Muttadile", 7561);
 		m.put("Nail beast", 2946);
@@ -1654,10 +1675,12 @@ final class MountFits
 		m.put("Unicorn", 2837);
 		m.put("Venenatis", 6504);
 		m.put("Vorkath", 8061);
+		m.put("Warped Terrorbird", 12491);
 		m.put("White jaguar", 12979);
 		m.put("White wolf", 107);
 		m.put("Wolf", 106);
 		m.put("Wyrm", 8610);
+		m.put("Yak", 5816);
 		return java.util.Collections.unmodifiableMap(m);
 	}
 }

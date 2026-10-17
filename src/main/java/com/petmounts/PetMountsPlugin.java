@@ -26,6 +26,7 @@ import net.runelite.api.TileObject;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.BeforeRender;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.FocusChanged;
@@ -109,6 +110,7 @@ public class PetMountsPlugin extends Plugin
 	private int panelTicks;
 
 	private PetModels models;
+	private EarnedMounts earned;
 	private OtherRiders others;
 
 	// ----- state -----
@@ -348,6 +350,7 @@ public class PetMountsPlugin extends Plugin
 		failed = false; // turning the plugin off and on gives it a fresh try
 		errorCount = 0;
 		models = new PetModels(client);
+		earned = new EarnedMounts(client, configManager);
 		others = new OtherRiders(client, models, this::isRideable, this::sizeFor, this::otherStyleFor);
 		tweaks.clear();
 		styles.clear();
@@ -537,6 +540,16 @@ public class PetMountsPlugin extends Plugin
 				}
 				return;
 			}
+		}
+
+		String locked = lockReason(chosenMount());
+		if (locked != null)
+		{
+			if (announce)
+			{
+				message(locked);
+			}
+			return;
 		}
 
 		// Build the mount now so we know its size (for where the effects and poof go).
@@ -1357,6 +1370,7 @@ public class PetMountsPlugin extends Plugin
 		int[] animations = ridden != null ? new int[]{ridden.getIdlePoseAnimation(), ridden.getWalkAnimation(),
 			ridden.getRunAnimation()} : petBlinked ? lastPetAnimations : MountFits.animations(chosen);
 		boolean climbedOn = dropIn;
+		rig.setGlideEnabled(config.glideFlyingMounts());
 		rig.update(ridden, animations, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
 		dropIn = false;
 		if (climbedOn)
@@ -1525,14 +1539,23 @@ public class PetMountsPlugin extends Plugin
 		boolean canRide = false;
 		PetTweaks t = PetTweaks.NONE;
 		int chosen = chosenMount();
+		Map<String, String> locked = lockedMounts();
+		String chosenLock = chosen > 0 ? locked.get(choiceName(chosen)) : null;
+		if (chosenLock != null && (riding || mountingSince != 0))
+		{
+			// "Earned boss mounts" was switched on while riding a boss you haven't beaten yet.
+			setRiding(false, false);
+			message(chosenLock);
+		}
 		if (chosen > 0)
 		{
 			NPCComposition comp = client.getNpcDefinition(chosen);
 			name = PetModels.nameOf(comp);
-			canRide = true;
+			canRide = chosenLock == null;
 			t = comp == null ? PetTweaks.NONE : tweaksFor(comp);
 			status = riding ? "You're riding " + name + "."
 				: mountingSince != 0 ? "Climbing on..."
+				: chosenLock != null ? "Locked. " + chosenLock
 				: "Ready to ride.";
 		}
 		else if (pet == null)
@@ -1557,7 +1580,7 @@ public class PetMountsPlugin extends Plugin
 		}
 		MountStablePanel.State s = new MountStablePanel.State(name, status, canRide, riding || mountingSince != 0, t,
 			config.showSaddle(), config.showReins(), config.naturalMotion(), config.everyoneRides(),
-			config.hideHeldItems(), config.hideCape(), chosen, favourites(), config.saddleStyle());
+			config.hideHeldItems(), config.hideCape(), chosen, favourites(), config.saddleStyle(), locked);
 		if (!s.sameAs(panelState))
 		{
 			panelState = s;
@@ -1606,6 +1629,73 @@ public class PetMountsPlugin extends Plugin
 		return b.toString();
 	}
 
+	/**
+	 * Why this mount (NPC id from the Mount list) is locked under "Earned boss mounts", or null if it can be
+	 * ridden. Your own pet (0) is never locked.
+	 */
+	private String lockReason(int npcId)
+	{
+		if (npcId <= 0 || !config.earnedMounts() || earned == null)
+		{
+			return null;
+		}
+		return earned.lockReason(choiceName(npcId));
+	}
+
+	/** Every locked mount in the Mount list, by name, with why. Empty unless "Earned boss mounts" is on. */
+	private Map<String, String> lockedMounts()
+	{
+		Map<String, String> locked = new HashMap<>();
+		if (config.earnedMounts() && earned != null)
+		{
+			for (String name : EarnedMounts.lockable())
+			{
+				String reason = MountFits.choices().containsKey(name) ? earned.lockReason(name) : null;
+				if (reason != null)
+				{
+					locked.put(name, reason);
+				}
+			}
+		}
+		return locked;
+	}
+
+	private static String choiceName(int npcId)
+	{
+		for (Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+		{
+			if (e.getValue() == npcId)
+			{
+				return e.getKey();
+			}
+		}
+		return null;
+	}
+
+	@Subscribe
+	public void onChatMessage(ChatMessage e)
+	{
+		if (failed || earned == null || e.getType() != ChatMessageType.GAMEMESSAGE)
+		{
+			return;
+		}
+		try
+		{
+			if (earned.onGameMessage(e.getMessage()) && config.earnedMounts())
+			{
+				String unlocked = EarnedMounts.unlockedBy(e.getMessage());
+				if (unlocked != null)
+				{
+					message("You've earned a new mount: " + unlocked + "! Pick it in the Mount Stable.");
+				}
+			}
+		}
+		catch (RuntimeException ex)
+		{
+			log.debug("Couldn't read a kill count", ex);
+		}
+	}
+
 	/** Rides a random mount: one of the favourites if any are starred, otherwise any mount. */
 	private void pickRandomMount()
 	{
@@ -1615,6 +1705,7 @@ public class PetMountsPlugin extends Plugin
 			pool = new java.util.ArrayList<>(MountFits.choices().values());
 		}
 		pool.remove(Integer.valueOf(config.chosenMount())); // something different from now
+		pool.removeIf(id -> lockReason(id) != null); // only mounts you've earned
 		if (pool.isEmpty())
 		{
 			return;

@@ -221,3 +221,9 @@ Sunlight antelope
 Gryphon
 Dire gryphon
 Shellbane gryphon
+Araxxor
+Alchemical Hydra
+Mutated Terrorbird
+Warped Terrorbird
+Alpaca
+Yak

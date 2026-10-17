@@ -345,6 +345,32 @@ public interface PetMountsConfig extends Config
 		return false;
 	}
 
+	@ConfigItem(
+		keyName = "earnedMounts",
+		name = "Earned boss mounts",
+		description = "Boss creatures in the Mount list (Araxxor, Vorkath, the Alchemical Hydra, the Shellbane gryphon "
+			+ "and more) stay locked until you've killed that boss at least once. Kill counts you've already "
+			+ "recorded with the Chat Commands plugin count too. Your own pets are never locked",
+		position = 7
+	)
+	default boolean earnedMounts()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "glideFlyingMounts",
+		name = "Flying mounts glide",
+		description = "Gryphons, dragons, wyverns and other winged mounts lift off and glide a little when you run, "
+			+ "and settle back down when you stop",
+		position = 27,
+		section = effectsSection
+	)
+	default boolean glideFlyingMounts()
+	{
+		return true;
+	}
+
 	// ---------- Which pets ----------
 
 	@ConfigItem(

@@ -25,8 +25,15 @@ frost, crystalline, corrupted and revenant dragons, plus the King Black Dragon, 
 wyrms and wyverns, the gnomes' battle tortoise, unicorns, camels, cows, bulls, rams, bears, wolves, hellhounds,
 Cerberus, Callisto, crocodiles, kalphites, Venenatis, Sarachnis, a mammoth, a rhino, a giant frog, a
 penguin, a chicken, the Manticore from the Fortis Colosseum, Varlamore's jaguars (plain, black, white and blood) and
-Sunlight and Moonlight antelopes, gryphons (including the Dire gryphon and the Shellbane gryphon) and, of course, a
-pet rock. Each one is sized and fitted with a saddle so you sit on its back.
+Sunlight and Moonlight antelopes, gryphons (including the Dire gryphon and the Shellbane gryphon), Araxxor, the
+Alchemical Hydra, the Mutated and Warped Terrorbirds, an alpaca, a yak and, of course, a pet rock. Each one is
+sized and fitted with a saddle so you sit on its back.
+
+**Earned boss mounts** (optional, off by default): switch it on and boss creatures in the list (Araxxor, Vorkath,
+the Alchemical Hydra, the Shellbane gryphon, the Manticore, the King Black Dragon and more) stay locked until you've
+killed that boss at least once. They show as locked in the Mount list, with what it takes to unlock them, and the
+plugin congratulates you on the kill that unlocks one. Kill counts the Chat Commands plugin has already recorded for
+you count too. Elvarg unlocks with Dragon Slayer I. Your own pets are never locked.
 
 Two-legged pets carry you on their shoulders instead of under a saddle: General Graardor Jr., Kree'arra Jr.,
 K'ril Tsutsaroth Jr., Zilyana Jr., Noon and Midnight, Skotos, Lil' Bloat, the Dagannoth kings, Vet'ion Jr., Olmlet,
@@ -97,6 +104,8 @@ Your mount has a life of its own:
   footprints, Vorkath, Vorki and frost dragons trail icy mist, and ghostly mounts trail a spectral mist.
 - **Climbing on and off**: you drop into the saddle on the way up, and slide off the side on the way down.
 - **Turning**: you lean into turns, more at a run.
+- **Gliding**: winged mounts (gryphons, dragons, wyverns, the phoenix, Elvarg and Vorkath) lift off and glide a
+  little when you run, with a gentle bob, and settle back down when you slow to a walk or stop.
 
 Tricks, sounds and special effects can each be switched off in the settings under Effects.
 
@@ -187,6 +196,7 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 | Hop off for actions | Step off while fighting, skilling or teleporting, then climb back on |
 | Stay mounted between sessions | Remount automatically after logging in |
 | Random mount each login | Pick a random mount (a favourite, if you've starred any) every time you log in |
+| Earned boss mounts | Boss mounts stay locked until you've killed that boss (off by default) |
 | Mount size | Make every mount bigger or smaller |
 | Riding pose | Automatic (the pose fitted to each pet), or choose one yourself |
 | Seat height / Seat forward-back | Fine-tune where you sit (per-pet adjustments are in the Mount Stable) |
@@ -197,6 +207,7 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 | Mount-up animation | The ~1 second beckon, sparkles and poof |
 | Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
 | Mount tricks / Mount sounds / Special mount effects | Switch each of the mount's extras on or off |
+| Flying mounts glide | Winged mounts lift off and glide when you run |
 | Everyone rides | Show other players riding their pets too (hold Shift to see them normally) |
 | Riders shown | The most other riders drawn at once |
 | Always allow / Never allow | Your own exceptions to which pets can be ridden |

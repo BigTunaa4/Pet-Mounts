@@ -75,6 +75,17 @@ final class MountRig
 	private float slide;
 	private int nudgeX, nudgeY;
 
+	/** A winged mount (dragon, wyvern, gryphon, phoenix): lifts off and glides when you run. */
+	private final boolean flies;
+	private boolean glideEnabled;
+	/** How high the mount is gliding right now, and the client ticks spent gliding (for a gentle rise and fall). */
+	private float glide;
+	private int glideTicks;
+	/** Highest a gliding mount rises above the ground, in local units (about a third of a tile). */
+	private static final float GLIDE_HEIGHT = 44;
+	/** How far it bobs up and down while gliding. */
+	private static final float GLIDE_BOB = 5;
+
 	private RuneLiteObject saddle;
 	private boolean saddleTried;
 	private float saddleLift;
@@ -108,6 +119,7 @@ final class MountRig
 		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = new MountObject(client, built);
 		tricks = MountExtras.tricks(built.npcId);
+		flies = isWinged(built);
 		nextExtraAt = nextExtraDelay();
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
@@ -265,6 +277,7 @@ final class MountRig
 		int turn = lastOrientation < 0 ? 0 : ((orientation - lastOrientation + 3072) % 2048) - 1024;
 		lastOrientation = orientation;
 		motion.update(gait, cycle, style.naturalMotion, turn);
+		stepGlide(gait);
 		placePose = pose;
 		placeStyle = style;
 		place();
@@ -282,6 +295,60 @@ final class MountRig
 			client.registerRuneLiteObject(rider);
 		}
 		visible = true;
+	}
+
+	/** Whether winged mounts glide when running (a setting). */
+	void setGlideEnabled(boolean enabled)
+	{
+		glideEnabled = enabled;
+	}
+
+	/** Dragons, wyverns, gryphons and phoenixes; not babies, floating pets or shoulder rides. */
+	static boolean isWinged(String name, boolean floating, boolean shoulders)
+	{
+		if (name == null || floating || shoulders)
+		{
+			return false;
+		}
+		String n = name.toLowerCase();
+		if (n.startsWith("baby "))
+		{
+			return false;
+		}
+		return n.contains("dragon") || n.contains("wyvern") || n.contains("gryphon") || n.contains("phoenix")
+			|| n.equals("elvarg") || n.equals("vorkath");
+	}
+
+	private static boolean isWinged(PetModels.Built built)
+	{
+		return isWinged(built.petName, built.floating, built.shoulders);
+	}
+
+	/**
+	 * Steps the glide once per client tick: up while running, back down when you slow or stop. Rises gently and
+	 * lands a little quicker, with a slow bob in the air.
+	 */
+	private void stepGlide(int gait)
+	{
+		boolean up = flies && glideEnabled && gait == 2 && slide == 0;
+		float target = up ? GLIDE_HEIGHT : 0;
+		glide += (target - glide) * (up ? 0.035f : 0.07f);
+		if (glide < 0.5f && !up)
+		{
+			glide = 0;
+		}
+		glideTicks = glide > 0 ? glideTicks + 1 : 0;
+	}
+
+	/** Height above the ground right now from gliding (0 on the ground). */
+	private float glideLift()
+	{
+		if (glide <= 0)
+		{
+			return 0;
+		}
+		float bob = (float) Math.sin(glideTicks * 0.08) * GLIDE_BOB * (glide / GLIDE_HEIGHT);
+		return glide + bob;
 	}
 
 	/** Takes the rider off the mount and shows the real player again. */
@@ -484,6 +551,12 @@ final class MountRig
 
 		mount.setOrientation(orientation);
 		mount.setLocation(lp, plane);
+		// Gliding: everything (mount, saddle, rider, reins) goes up together.
+		int lift = Math.round(glideLift());
+		if (lift != 0)
+		{
+			mount.setZ(mount.getZ() - lift); // negative Z is up
+		}
 
 		// Follow the seat on the mount's back as it animates.
 		Model frame = mount.getModel();
@@ -502,7 +575,7 @@ final class MountRig
 		double cos = Math.cos(rad);
 		int dx = (int) Math.round(mx * cos + mz * sin);
 		int dy = (int) Math.round(mz * cos - mx * sin);
-		int ground = Perspective.getTileHeight(client, lp, plane);
+		int ground = Perspective.getTileHeight(client, lp, plane) - lift;
 
 		if (saddle != null && saddle.isActive())
 		{

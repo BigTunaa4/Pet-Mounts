@@ -24,6 +24,7 @@ import net.runelite.api.Renderable;
 import net.runelite.api.Scene;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.BeforeRender;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.CommandExecuted;
@@ -145,6 +146,26 @@ public class PetMountsPlugin extends Plugin
 	/** After a loading screen, mounts wait this many client ticks before showing again (safe mode). */
 	private static final int SETTLE_AFTER_LOADING = 40;
 	private int hiddenUntil;
+	/**
+	 * A scene load is under way. Running across the map reloads the scene every so often without any teleport;
+	 * that must not knock you off. Where you stood when the load began decides, once it's done, whether it was a
+	 * real teleport (hide and settle) or just the map moving under you (carry on as if nothing happened).
+	 */
+	private boolean loadPending;
+	private WorldPoint loadFrom;
+	/** Where you stood on the last frame drawn before now (recorded every frame, so it's from before any load). */
+	private WorldPoint lastWorld;
+	/** Further than this (in tiles) between before and after a load counts as a teleport. */
+	private static final int SCENE_SHIFT_TILES = 8;
+	/**
+	 * Riding the pet following you: the game sometimes loses the follower for a moment while you run (it is moved
+	 * back beside you, or re-sent after the map reloads). Keep riding the pet last seen for this many game ticks
+	 * instead of dropping you and putting you back.
+	 */
+	private static final int PET_GRACE_TICKS = 5;
+	private NPCComposition lastPetComp;
+	private int[] lastPetAnimations;
+	private int lastPetSeenTick = -100;
 	/** Picks a random mount on the next login, if that's switched on. */
 	private boolean pickOnLogin = true;
 	/**
@@ -968,15 +989,23 @@ public class PetMountsPlugin extends Plugin
 			rig = null;
 			others.forget();
 			riding = config.remountOnLogin() && config.wasMounted();
+			loadPending = false;
+			loadFrom = null;
+			lastWorld = null;
+			lastPetComp = null;
+			lastPetAnimations = null;
 		}
 		else if (e.getGameState() == GameState.LOADING)
 		{
-			// Scene is being rebuilt (a teleport, a house, a new area): hide everything and wait a moment for the
-			// new scene to settle before showing the mounts again.
-			hideMount();
-			others.hideAll();
+			// Scene is being rebuilt. It may be a teleport, a house or a new area, or just the map moving under you
+			// as you run across it. Freeze everything as it is (effects left on the ground would land in the wrong
+			// place, so those go) and decide once the load is done; see settleAfterLoad.
 			effects.clear();
-			hiddenUntil = clientTicks + SETTLE_AFTER_LOADING;
+			if (!loadPending)
+			{
+				loadFrom = lastWorld;
+				loadPending = true;
+			}
 		}
 		else if (e.getGameState() == GameState.LOGGED_IN && pickOnLogin)
 		{
@@ -1054,6 +1083,10 @@ public class PetMountsPlugin extends Plugin
 		}
 		try
 		{
+			if (loadPending)
+			{
+				return; // the scene is being rebuilt: leave everything where it is until it's done
+			}
 			if (rig != null && rig.isVisible())
 			{
 				rig.place();
@@ -1098,6 +1131,11 @@ public class PetMountsPlugin extends Plugin
 		}
 
 		clientTicks++;
+		if (loadPending && !settleAfterLoad(me))
+		{
+			return; // still loading
+		}
+		lastWorld = me.getWorldLocation();
 		speed.track(me);
 		effects.tick();
 		if (++panelTicks % 10 == 0) // about five times a second is plenty for the side panel
@@ -1121,6 +1159,38 @@ public class PetMountsPlugin extends Plugin
 			others.update(tickCount, config.everyoneRidesLimit());
 		}
 		keepRidersApart();
+	}
+
+	/**
+	 * Once a scene load is done: was it a real teleport, or just the map reloading as you crossed into a new
+	 * area? A teleport hides the mounts and gives the new scene a moment to settle, as before. Running across the
+	 * map leaves you in the saddle without so much as a flicker.
+	 *
+	 * @return false while the scene is still loading
+	 */
+	private boolean settleAfterLoad(Player me)
+	{
+		if (client.getGameState() != GameState.LOGGED_IN)
+		{
+			return false;
+		}
+		WorldPoint now = me.getWorldLocation();
+		if (now == null)
+		{
+			return false;
+		}
+		loadPending = false;
+		boolean sameArea = loadFrom != null && loadFrom.getPlane() == now.getPlane()
+			&& loadFrom.distanceTo2D(now) <= SCENE_SHIFT_TILES;
+		loadFrom = null;
+		if (!sameArea)
+		{
+			// Teleport, house, new area: hide everything and let the new scene settle before showing it again.
+			hideMount();
+			others.hideAll();
+			hiddenUntil = clientTicks + SETTLE_AFTER_LOADING;
+		}
+		return true;
 	}
 
 	/**
@@ -1185,6 +1255,23 @@ public class PetMountsPlugin extends Plugin
 	private void updateOwnMount(Player me, NPC pet)
 	{
 		int chosen = chosenMount();
+
+		// Riding the pet following you: remember it, so losing it for a moment doesn't throw you off.
+		boolean petBlinked = false;
+		if (chosen <= 0)
+		{
+			if (pet != null)
+			{
+				lastPetComp = PetModels.compositionOf(pet);
+				lastPetAnimations = new int[]{pet.getIdlePoseAnimation(), pet.getWalkAnimation(), pet.getRunAnimation()};
+				lastPetSeenTick = tickCount;
+			}
+			else
+			{
+				petBlinked = riding && mountingSince == 0 && lastPetComp != null && rig != null && rig.isVisible()
+					&& rig.npcId() == lastPetComp.getId() && tickCount - lastPetSeenTick <= PET_GRACE_TICKS;
+			}
+		}
 		if (mountingSince != 0)
 		{
 			if (pet == null && chosen <= 0)
@@ -1231,7 +1318,7 @@ public class PetMountsPlugin extends Plugin
 				effects.puff(effectColor(), 0);
 			}
 		}
-		if (!riding || (pet == null && chosen <= 0) || busy)
+		if (!riding || (pet == null && chosen <= 0 && !petBlinked) || busy)
 		{
 			if (!riding)
 			{
@@ -1241,14 +1328,14 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 
-		NPCComposition comp = mountComposition();
+		NPCComposition comp = petBlinked ? lastPetComp : mountComposition();
 		if (comp == null)
 		{
 			hideMount();
 			return;
 		}
 
-		if (chosen <= 0)
+		if (chosen <= 0 && !petBlinked)
 		{
 			String refusal = refusalFor(pet);
 			if (refusal != null)
@@ -1268,7 +1355,7 @@ public class PetMountsPlugin extends Plugin
 		// Just appeared after the poof, or climbing back on: drop into the saddle. (Not after a loading screen.)
 		NPC ridden = chosen > 0 ? null : pet;
 		int[] animations = ridden != null ? new int[]{ridden.getIdlePoseAnimation(), ridden.getWalkAnimation(),
-			ridden.getRunAnimation()} : MountFits.animations(chosen);
+			ridden.getRunAnimation()} : petBlinked ? lastPetAnimations : MountFits.animations(chosen);
 		boolean climbedOn = dropIn;
 		rig.update(ridden, animations, speed.gait(), styleFor(comp), dropIn && config.mountEffects());
 		dropIn = false;

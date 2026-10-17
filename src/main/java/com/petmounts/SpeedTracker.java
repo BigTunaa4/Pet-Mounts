@@ -28,10 +28,15 @@ final class SpeedTracker
 		{
 			int moved = Math.max(Math.abs(lp.getX() - lastX), Math.abs(lp.getY() - lastY));
 			movedThisTick = moved > 0;
-			if (moved > 0)
+			if (moved > 4 * 128)
 			{
-				// A big jump is a teleport, not a step.
-				speed = moved > 4 * 128 ? 0 : moved;
+				// A big jump is a teleport, or the map reloading under you as you run across it: not a step. Keep
+				// the current pace so a running mount doesn't stop dead for a moment and set off again.
+				movedThisTick = false;
+			}
+			else if (moved > 0)
+			{
+				speed = moved;
 				lingering = LINGER;
 			}
 			else if (lingering > 0)

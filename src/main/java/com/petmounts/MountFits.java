@@ -11,8 +11,8 @@ import java.util.Map;
  * the pet animates, so the rider moves with the pet's back. The vertex count guards against model updates:
  * if the pet's model changes, the plugin falls back to finding a seat automatically.
  *
- * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 92 creatures.
- * Manticore (Fortis Colosseum) added from cache revision 2026-10-14 (rev 241).
+ * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 101 creatures.
+ * Manticore, the Varlamore jaguars and antelopes, and the gryphons added from cache revision 2026-10-14 (rev 241).
  */
 final class MountFits
 {
@@ -578,7 +578,9 @@ final class MountFits
 		put(m, 109, RiderPose.WIDE, 0.59f, 1, 11, 12, 0.5406f, 0.0f, 456); // Big Wolf
 		put(m, 2839, RiderPose.WIDE, 0.629f, 8, 18, 19, 0.7926f, 0.0f, 510); // Black bear
 		put(m, 252, RiderPose.EXTRA_WIDE, 0.622f, 313, 410, 314, 0.7012f, 0.2403f, 1027); // Black dragon
+		put(m, 12978, RiderPose.WIDE, 0.743f, 198, 334, 333, 0.0276f, 0.4862f, 525); // Black jaguar
 		put(m, 2849, RiderPose.WIDE, 0.722f, 129, 151, 152, -0.0f, 0.2621f, 421); // Black unicorn
+		put(m, 13021, RiderPose.WIDE, 0.713f, 348, 708, 995, 0.0f, 0.907f, 1292); // Blood jaguar
 		put(m, 268, RiderPose.EXTRA_WIDE, 0.622f, 368, 465, 369, 0.7002f, 0.2414f, 1119); // Blue dragon
 		put(m, 270, RiderPose.EXTRA_WIDE, 0.523f, 373, 357, 356, 0.6233f, 0.3698f, 932); // Bronze dragon
 		put(m, 7275, RiderPose.EXTRA_WIDE, 0.623f, 329, 430, 330, 0.7274f, 0.212f, 1150); // Brutal black dragon
@@ -596,6 +598,7 @@ final class MountFits
 		put(m, 4184, RiderPose.EXTRA_WIDE, 1.49f, 9, 32, 10, -0.0f, 0.9637f, 246); // Crocodile
 		put(m, 9033, RiderPose.EXTRA_WIDE, 0.53f, 271, 272, 273, 0.1187f, 0.0422f, 1114); // Crystalline Dragon
 		put(m, 459, RiderPose.EXTRA_WIDE, 1.808f, 84, 108, 85, -0.0f, 0.4574f, 245); // Desert Lizard
+		put(m, 14859, RiderPose.EXTRA_WIDE, 0.656f, 425, 702, 426, 0.6875f, 0.3125f, 1120); // Dire gryphon
 		put(m, 3426, RiderPose.WIDE, 0.771f, 1, 11, 12, 0.5059f, 0.0f, 456); // Dire Wolf
 		put(m, 14237, RiderPose.WIDE, 1.07f, 77, 98, 99, -0.0f, 0.1475f, 318); // Dog
 		put(m, 8612, RiderPose.EXTRA_WIDE, 0.407f, 445, 448, 449, 0.1372f, 0.2655f, 1049); // Drake
@@ -609,11 +612,13 @@ final class MountFits
 		put(m, 1792, RiderPose.WIDE, 1.106f, 27, 63, 28, 0.5346f, 0.0923f, 183); // Goat
 		put(m, 260, RiderPose.EXTRA_WIDE, 0.622f, 313, 410, 314, 0.7012f, 0.2403f, 1027); // Green dragon
 		put(m, 2838, RiderPose.WIDE, 0.588f, 16, 37, 17, 0.0664f, 0.0664f, 534); // Grizzly bear
+		put(m, 14857, RiderPose.EXTRA_WIDE, 0.781f, 78, 102, 103, 0.9412f, 0.0588f, 934); // Gryphon
 		put(m, 114, RiderPose.WIDE, 1.302f, 166, 87, 86, 0.8975f, 0.0f, 269); // Guard dog
 		put(m, 104, RiderPose.WIDE, 0.809f, 110, 260, 261, -0.0f, 0.3268f, 266); // Hellhound
 		put(m, 2909, RiderPose.WIDE, 0.844f, 179, 162, 109, 0.6186f, 0.1752f, 536); // Horned graahk
 		put(m, 272, RiderPose.EXTRA_WIDE, 0.524f, 380, 365, 364, 0.6169f, 0.3506f, 999); // Iron dragon
 		put(m, 4185, RiderPose.WIDE, 2.093f, 80, 146, 147, 0.1246f, 0.0f, 257); // Jackal
+		put(m, 12976, RiderPose.WIDE, 0.743f, 198, 334, 333, 0.0276f, 0.4862f, 525); // Jaguar
 		put(m, 963, RiderPose.EXTRA_WIDE, 0.43f, 210, 277, 211, 0.3678f, 0.5236f, 1130); // Kalphite Queen
 		put(m, 957, RiderPose.EXTRA_WIDE, 0.896f, 133, 374, 114, 0.4009f, 0.0496f, 578); // Kalphite Soldier
 		put(m, 239, RiderPose.EXTRA_WIDE, 0.552f, 734, 792, 793, 0.2544f, 0.6898f, 1414); // King Black Dragon
@@ -624,6 +629,7 @@ final class MountFits
 		put(m, 6604, RiderPose.WIDE, 0.448f, 18, 37, 19, 0.407f, 0.093f, 313); // Mammoth
 		put(m, 12818, RiderPose.WIDE, 0.607f, 416, 433, 434, 0.0f, 0.5422f, 726); // Manticore
 		put(m, 2919, RiderPose.EXTRA_WIDE, 0.609f, 428, 347, 346, 0.3606f, 0.1258f, 1021); // Mithril dragon
+		put(m, 13132, RiderPose.WIDE, 1.108f, 41, 62, 63, 0.6439f, 0.3182f, 473); // Moonlight antelope
 		put(m, 12465, RiderPose.EXTRA_WIDE, 0.444f, 734, 691, 738, 0.824f, 0.1538f, 873); // Mutated Tortoise
 		put(m, 7561, RiderPose.CROSS_LEGGED, 0.635f, 727, 732, 733, 0.2709f, 0.2709f, 753); // Muttadile
 		put(m, 2946, RiderPose.WIDE, 0.911f, 213, 151, 223, 0.0412f, 0.3294f, 499); // Nail beast
@@ -641,11 +647,13 @@ final class MountFits
 		put(m, 8713, RiderPose.EXTRA_WIDE, 0.539f, 209, 266, 267, -0.0f, 0.2291f, 686); // Sarachnis
 		put(m, 2479, RiderPose.EXTRA_WIDE, 0.719f, 427, 430, 438, 0.5602f, 0.0f, 476); // Scorpion
 		put(m, 1178, RiderPose.WIDE, 1.069f, 38, 40, 41, 0.7676f, 0.0f, 238); // Sheep
+		put(m, 14860, RiderPose.EXTRA_WIDE, 0.684f, 562, 588, 589, 0.2941f, 0.7059f, 1465); // Shellbane gryphon
 		put(m, 466, RiderPose.WIDE, 0.768f, 62, 70, 71, 0.0538f, 0.0f, 469); // Skeletal Wyvern
 		put(m, 11998, RiderPose.EXTRA_WIDE, 0.539f, 318, 499, 319, -0.0f, 0.6273f, 2221); // Spindel
 		put(m, 7794, RiderPose.EXTRA_WIDE, 0.6f, 136, 161, 162, 0.1685f, 0.0f, 896); // Spitting Wyvern
 		put(m, 1845, RiderPose.WIDE, 0.642f, 235, 173, 238, -0.0f, 0.8663f, 478); // Stag
 		put(m, 274, RiderPose.EXTRA_WIDE, 0.522f, 369, 287, 286, 0.3779f, 0.6103f, 968); // Steel dragon
+		put(m, 13133, RiderPose.WIDE, 1.108f, 41, 62, 63, 0.6439f, 0.3182f, 473); // Sunlight antelope
 		put(m, 7793, RiderPose.EXTRA_WIDE, 0.6f, 372, 385, 373, 0.0f, 0.0854f, 944); // Taloned Wyvern
 		put(m, 6473, RiderPose.EXTRA_WIDE, 0.612f, 53, 87, 88, 0.0128f, 0.0282f, 535); // Terror dog
 		put(m, 2064, RiderPose.WIDE, 0.763f, 173, 186, 174, 0.0131f, 0.9869f, 436); // Terrorbird
@@ -654,6 +662,7 @@ final class MountFits
 		put(m, 2837, RiderPose.WIDE, 0.722f, 129, 151, 152, -0.0f, 0.2621f, 421); // Unicorn
 		put(m, 6504, RiderPose.EXTRA_WIDE, 0.539f, 148, 147, 281, 0.4134f, 0.1827f, 507); // Venenatis
 		put(m, 8061, RiderPose.EXTRA_WIDE, 0.384f, 347, 81, 348, 0.1142f, 0.0961f, 1497); // Vorkath
+		put(m, 12979, RiderPose.WIDE, 0.743f, 198, 334, 333, 0.0276f, 0.4862f, 525); // White jaguar
 		put(m, 107, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // White wolf
 		put(m, 106, RiderPose.WIDE, 0.828f, 1, 11, 12, 0.3408f, 0.1111f, 450); // Wolf
 		put(m, 8610, RiderPose.EXTRA_WIDE, 1.135f, 7, 20, 21, 0.2542f, 0.4232f, 1139); // Wyrm
@@ -822,6 +831,7 @@ final class MountFits
 		m.put(11992, new int[]{25, 0}); // Artio
 		m.put(6076, new int[]{10, 15}); // Battle tortoise
 		m.put(109, new int[]{30, 0}); // Big Wolf
+		m.put(12978, new int[]{30, 20}); // Black jaguar
 		m.put(270, new int[]{15, 15}); // Bronze dragon
 		m.put(6503, new int[]{25, 0}); // Callisto
 		m.put(9047, new int[]{0, 44}); // Corrupted Dragon
@@ -831,15 +841,19 @@ final class MountFits
 		m.put(8612, new int[]{0, 44}); // Drake
 		m.put(14922, new int[]{20, 30}); // Frost dragon
 		m.put(272, new int[]{15, 15}); // Iron dragon
+		m.put(12976, new int[]{20, 20}); // Jaguar
 		m.put(12818, new int[]{25, 20}); // Manticore
 		m.put(2919, new int[]{15, 15}); // Mithril dragon
+		m.put(13132, new int[]{15, 0}); // Moonlight antelope
 		m.put(12465, new int[]{15, 15}); // Mutated Tortoise
 		m.put(2796, new int[]{15, 0}); // Pig
 		m.put(7940, new int[]{40, 40}); // Revenant dragon
 		m.put(8031, new int[]{15, 15}); // Rune dragon
 		m.put(1845, new int[]{25, 0}); // Stag
 		m.put(274, new int[]{15, 15}); // Steel dragon
+		m.put(13133, new int[]{15, 0}); // Sunlight antelope
 		m.put(2837, new int[]{25, 0}); // Unicorn
+		m.put(12979, new int[]{30, 20}); // White jaguar
 		m.put(107, new int[]{50, 0}); // White wolf
 		return m;
 	}
@@ -1326,7 +1340,9 @@ final class MountFits
 		m.put(109, new int[]{6580, 6556, -1}); // Big Wolf
 		m.put(2839, new int[]{4919, 4923, -1}); // Black bear
 		m.put(252, new int[]{90, 79, -1}); // Black dragon
+		m.put(12978, new int[]{9091, 9090, -1}); // Black jaguar
 		m.put(2849, new int[]{6374, 6373, -1}); // Black unicorn
+		m.put(13021, new int[]{9091, 9090, -1}); // Blood jaguar
 		m.put(268, new int[]{90, 79, -1}); // Blue dragon
 		m.put(270, new int[]{90, 79, -1}); // Bronze dragon
 		m.put(7275, new int[]{90, 79, -1}); // Brutal black dragon
@@ -1344,6 +1360,7 @@ final class MountFits
 		m.put(4184, new int[]{2037, 2036, -1}); // Crocodile
 		m.put(9033, new int[]{90, 79, -1}); // Crystalline Dragon
 		m.put(459, new int[]{2774, 2775, -1}); // Desert Lizard
+		m.put(14859, new int[]{12547, 12549, -1}); // Dire gryphon
 		m.put(3426, new int[]{6580, 6556, -1}); // Dire Wolf
 		m.put(14237, new int[]{7269, 6577, -1}); // Dog
 		m.put(8612, new int[]{8274, 8273, -1}); // Drake
@@ -1357,11 +1374,13 @@ final class MountFits
 		m.put(1792, new int[]{252, 249, -1}); // Goat
 		m.put(260, new int[]{90, 79, -1}); // Green dragon
 		m.put(2838, new int[]{4919, 4923, -1}); // Grizzly bear
+		m.put(14857, new int[]{12547, 12549, -1}); // Gryphon
 		m.put(114, new int[]{6561, 6560, -1}); // Guard dog
 		m.put(104, new int[]{6561, 6583, -1}); // Hellhound
 		m.put(2909, new int[]{5225, 5226, -1}); // Horned graahk
 		m.put(272, new int[]{90, 79, -1}); // Iron dragon
 		m.put(4185, new int[]{6561, 6560, -1}); // Jackal
+		m.put(12976, new int[]{9091, 9090, -1}); // Jaguar
 		m.put(963, new int[]{6239, 6238, -1}); // Kalphite Queen
 		m.put(957, new int[]{6218, 6220, -1}); // Kalphite Soldier
 		m.put(239, new int[]{90, 4635, -1}); // King Black Dragon
@@ -1372,6 +1391,7 @@ final class MountFits
 		m.put(6604, new int[]{306, 303, -1}); // Mammoth
 		m.put(12818, new int[]{10863, 10864, -1}); // Manticore
 		m.put(2919, new int[]{90, 79, -1}); // Mithril dragon
+		m.put(13132, new int[]{6374, 6373, -1}); // Moonlight antelope
 		m.put(12465, new int[]{10435, 10434, -1}); // Mutated Tortoise
 		m.put(7561, new int[]{7425, 7419, -1}); // Muttadile
 		m.put(2946, new int[]{5986, 5987, -1}); // Nail beast
@@ -1389,11 +1409,13 @@ final class MountFits
 		m.put(8713, new int[]{8320, 8319, -1}); // Sarachnis
 		m.put(2479, new int[]{6252, 6253, -1}); // Scorpion
 		m.put(1178, new int[]{5339, 5340, -1}); // Sheep
+		m.put(14860, new int[]{12548, 12550, -1}); // Shellbane gryphon
 		m.put(466, new int[]{2984, 2982, -1}); // Skeletal Wyvern
 		m.put(11998, new int[]{9986, 9988, -1}); // Spindel
 		m.put(7794, new int[]{7650, 7650, -1}); // Spitting Wyvern
 		m.put(1845, new int[]{6374, 6373, -1}); // Stag
 		m.put(274, new int[]{90, 79, -1}); // Steel dragon
+		m.put(13133, new int[]{6374, 6373, -1}); // Sunlight antelope
 		m.put(7793, new int[]{7650, 7650, -1}); // Taloned Wyvern
 		m.put(6473, new int[]{5623, 5622, -1}); // Terror dog
 		m.put(2064, new int[]{1008, 1007, -1}); // Terrorbird
@@ -1402,6 +1424,7 @@ final class MountFits
 		m.put(2837, new int[]{6374, 6373, -1}); // Unicorn
 		m.put(6504, new int[]{5318, 5317, -1}); // Venenatis
 		m.put(8061, new int[]{7948, 7947, -1}); // Vorkath
+		m.put(12979, new int[]{9091, 9090, -1}); // White jaguar
 		m.put(107, new int[]{6580, 6556, -1}); // White wolf
 		m.put(106, new int[]{6580, 6556, -1}); // Wolf
 		m.put(8610, new int[]{8266, 8266, -1}); // Wyrm
@@ -1547,7 +1570,9 @@ final class MountFits
 		m.put("Big Wolf", 109);
 		m.put("Black bear", 2839);
 		m.put("Black dragon", 252);
+		m.put("Black jaguar", 12978);
 		m.put("Black unicorn", 2849);
+		m.put("Blood jaguar", 13021);
 		m.put("Blue dragon", 268);
 		m.put("Bronze dragon", 270);
 		m.put("Brutal black dragon", 7275);
@@ -1565,6 +1590,7 @@ final class MountFits
 		m.put("Crocodile", 4184);
 		m.put("Crystalline Dragon", 9033);
 		m.put("Desert Lizard", 459);
+		m.put("Dire gryphon", 14859);
 		m.put("Dire Wolf", 3426);
 		m.put("Dog", 14237);
 		m.put("Drake", 8612);
@@ -1578,11 +1604,13 @@ final class MountFits
 		m.put("Goat", 1792);
 		m.put("Green dragon", 260);
 		m.put("Grizzly bear", 2838);
+		m.put("Gryphon", 14857);
 		m.put("Guard dog", 114);
 		m.put("Hellhound", 104);
 		m.put("Horned graahk", 2909);
 		m.put("Iron dragon", 272);
 		m.put("Jackal", 4185);
+		m.put("Jaguar", 12976);
 		m.put("Kalphite Queen", 963);
 		m.put("Kalphite Soldier", 957);
 		m.put("King Black Dragon", 239);
@@ -1593,6 +1621,7 @@ final class MountFits
 		m.put("Mammoth", 6604);
 		m.put("Manticore", 12818);
 		m.put("Mithril dragon", 2919);
+		m.put("Moonlight antelope", 13132);
 		m.put("Mutated Tortoise", 12465);
 		m.put("Muttadile", 7561);
 		m.put("Nail beast", 2946);
@@ -1610,11 +1639,13 @@ final class MountFits
 		m.put("Sarachnis", 8713);
 		m.put("Scorpion", 2479);
 		m.put("Sheep", 1178);
+		m.put("Shellbane gryphon", 14860);
 		m.put("Skeletal Wyvern", 466);
 		m.put("Spindel", 11998);
 		m.put("Spitting Wyvern", 7794);
 		m.put("Stag", 1845);
 		m.put("Steel dragon", 274);
+		m.put("Sunlight antelope", 13133);
 		m.put("Taloned Wyvern", 7793);
 		m.put("Terror dog", 6473);
 		m.put("Terrorbird", 2064);
@@ -1623,6 +1654,7 @@ final class MountFits
 		m.put("Unicorn", 2837);
 		m.put("Venenatis", 6504);
 		m.put("Vorkath", 8061);
+		m.put("White jaguar", 12979);
 		m.put("White wolf", 107);
 		m.put("Wolf", 106);
 		m.put("Wyrm", 8610);

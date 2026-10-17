@@ -34,7 +34,7 @@ public class LightingTest
 	@Test
 	public void creaturesCanBeRidden()
 	{
-		for (String name : new String[]{"Lava dragon", "Elvarg", "Vorkath", "Battle tortoise", "Pet rock", "Unicorn", "Manticore"})
+		for (String name : new String[]{"Lava dragon", "Elvarg", "Vorkath", "Battle tortoise", "Pet rock", "Unicorn", "Manticore", "Jaguar", "Sunlight antelope", "Shellbane gryphon"})
 		{
 			Integer id = MountFits.choices().get(name);
 			org.junit.Assert.assertNotNull(name, id);

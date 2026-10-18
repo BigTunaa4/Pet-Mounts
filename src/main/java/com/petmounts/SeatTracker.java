@@ -65,12 +65,26 @@ final class SeatTracker
 	/** Reads the seat from the mount's current animation frame. */
 	void update(Model animated)
 	{
+		update(animated, false);
+	}
+
+	/**
+	 * @param flying the mount is in its flying animation: the seat really does rise a long way (and the standing
+	 *               seat height is kept as it is, for easing the take-off and landing), so accept every frame
+	 */
+	void update(Model animated, boolean flying)
+	{
 		if (a < 0 || animated == null || animated.getVerticesCount() != vertexCount)
 		{
 			return;
 		}
 		float px = x, py = y, pz = z;
 		read(animated);
+		if (flying)
+		{
+			rejected = 0;
+			return;
+		}
 		if (Math.abs(x - restX) > maxMove || Math.abs(y - restY) > maxMove || Math.abs(z - restZ) > maxMove)
 		{
 			if (++rejected < MAX_REJECTED)

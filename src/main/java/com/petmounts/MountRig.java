@@ -51,7 +51,7 @@ final class MountRig
 	private final Player player;
 	private final PetModels.Built built;
 
-	private final RuneLiteObject mount;
+	private final MountObject mount;
 	private final SeatTracker seat = new SeatTracker();
 	private final RiderController rider;
 	private final RiderPoser poser;
@@ -81,6 +81,14 @@ final class MountRig
 	 */
 	private final int flightAnimation;
 	private boolean flightEnabled;
+	/** Flying poses for mounts with no flying animation of their own (gryphons, Vorkath), or null. */
+	private FlightPoses flightPoses;
+	/** Where in the wing beat the mount is, 0 to 1. */
+	private float flapPhase;
+	/** One wing beat, in client ticks (a little under a second). */
+	private static final float FLAP_TICKS = 44;
+	/** How high mounts flying in made poses rise, as a share of their height. */
+	private static final float POSED_FLIGHT_HEIGHT = 0.55f;
 	/** How far into the air the mount is, 0 on the ground to 1 fully flying (eases the take-off and landing). */
 	private float flight;
 	/** An animation to show on the mount instead of its own (the ::mountanim command), or -1. */
@@ -122,7 +130,18 @@ final class MountRig
 		this.rider = new RiderController(player, () -> poser.hold(player));
 		mount = new MountObject(client, built);
 		tricks = MountExtras.tricks(built.npcId);
-		flightAnimation = built.floating || built.shoulders ? -1 : MountFits.flightAnimation(built.npcId);
+		// Dragons fly in the game's own flying animation. Gryphons and Vorkath have none, so they fly in poses
+		// made from their own animations (see FlightPoses), over their standing animation.
+		boolean canFly = !built.floating && !built.shoulders;
+		flightPoses = canFly ? FlightPoses.forNpc(built.npcId) : null;
+		int[] own = MountFits.animations(built.npcId);
+		flightAnimation = !canFly ? -1
+			: flightPoses != null && own != null && own[0] != -1 ? own[0]
+			: MountFits.flightAnimation(built.npcId);
+		if (flightAnimation == -1)
+		{
+			flightPoses = null;
+		}
 		nextExtraAt = nextExtraDelay();
 		seat.set(built.a, built.b, built.c, built.wa, built.wb, built.wc, built.model, built.mountHeight);
 
@@ -301,9 +320,11 @@ final class MountRig
 		{
 			mount.setActive(true);
 		}
-		if (saddle != null && saddle.isActive() != saddleOn(style))
+		// A saddle can only turn, not tilt: in the air (the body pitches and banks) it is put away.
+		boolean saddleShown = saddleOn(style) && flight <= 0;
+		if (saddle != null && saddle.isActive() != saddleShown)
 		{
-			saddle.setActive(saddleOn(style));
+			saddle.setActive(saddleShown);
 		}
 		if (!client.isRuneLiteObjectRegistered(rider))
 		{
@@ -335,6 +356,11 @@ final class MountRig
 	{
 		boolean up = flightAnimation != -1 && flightEnabled && gait == 2 && slide == 0 && previewAnimation == -1;
 		flight = up ? Math.min(1, flight + TAKE_OFF) : Math.max(0, flight - LANDING);
+		if (flightPoses != null)
+		{
+			flapPhase = flight > 0 ? (flapPhase + 1f / FLAP_TICKS) % 1f : 0f;
+			mount.setFlightPose(flight > 0 ? flightPoses : null, flapPhase);
+		}
 	}
 
 	/** Smooth start and finish for the take-off and landing. */
@@ -546,13 +572,22 @@ final class MountRig
 
 		// Follow the seat on the mount's back as it animates.
 		Model frame = mount.getModel();
-		seat.update(frame);
+		seat.update(frame, flight > 0);
 
 		// Taking off or landing: the flying animation holds the mount up in the air. Partway through, hold it
 		// that much nearer the ground, so it rises smoothly into the air and comes back down again. Everything
 		// (mount, saddle, rider, reins) moves together.
 		int drop = 0;
-		if (flight > 0 && flight < 1 && seat.isSet())
+		if (flightPoses != null && flight > 0)
+		{
+			// Made flying poses keep the body at standing height: lift everything into the air, easing up on
+			// take-off and down on landing, with a gentle rise and fall in time with the wing beat.
+			float height = built.mountHeight * POSED_FLIGHT_HEIGHT;
+			float bob = (float) Math.sin(flapPhase * 2 * Math.PI) * height * 0.06f;
+			drop = -Math.round(ease(flight) * (height + bob));
+			mount.setZ(mount.getZ() + drop);
+		}
+		else if (flight > 0 && flight < 1 && seat.isSet())
 		{
 			float above = seat.restY() - seat.y; // how much higher the seat is than standing (y points down)
 			if (above > 0)
@@ -599,9 +634,9 @@ final class MountRig
 		rider.setZ(ground - Math.round(riderLift)); // negative Z is up
 		topHeight = Math.max(built.mountHeight, Math.round(riderLift) + RIDER_HEIGHT);
 
-		if (slide > 0)
+		if (slide > 0 || flight > 0)
 		{
-			setActive(reins, false); // let go of the reins while getting off
+			setActive(reins, false); // let go of the reins while getting off, or in the air
 		}
 		else
 		{
@@ -661,7 +696,7 @@ final class MountRig
 		saddle = client.createRuneLiteObject();
 		saddle.setModel(model);
 		saddleLift = mesh.seatThickness;
-		saddle.setActive(saddleOn(style));
+		saddle.setActive(saddleOn(style) && flight <= 0);
 	}
 
 	/** Blanket colour: from the pet's colours, deepened so it reads as cloth, or the colour from settings. */

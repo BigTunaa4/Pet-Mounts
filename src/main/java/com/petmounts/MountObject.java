@@ -28,6 +28,17 @@ final class MountObject extends RuneLiteObject
 	/** How far a floating pet may bob above or below its riding height. */
 	private static final float BOB = 8;
 
+	/** Flying poses to show instead of the animation (gryphons, Vorkath), and where in the wing beat; or null. */
+	private FlightPoses flightPoses;
+	private float flightPhase;
+
+	/** Shows the mount in flight at this point of its wing beat, or back to its own animation with null. */
+	void setFlightPose(FlightPoses poses, float phase)
+	{
+		flightPoses = poses;
+		flightPhase = phase;
+	}
+
 	MountObject(Client client, PetModels.Built built)
 	{
 		super(client);
@@ -92,6 +103,12 @@ final class MountObject extends RuneLiteObject
 			// Not animating: the unanimated base must never be changed, so show the enlarged still model.
 			return still;
 		}
+		boolean flying = flightPoses != null && animated != still;
+		if (flying)
+		{
+			// In the air: the mount's flying pose (at its own size, like the animation), enlarged below.
+			flightPoses.apply(frame, flightPhase);
+		}
 		if (scaleX != PetModels.SCALE_BASE || scaleY != PetModels.SCALE_BASE)
 		{
 			// The animated frame is a fresh copy made for this call, so it can be resized in place.
@@ -101,7 +118,7 @@ final class MountObject extends RuneLiteObject
 		{
 			frame.translate(0, hover, 0);
 		}
-		boolean moved = scaleX != PetModels.SCALE_BASE || scaleY != PetModels.SCALE_BASE || hover != 0;
+		boolean moved = flying || scaleX != PetModels.SCALE_BASE || scaleY != PetModels.SCALE_BASE || hover != 0;
 		if (holdHeight && !Float.isNaN(restSeatY))
 		{
 			// Flying pets' walk animations fly them up into the air. Keep the seat at riding height (with a

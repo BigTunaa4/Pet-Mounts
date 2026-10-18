@@ -104,9 +104,11 @@ Your mount has a life of its own:
   footprints, Vorkath, Vorki and frost dragons trail icy mist, and ghostly mounts trail a spectral mist.
 - **Climbing on and off**: you drop into the saddle on the way up, and slide off the side on the way down.
 - **Turning**: you lean into turns, more at a run.
-- **Flying**: dragons take off when you run. They rise into the air with their wings beating and legs tucked back
-  (the game's own dragon flying animation) and land again when you slow to a walk or stop. Every adult dragon
-  flies, including the King Black Dragon and Elvarg. Wyverns already hover on their own. Type `::mountanim <id>`
+- **Flying**: dragons, gryphons and Vorkath take off when you run. They rise into the air with their wings beating
+  and legs tucked back and land again when you slow to a walk or stop. Dragons use the game's own flying
+  animation; gryphons and Vorkath have no flying animation in the game, so the plugin builds one from their own
+  wing movements. Every adult dragon flies, including the King Black Dragon and Elvarg. The saddle comes off
+  while you're in the air. Wyverns already hover on their own. Type `::mountanim <id>`
   to try any of the game's animations on your mount, and `::mountanim` on its own to go back.
 
 Tricks, sounds and special effects can each be switched off in the settings under Effects.
@@ -209,7 +211,7 @@ Every rideable pet has its own measured seat, found on the game's model in its i
 | Mount-up animation | The ~1 second beckon, sparkles and poof |
 | Match pet colours / Effect colour | Effect colours from your pet, or one colour of your choice |
 | Mount tricks / Mount sounds / Special mount effects | Switch each of the mount's extras on or off |
-| Dragons fly | Dragons take off and fly when you run, and land when you stop |
+| Winged mounts fly | Dragons, gryphons and Vorkath take off and fly when you run, and land when you stop |
 | Everyone rides | Show other players riding their pets too (hold Shift to see them normally) |
 | Riders shown | The most other riders drawn at once |
 | Always allow / Never allow | Your own exceptions to which pets can be ridden |

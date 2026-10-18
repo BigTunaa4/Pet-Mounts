@@ -124,6 +124,13 @@ class MountFlair
 	private void trail(MountRig rig, Player me, MountExtras.Trail trail, int gait)
 	{
 		boolean moving = gait > 0;
+		if (!moving)
+		{
+			// A trail is left behind as you go: standing still leaves nothing (the first puff comes soon after
+			// setting off).
+			nextTrailAt = Math.min(nextTrailAt, ticks + 6);
+			return;
+		}
 		if (ticks >= nextTrailAt)
 		{
 			switch (trail)
@@ -131,19 +138,19 @@ class MountFlair
 				case FIRE:
 				case LAVA:
 					spawnAround(rig, me, FLAMES, (short) 0, randomSide(), randomSide(), 0, flameScale(rig));
-					nextTrailAt = ticks + (moving ? 9 : 45) + (int) (Math.random() * 8);
+					nextTrailAt = ticks + 9 + (int) (Math.random() * 8);
 					break;
 				case FROST:
 					spawnAround(rig, me, MIST, ICE, randomSide(), randomSide(), 0, 128);
-					nextTrailAt = ticks + (moving ? 10 : 40) + (int) (Math.random() * 8);
+					nextTrailAt = ticks + 10 + (int) (Math.random() * 8);
 					break;
 				case GHOST:
 					spawnAround(rig, me, MIST, SPIRIT, randomSide(), randomSide(), 0, 128);
-					nextTrailAt = ticks + (moving ? 10 : 40) + (int) (Math.random() * 8);
+					nextTrailAt = ticks + 10 + (int) (Math.random() * 8);
 					break;
 			}
 		}
-		if (trail == MountExtras.Trail.LAVA && moving && ticks >= nextFootprintAt)
+		if (trail == MountExtras.Trail.LAVA && ticks >= nextFootprintAt)
 		{
 			// Glowing footprints left behind on the ground.
 			spawnAround(rig, me, LAVA, (short) 0, randomSide() * 0.5f, 0.6f, 0, 70);

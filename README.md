@@ -110,6 +110,7 @@ Your mount has a life of its own:
   wing movements. Every adult dragon flies, including the King Black Dragon and Elvarg. The saddle comes off
   while you're in the air. Wyverns already hover on their own. Type `::mountanim <id>`
   to try any of the game's animations on your mount, and `::mountanim` on its own to go back.
+  If something looks wrong, type `::mountdebug` to have the plugin report what your mount is doing in chat.
 
 Tricks, sounds and special effects can each be switched off in the settings under Effects.
 

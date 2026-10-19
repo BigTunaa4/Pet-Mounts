@@ -137,6 +137,12 @@ public class PetMountsPlugin extends Plugin
 	/** Rideability verdict per pet NPC id (cleared when settings change). */
 	private final Map<Integer, PetRules.Verdict> verdicts = new HashMap<>();
 
+	/** Shown by ::mountdebug, so it's clear which version is running. */
+	static final String VERSION = "1.2.2";
+	/** Reporting the mount's state in chat (::mountdebug). */
+	private boolean debugMount;
+	private String lastDebug;
+
 	private final SpeedTracker speed = new SpeedTracker();
 	private int lastBusyTick = -100;
 	private int tickCount;
@@ -741,6 +747,12 @@ public class PetMountsPlugin extends Plugin
 			case "dismount":
 				setRiding(false, true);
 				break;
+			case "mountdebug":
+				// Reports what your mount is doing in chat (a line a second) while you ride, to track down problems.
+				debugMount = !debugMount;
+				message(debugMount ? "Pet Mounts " + VERSION + ": reporting your mount in chat. Type ::mountdebug to stop."
+					: "Stopped reporting your mount.");
+				break;
 			case "mountanim":
 				// Try any of the game's animations on your mount, e.g. to find a creature's flying animation.
 				previewAnimation = -1;
@@ -1177,6 +1189,10 @@ public class PetMountsPlugin extends Plugin
 		}
 
 		updateOwnMount(me, pet);
+		if (debugMount)
+		{
+			reportMount();
+		}
 
 		boolean settling = clientTicks < hiddenUntil;
 		if (!config.everyoneRides())
@@ -1192,6 +1208,19 @@ public class PetMountsPlugin extends Plugin
 			others.update(tickCount, config.everyoneRidesLimit());
 		}
 		keepRidersApart();
+	}
+
+	/** ::mountdebug: a line a second, and straight away whenever the mount is shown or hidden. */
+	private void reportMount()
+	{
+		String state = rig == null ? "no mount built" : rig.debugState();
+		String shown = state.split(" ", 2)[0];
+		boolean changed = lastDebug == null || !lastDebug.split(" ", 2)[0].equals(shown);
+		if (changed || clientTicks % 50 == 0)
+		{
+			message("[mount] riding=" + riding + " gait=" + speed.gait() + " " + state);
+			lastDebug = state;
+		}
 	}
 
 	/**
@@ -1222,6 +1251,18 @@ public class PetMountsPlugin extends Plugin
 			hideMount();
 			others.hideAll();
 			hiddenUntil = clientTicks + SETTLE_AFTER_LOADING;
+		}
+		else
+		{
+			// Still riding: make sure everything is in the rebuilt scene.
+			if (rig != null)
+			{
+				rig.reattach();
+			}
+			for (MountRig other : others.visibleRigs())
+			{
+				other.reattach();
+			}
 		}
 		return true;
 	}

@@ -229,6 +229,33 @@ final class MountRig
 		return visible;
 	}
 
+	/** What the mount is doing right now, for ::mountdebug. */
+	String debugState()
+	{
+		LocalPoint lp = player.getLocalLocation();
+		Model frame = null;
+		try
+		{
+			frame = mount.getModel();
+		}
+		catch (RuntimeException e)
+		{
+			// reported below as no model
+		}
+		int plane = player.getWorldView() == null ? -1 : player.getWorldView().getPlane();
+		int tile = lp == null || plane < 0 ? 0 : Perspective.getTileHeight(client, lp, plane);
+		return "shown=" + visible
+			+ " mount=" + mount.isActive()
+			+ " rider=" + client.isRuneLiteObjectRegistered(rider)
+			+ " at=" + mount.getX() + "," + mount.getY() + "/" + (lp == null ? "-" : lp.getX() + "," + lp.getY())
+			+ " wv=" + mount.getWorldView() + "/" + (lp == null ? "-" : lp.getWorldView())
+			+ " z=" + (mount.getZ() - tile) + "," + (rider.getZ() - tile)
+			+ " anim=" + animationId
+			+ " model=" + (frame == null ? "none" : frame.getVerticesCount() + "v r" + frame.getRadius())
+			+ " seat=" + Math.round(seat.y)
+			+ " fly=" + Math.round(flight * 100);
+	}
+
 	Color[] palette()
 	{
 		return built.palette;
@@ -367,6 +394,32 @@ final class MountRig
 	private static float ease(float t)
 	{
 		return t * t * (3 - 2 * t);
+	}
+
+	/**
+	 * After the map reloads under you (running across it), puts the mount, saddle, reins and rider back into the
+	 * new scene, in case the reload dropped them while they still count as shown.
+	 */
+	void reattach()
+	{
+		if (!visible)
+		{
+			return;
+		}
+		for (RuneLiteObject o : new RuneLiteObject[]{mount, saddle, reins})
+		{
+			if (o != null && o.isActive())
+			{
+				o.setActive(false);
+				o.setActive(true);
+			}
+		}
+		if (client.isRuneLiteObjectRegistered(rider))
+		{
+			client.removeRuneLiteObject(rider);
+		}
+		client.registerRuneLiteObject(rider);
+		place();
 	}
 
 	/** Takes the rider off the mount and shows the real player again. */

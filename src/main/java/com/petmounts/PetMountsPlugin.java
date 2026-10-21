@@ -41,12 +41,14 @@ import net.runelite.client.callback.RenderCallbackManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
+import net.runelite.client.ui.components.colorpicker.ColorPickerManager;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
@@ -95,6 +97,12 @@ public class PetMountsPlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
+	private ColorPickerManager colorPickerManager;
+
+	/** Every setting, shown in the Mount Stable. */
+	private SettingsPanel settingsPanel;
+
+	@Inject
 	private ClientToolbar clientToolbar;
 
 	@Inject
@@ -138,7 +146,7 @@ public class PetMountsPlugin extends Plugin
 	private final Map<Integer, PetRules.Verdict> verdicts = new HashMap<>();
 
 	/** Shown by ::mountdebug, so it's clear which version is running. */
-	static final String VERSION = "1.3.1";
+	static final String VERSION = "1.4.0";
 	/** Reporting the mount's state in chat (::mountdebug). */
 	private boolean debugMount;
 	private String lastDebug;
@@ -370,6 +378,7 @@ public class PetMountsPlugin extends Plugin
 		keyManager.registerKeyListener(hotkeyListener);
 		keyManager.registerKeyListener(shiftListener);
 
+		settingsPanel = new SettingsPanel(configManager, config, colorPickerManager);
 		panel = new MountStablePanel(new MountStablePanel.Actions()
 		{
 			@Override
@@ -382,12 +391,6 @@ public class PetMountsPlugin extends Plugin
 			public void saveTweaks(PetTweaks t)
 			{
 				clientThread.invoke(() -> savePetTweaks(t));
-			}
-
-			@Override
-			public void setOption(String key, boolean value)
-			{
-				configManager.setConfiguration(PetMountsConfig.GROUP, key, value);
 			}
 
 			@Override
@@ -414,17 +417,11 @@ public class PetMountsPlugin extends Plugin
 			}
 
 			@Override
-			public void setSaddleStyle(SaddleStyle style)
-			{
-				configManager.setConfiguration(PetMountsConfig.GROUP, "saddleStyle", style);
-			}
-
-			@Override
 			public void copyMountInfo()
 			{
 				clientThread.invoke(PetMountsPlugin.this::copyMountInfoToClipboard);
 			}
-		});
+		}, settingsPanel);
 		navButton = NavigationButton.builder()
 			.tooltip("Pet Mounts")
 			.icon(ImageUtil.loadImageResource(getClass(), "panel_icon.png"))
@@ -479,6 +476,7 @@ public class PetMountsPlugin extends Plugin
 		overlayManager.remove(mountButton);
 		mouseManager.unregisterMouseListener(mountButton.mouse);
 		panelState = null;
+		settingsPanel = null;
 		clientThread.invoke(() ->
 		{
 			if (client.getAnimationInterpolationFilter() == riderPoseFilter)
@@ -968,6 +966,12 @@ public class PetMountsPlugin extends Plugin
 			return;
 		}
 		String key = e.getKey();
+		SettingsPanel sp = settingsPanel;
+		if (sp != null)
+		{
+			// Changed here, on the configuration page, or by a profile switch: show it in the Mount Stable too.
+			javax.swing.SwingUtilities.invokeLater(sp::refresh);
+		}
 		boolean rebuildMounts = REBUILD_KEYS.contains(key) || key.startsWith(PetTweaks.KEY_PREFIX);
 		clientThread.invoke(() ->
 		{
@@ -986,6 +990,16 @@ public class PetMountsPlugin extends Plugin
 				others.rebuild();
 			}
 		});
+	}
+
+	@Subscribe
+	public void onProfileChanged(ProfileChanged e)
+	{
+		SettingsPanel sp = settingsPanel;
+		if (sp != null)
+		{
+			javax.swing.SwingUtilities.invokeLater(sp::refresh);
+		}
 	}
 
 	@Subscribe
@@ -1641,8 +1655,7 @@ public class PetMountsPlugin extends Plugin
 				: refusal;
 		}
 		MountStablePanel.State s = new MountStablePanel.State(name, status, canRide, riding || mountingSince != 0, t,
-			config.showSaddle(), config.showReins(), config.naturalMotion(), config.everyoneRides(),
-			config.hideHeldItems(), config.hideCape(), chosen, favourites(), config.saddleStyle(), locked);
+			chosen, favourites(), locked);
 		if (!s.sameAs(panelState))
 		{
 			panelState = s;

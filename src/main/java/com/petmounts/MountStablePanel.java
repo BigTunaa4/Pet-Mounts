@@ -14,7 +14,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,11 +24,13 @@ import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.util.LinkBrowser;
 
 /**
- * The Mount Stable: a sidebar panel showing the pet following you, whether it can be ridden, a ride button,
- * the saddle, reins, motion and hide-items switches, and adjustments saved for this pet.
+ * The Mount Stable: a sidebar panel showing the pet following you, whether it can be ridden, a searchable list of
+ * every mount, a ride button, adjustments saved for this pet, and every Pet Mounts setting (the same ones as on
+ * the plugin's configuration page).
  *
  * Swing code only; every game action goes back to the plugin, which runs it on the client thread.
  */
@@ -41,8 +42,6 @@ class MountStablePanel extends PluginPanel
 
 		void saveTweaks(PetTweaks tweaks);
 
-		void setOption(String key, boolean value);
-
 		/** Rides this pet (NPC id), or the pet following you for 0. */
 		void chooseMount(int npcId);
 
@@ -51,8 +50,6 @@ class MountStablePanel extends PluginPanel
 
 		/** Picks a random mount: a favourite if any are starred. */
 		void randomMount();
-
-		void setSaddleStyle(SaddleStyle style);
 
 		/** Copies details of the current mount, for a bug report. */
 		void copyMountInfo();
@@ -66,47 +63,32 @@ class MountStablePanel extends PluginPanel
 		final boolean canRide;
 		final boolean riding;
 		final PetTweaks tweaks;
-		final boolean saddle;
-		final boolean reins;
-		final boolean motion;
-		final boolean everyone;
-		final boolean hideHeld;
-		final boolean hideCape;
 		/** The pet picked to ride (NPC id), or 0 for the pet following you. */
 		final int chosen;
 		/** Starred mounts (NPC ids). */
 		final java.util.Set<Integer> favourites;
-		final SaddleStyle saddleStyle;
 		/** Mounts locked under "Earned boss mounts", by name, with why. */
 		final java.util.Map<String, String> locked;
 
-		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks,
-			boolean saddle, boolean reins, boolean motion, boolean everyone, boolean hideHeld, boolean hideCape, int chosen,
-			java.util.Set<Integer> favourites, SaddleStyle saddleStyle, java.util.Map<String, String> locked)
+		State(String petName, String status, boolean canRide, boolean riding, PetTweaks tweaks, int chosen,
+			java.util.Set<Integer> favourites, java.util.Map<String, String> locked)
 		{
 			this.locked = locked;
 			this.favourites = favourites;
-			this.saddleStyle = saddleStyle;
 			this.petName = petName;
 			this.status = status;
 			this.canRide = canRide;
 			this.riding = riding;
 			this.tweaks = tweaks;
-			this.saddle = saddle;
-			this.reins = reins;
-			this.motion = motion;
-			this.everyone = everyone;
-			this.hideHeld = hideHeld;
-			this.hideCape = hideCape;
 			this.chosen = chosen;
 		}
 
 		boolean sameAs(State o)
 		{
 			return o != null && java.util.Objects.equals(petName, o.petName) && status.equals(o.status)
-				&& canRide == o.canRide && riding == o.riding && saddle == o.saddle && reins == o.reins && motion == o.motion && everyone == o.everyone && hideHeld == o.hideHeld
-				&& hideCape == o.hideCape && chosen == o.chosen && favourites.equals(o.favourites) && locked.equals(o.locked)
-				&& saddleStyle == o.saddleStyle && tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
+				&& canRide == o.canRide && riding == o.riding
+				&& chosen == o.chosen && favourites.equals(o.favourites) && locked.equals(o.locked)
+				&& tweaks.size == o.tweaks.size && tweaks.seatHeight == o.tweaks.seatHeight
 				&& tweaks.seatForward == o.tweaks.seatForward && tweaks.pose == o.tweaks.pose;
 		}
 	}
@@ -121,14 +103,13 @@ class MountStablePanel extends PluginPanel
 	/** "Your pet" first, then every rideable pet by name. */
 	private final JComboBox<String> mountBox = new JComboBox<>();
 	private static final String YOUR_PET = "The pet following you";
-	private final JCheckBox saddleBox = new JCheckBox("Saddle and blanket");
-	private final JCheckBox reinsBox = new JCheckBox("Reins");
-	private final JCheckBox motionBox = new JCheckBox("Natural riding motion");
-	private final JCheckBox everyoneBox = new JCheckBox("Everyone rides (other players)");
-	private final JCheckBox heldBox = new JCheckBox("Hide weapon and shield");
-	private final JCheckBox capeBox = new JCheckBox("Hide cape");
+	/** Narrows the Mount list to names containing every word typed. */
+	private final IconTextField searchField = new IconTextField();
+	private final JLabel searchResult = new JLabel();
+	/** What the search box held when the Mount list was last filled, and the mounts it found. */
+	private String listedFilter = "";
+	private final java.util.List<String> matches = new java.util.ArrayList<>();
 	private final JComboBox<RiderPose> poseBox = new JComboBox<>(RiderPose.values());
-	private final JComboBox<SaddleStyle> saddleStyleBox = new JComboBox<>(SaddleStyle.values());
 	private final JButton favouriteButton = new JButton("Favourite");
 	private final JButton randomButton = new JButton("Random");
 	private final MountCell mountCell = new MountCell(new MountIcons());
@@ -143,7 +124,7 @@ class MountStablePanel extends PluginPanel
 	private boolean updating;
 	private State shown;
 
-	MountStablePanel(Actions actions)
+	MountStablePanel(Actions actions, SettingsPanel settings)
 	{
 		this.actions = actions;
 		setLayout(new BorderLayout());
@@ -173,6 +154,52 @@ class MountStablePanel extends PluginPanel
 
 		// What to ride: your follower, or any rideable pet or creature, even a pet you haven't got yet.
 		content.add(left(small("Mount")));
+		// Search: type part of a name ("drag", "fractured", "jag") to narrow the list; Enter rides the first match.
+		searchField.setIcon(IconTextField.Icon.SEARCH);
+		searchField.setPreferredSize(new Dimension(PANEL_WIDTH - 20, 30));
+		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+		searchField.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		searchField.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
+		searchField.setToolTipText("Search mounts: type part of a name, then pick one from the list or press Enter for the first match");
+		searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener()
+		{
+			@Override
+			public void insertUpdate(javax.swing.event.DocumentEvent e)
+			{
+				searchChanged();
+			}
+
+			@Override
+			public void removeUpdate(javax.swing.event.DocumentEvent e)
+			{
+				searchChanged();
+			}
+
+			@Override
+			public void changedUpdate(javax.swing.event.DocumentEvent e)
+			{
+				searchChanged();
+			}
+		});
+		searchField.addClearListener(this::searchChanged);
+		searchField.addActionListener(e ->
+		{
+			// Enter: ride the first match.
+			if (!matches.isEmpty())
+			{
+				Integer id = MountFits.choices().get(matches.get(0));
+				if (id != null)
+				{
+					actions.chooseMount(id);
+				}
+			}
+		});
+		content.add(left(searchField));
+		searchResult.setFont(FontManager.getRunescapeSmallFont());
+		searchResult.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		searchResult.setVisible(false);
+		content.add(left(searchResult));
+		content.add(Box.createRigidArea(new Dimension(0, 4)));
 		fillMountList(java.util.Collections.emptySet());
 		mountBox.setRenderer(mountCell);
 		// Size the list from one row, so pictures only load as rows come into view.
@@ -219,33 +246,6 @@ class MountStablePanel extends PluginPanel
 		content.add(left(rideButton));
 		content.add(Box.createRigidArea(new Dimension(0, 12)));
 
-		// Switches shared by every pet.
-		checkbox(saddleBox, "showSaddle");
-		checkbox(reinsBox, "showReins");
-		checkbox(motionBox, "naturalMotion");
-		checkbox(everyoneBox, "everyoneRides");
-		checkbox(heldBox, "hideHeldItems");
-		checkbox(capeBox, "hideCape");
-		content.add(left(saddleBox));
-		content.add(left(reinsBox));
-		content.add(left(motionBox));
-		content.add(left(everyoneBox));
-		content.add(left(heldBox));
-		content.add(left(capeBox));
-		content.add(Box.createRigidArea(new Dimension(0, 6)));
-		content.add(left(small("Saddle style")));
-		saddleStyleBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
-		saddleStyleBox.setToolTipText("The look of the saddle and blanket. Classic matches the blanket to your pet");
-		saddleStyleBox.addActionListener(e ->
-		{
-			if (!updating && saddleStyleBox.getSelectedItem() != null)
-			{
-				actions.setSaddleStyle((SaddleStyle) saddleStyleBox.getSelectedItem());
-			}
-		});
-		content.add(left(saddleStyleBox));
-		content.add(Box.createRigidArea(new Dimension(0, 12)));
-
 		// Adjustments remembered for this pet.
 		tweakPanel.setLayout(new BoxLayout(tweakPanel, BoxLayout.Y_AXIS));
 		tweakPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -267,6 +267,15 @@ class MountStablePanel extends PluginPanel
 		tweakPanel.add(Box.createRigidArea(new Dimension(0, 6)));
 		tweakPanel.add(left(reset));
 		content.add(left(tweakPanel));
+
+		// Every setting, as on the plugin's configuration page.
+		content.add(Box.createRigidArea(new Dimension(0, 12)));
+		JLabel settingsTitle = new JLabel("Settings");
+		settingsTitle.setFont(FontManager.getRunescapeBoldFont());
+		settingsTitle.setForeground(Color.WHITE);
+		content.add(left(settingsTitle));
+		content.add(Box.createRigidArea(new Dimension(0, 4)));
+		content.add(left(settings));
 
 		content.add(Box.createRigidArea(new Dimension(0, 10)));
 		JLabel tip = new JLabel("<html>Right-click your pet and choose <b>Ride</b>, or use the hotkey (Alt + M by default)."
@@ -323,8 +332,8 @@ class MountStablePanel extends PluginPanel
 		content.add(left(support));
 
 		add(content, BorderLayout.NORTH);
-		show(new State(null, "Summon one of your pets, or pick a mount below.", false, false, PetTweaks.NONE, true, true, true, true, true, true, 0,
-				java.util.Collections.emptySet(), SaddleStyle.CLASSIC, java.util.Collections.emptyMap()));
+		show(new State(null, "Summon one of your pets, or pick a mount below.", false, false, PetTweaks.NONE, 0,
+				java.util.Collections.emptySet(), java.util.Collections.emptyMap()));
 	}
 
 	/** Shows the latest state. Call on the Swing thread. */
@@ -341,7 +350,7 @@ class MountStablePanel extends PluginPanel
 		statusLabel.setForeground(s.riding || s.canRide ? READY : ColorScheme.LIGHT_GRAY_COLOR);
 		rideButton.setText(s.riding ? "Dismount" : "Ride");
 		rideButton.setEnabled(s.riding || s.canRide);
-		if (!s.favourites.equals(listedFavourites))
+		if (!s.favourites.equals(listedFavourites) || !listedFilter.isEmpty())
 		{
 			fillMountList(s.favourites);
 		}
@@ -354,13 +363,6 @@ class MountStablePanel extends PluginPanel
 		mountBox.setSelectedItem(nameOfChoice(s.chosen));
 		favouriteButton.setText(s.favourites.contains(s.chosen) ? "Unfavourite" : "Favourite");
 		favouriteButton.setEnabled(s.chosen > 0);
-		saddleStyleBox.setSelectedItem(s.saddleStyle);
-		saddleBox.setSelected(s.saddle);
-		reinsBox.setSelected(s.reins);
-		motionBox.setSelected(s.motion);
-		everyoneBox.setSelected(s.everyone);
-		heldBox.setSelected(s.hideHeld);
-		capeBox.setSelected(s.hideCape);
 		tweakTitle.setText(s.petName == null ? "Adjustments for your pet" : "Adjustments for " + s.petName);
 		poseBox.setSelectedItem(s.tweaks.pose);
 		sizeSlider.setValue(s.tweaks.size);
@@ -370,30 +372,84 @@ class MountStablePanel extends PluginPanel
 		updating = false;
 	}
 
-	/** Fills the Mount list: your pet, then favourites, then every other mount, each alphabetically. */
+	/** The search box changed: narrow the Mount list and open it to show what was found. */
+	private void searchChanged()
+	{
+		fillMountList(listedFavourites);
+		String filter = filterText();
+		searchResult.setVisible(!filter.isEmpty());
+		searchResult.setText(matches.isEmpty() ? "No mounts match \"" + filter + "\""
+			: matches.size() == 1 ? "1 mount found. Press Enter to ride it." : matches.size() + " mounts found");
+		if (!filter.isEmpty() && !matches.isEmpty() && mountBox.isShowing())
+		{
+			mountBox.showPopup();
+		}
+		else
+		{
+			mountBox.hidePopup();
+		}
+		revalidate();
+	}
+
+	private String filterText()
+	{
+		return searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase(java.util.Locale.ROOT);
+	}
+
+	/** Whether this mount name contains every word typed in the search box. */
+	static boolean matchesSearch(String name, String filter)
+	{
+		String n = name.toLowerCase(java.util.Locale.ROOT).replace("'", "");
+		for (String word : filter.replace("'", "").split("\\s+"))
+		{
+			if (!word.isEmpty() && !n.contains(word))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Fills the Mount list: your pet, then favourites, then every other mount, each alphabetically. While searching,
+	 * only the mounts that match, with the mount you're on kept at the top so the box still shows it.
+	 */
 	private void fillMountList(java.util.Set<Integer> favourites)
 	{
 		boolean was = updating;
 		updating = true;
 		listedFavourites = new java.util.HashSet<>(favourites);
+		listedFilter = filterText();
 		mountCell.favourites.clear();
+		matches.clear();
 		mountBox.removeAllItems();
-		mountBox.addItem(YOUR_PET);
-		for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+		String current = shown == null ? YOUR_PET : nameOfChoice(shown.chosen);
+		if (listedFilter.isEmpty())
 		{
-			if (favourites.contains(e.getValue()))
+			mountBox.addItem(YOUR_PET);
+		}
+		for (int pass = 0; pass < 2; pass++)
+		{
+			for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
 			{
-				mountBox.addItem(e.getKey());
-				mountCell.favourites.add(e.getKey());
+				boolean favourite = favourites.contains(e.getValue());
+				if (favourite != (pass == 0) || !listedFilter.isEmpty() && !matchesSearch(e.getKey(), listedFilter))
+				{
+					continue;
+				}
+				matches.add(e.getKey());
+				if (favourite)
+				{
+					mountCell.favourites.add(e.getKey());
+				}
 			}
 		}
-		for (java.util.Map.Entry<String, Integer> e : MountFits.choices().entrySet())
+		if (!listedFilter.isEmpty() && !matches.contains(current))
 		{
-			if (!favourites.contains(e.getValue()))
-			{
-				mountBox.addItem(e.getKey());
-			}
+			mountBox.addItem(current);
 		}
+		matches.forEach(mountBox::addItem);
+		mountBox.setSelectedItem(current);
 		updating = was;
 	}
 
@@ -467,18 +523,6 @@ class MountStablePanel extends PluginPanel
 		}
 		RiderPose pose = (RiderPose) poseBox.getSelectedItem();
 		actions.saveTweaks(new PetTweaks(sizeSlider.getValue(), heightSlider.getValue(), forwardSlider.getValue(), pose));
-	}
-
-	private void checkbox(JCheckBox box, String key)
-	{
-		box.setFocusPainted(false);
-		box.addActionListener(e ->
-		{
-			if (!updating)
-			{
-				actions.setOption(key, box.isSelected());
-			}
-		});
 	}
 
 	private JSlider slider(int min, int max, int value)

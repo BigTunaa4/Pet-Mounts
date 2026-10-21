@@ -20,6 +20,9 @@ press **Ride**. You ride it just like your own: same saddle, reins, animations a
 **The pet following you** to go back to riding your own pet. Right-clicking your pet and choosing **Ride** also
 switches back to it.
 
+Looking for one in particular? Type part of its name in the **search box** above the list ("drag", "jaguar",
+"fractured") and the list narrows to the mounts that match. Pick one, or press **Enter** to ride the first match.
+
 The list also has creatures from all over Gielinor: every kind of dragon (green to rune, lava, brutal, baby,
 frost, crystalline, corrupted and revenant dragons, plus the King Black Dragon, Elvarg and Vorkath), drakes,
 wyrms and wyverns, the gnomes' battle tortoise, unicorns, camels, cows, bulls, rams, bears, wolves, hellhounds,
@@ -58,15 +61,16 @@ It's cosmetic and on your screen only, like the rest of the plugin.
 Click the saddle icon in the RuneLite sidebar to open the **Mount Stable**:
 
 - Shows the pet following you and whether it can be ridden (and why not, if it can't)
+- A **search box** and the **Mount** list, with a picture of every mount
 - A **Ride / Dismount** button
-- Switches for the saddle and blanket, reins, natural riding motion, hiding your weapon and shield, and
-  hiding your cape
 - **Adjustments for this pet**: riding pose, size, seat height and seat forward/back. These are
   remembered for each pet, so every mount can be fitted exactly how you like it
 - **Favourite** stars the mount you've picked: favourites are listed first, in gold. **Random** picks a
   mount for you (one of your favourites if you've starred a few), and **Random mount each login** in the
   settings does it every time you log in
-- **Saddle style**: Classic (the blanket matches your pet), Plain leather, Royal, Skull and bones, or Holiday
+- **Settings**: every Pet Mounts setting, grouped the same way as on the plugin's configuration page
+  (General, Mount and rider, Effects, Other players, Which pets). Click a heading to open or close it. A change
+  made here shows on the configuration page too, and the other way round
 - **Copy mount info** copies the details of your mount to paste into a bug report
 
 There's also a small **on-screen mount button** (Alt-drag to move it, or turn it off in settings).

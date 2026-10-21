@@ -13,7 +13,8 @@ import java.util.Map;
  *
  * Generated from cache revision 2026-09-23 (rev 240). 191 pet variants plus 107 creatures.
  * Manticore, the Varlamore jaguars and antelopes, the gryphons, Araxxor, the Alchemical Hydra, the terrorbirds,
- * the alpaca and the yak added from cache revision 2026-10-14 (rev 241).
+ * the alpaca and the yak added from cache revision 2026-10-14 (rev 241). Orion and the Fractured Archive bosses
+ * added from cache revision 2026-10-20 (rev 241).
  */
 final class MountFits
 {
@@ -565,6 +566,21 @@ final class MountFits
 		putShoulders(m, 5559, RiderPose.WIDE, 1.85f, 699, 822, 821, 0.0463f, 0.7672f, 1229); // Vet'ion Jr.
 		putShoulders(m, 6633, RiderPose.WIDE, 2.07f, 29, 351, 30, 0.15f, 0.0343f, 768); // Zilyana Jr.
 		putShoulders(m, 6646, RiderPose.WIDE, 2.07f, 29, 351, 30, 0.15f, 0.0343f, 768); // Zilyana Jr. (other form)
+		// The Fractured Archive (raid released 2026-10-20): ridden on the shoulders, or on top for the cart, the
+		// jelly and the skull. No saddle on any of them.
+		putShoulders(m, 16764, RiderPose.WIDE, 1.881f, 638, 662, 663, 0.0f, 0.2414f, 1711); // Orion
+		putShoulders(m, 16632, RiderPose.WIDE, 1.881f, 638, 662, 663, 0.0f, 0.2414f, 1711); // Orion (other form)
+		putShoulders(m, 16763, RiderPose.WIDE, 1.97f, 583, 582, 584, 0.3333f, 0.6667f, 2444); // Orion (robed)
+		putShoulders(m, 16674, RiderPose.WIDE, 0.567f, 638, 662, 663, 0.0f, 0.2414f, 1711); // Ocellus
+		putShoulders(m, 16677, RiderPose.WIDE, 0.594f, 583, 582, 584, 0.3333f, 0.6667f, 2444); // Ocellus (second form)
+		putShoulders(m, 16659, RiderPose.WIDE, 0.198f, 555, 134, 568, 0.4595f, 0.0f, 1348); // Archive Guardian
+		putShoulders(m, 16640, RiderPose.WIDE, 0.397f, 493, 534, 347, 0.0f, 0.0435f, 1789); // Bork (Fractured Archive)
+		putShoulders(m, 16641, RiderPose.EXTRA_WIDE, 0.354f, 1685, 1688, 1689, 0.8413f, 0.0f, 3272); // The Smorks
+		putShoulders(m, 16665, RiderPose.EXTRA_WIDE, 0.247f, 44, 47, 5, 0.0042f, 0.4938f, 2502); // Dreadnoth the Jellied
+		putShoulders(m, 16652, RiderPose.WIDE, 0.797f, 827, 814, 813, 0.3077f, 0.3077f, 1130); // Ezekiel
+		putShoulders(m, 16667, RiderPose.WIDE, 0.826f, 95, 97, 96, 0.3333f, 0.1333f, 1606); // Moia
+		putShoulders(m, 16643, RiderPose.WIDE, 0.811f, 523, 536, 537, 0.0f, 0.6f, 926); // Dagon'hai Elder
+		putShoulders(m, 16684, RiderPose.WIDE, 0.408f, 1097, 1101, 1102, 0.0f, 0.0f, 1672); // Xarth
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		put(m, 8030, RiderPose.EXTRA_WIDE, 0.524f, 429, 413, 412, 0.6073f, 0.3219f, 1002); // Adamant dragon
 		put(m, 8615, RiderPose.EXTRA_WIDE, 0.483f, 124, 130, 125, 0.9405f, 0.0595f, 1556); // Alchemical Hydra
@@ -833,6 +849,15 @@ final class MountFits
 		m.put(5559, new int[]{30, 30}); // Vet'ion Jr.
 		m.put(6633, new int[]{30, 30}); // Zilyana Jr.
 		m.put(6646, new int[]{30, 30}); // Zilyana Jr. (other form)
+		// The Fractured Archive
+		m.put(16764, new int[]{20, 10}); // Orion
+		m.put(16632, new int[]{20, 10}); // Orion (other form)
+		m.put(16763, new int[]{20, 10}); // Orion (robed)
+		m.put(16677, new int[]{20, 10}); // Ocellus (second form)
+		m.put(16640, new int[]{20, 30}); // Bork (Fractured Archive)
+		m.put(16641, new int[]{20, 30}); // The Smorks
+		m.put(16643, new int[]{20, 10}); // Dagon'hai Elder
+		m.put(16684, new int[]{20, 0}); // Xarth
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{15, 15}); // Adamant dragon
 		m.put(8615, new int[]{30, 44}); // Alchemical Hydra
@@ -1337,6 +1362,20 @@ final class MountFits
 		m.put(5559, new int[]{9965, 9967, -1}); // Vet'ion Jr.
 		m.put(6633, new int[]{6966, 6965, -1}); // Zilyana Jr.
 		m.put(6646, new int[]{6966, 6965, -1}); // Zilyana Jr. (other form)
+		// The Fractured Archive
+		m.put(16764, new int[]{14804, 14805, -1}); // Orion
+		m.put(16632, new int[]{14804, 14805, -1}); // Orion (other form)
+		m.put(16763, new int[]{14882, 14883, -1}); // Orion (robed)
+		m.put(16674, new int[]{14804, 14805, -1}); // Ocellus
+		m.put(16677, new int[]{14840, 14849, -1}); // Ocellus (second form)
+		m.put(16659, new int[]{14745, 14745, -1}); // Archive Guardian
+		m.put(16640, new int[]{14540, 14539, -1}); // Bork (Fractured Archive)
+		m.put(16641, new int[]{14553, 14553, -1}); // The Smorks
+		m.put(16665, new int[]{14776, 14778, -1}); // Dreadnoth the Jellied
+		m.put(16652, new int[]{14683, 14684, -1}); // Ezekiel
+		m.put(16667, new int[]{14783, 14783, -1}); // Moia
+		m.put(16643, new int[]{14581, 14587, -1}); // Dagon'hai Elder
+		m.put(16684, new int[]{14979, 14980, -1}); // Xarth
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put(8030, new int[]{90, 79, -1}); // Adamant dragon
 		m.put(8615, new int[]{8233, 8232, -1}); // Alchemical Hydra
@@ -1617,6 +1656,19 @@ final class MountFits
 		m.put("TzRek-Zuk", 8011);
 		m.put("Vet'ion Jr.", 5559);
 		m.put("Zilyana Jr.", 6633);
+		// The Fractured Archive (Orion is the raid's pet; the rest are its bosses)
+		m.put("Orion", 16764);
+		m.put("Orion (robed)", 16763);
+		m.put("Ocellus", 16674);
+		m.put("Ocellus (second form)", 16677);
+		m.put("Archive Guardian", 16659);
+		m.put("Bork (Fractured Archive)", 16640);
+		m.put("The Smorks", 16641);
+		m.put("Dreadnoth the Jellied", 16665);
+		m.put("Ezekiel", 16652);
+		m.put("Moia", 16667);
+		m.put("Dagon'hai Elder", 16643);
+		m.put("Xarth", 16684);
 		// Creatures: anything with a back to sit on, from dragons to the pet rock.
 		m.put("Adamant dragon", 8030);
 		m.put("Alchemical Hydra", 8615);

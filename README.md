@@ -29,11 +29,17 @@ Sunlight and Moonlight antelopes, gryphons (including the Dire gryphon and the S
 Alchemical Hydra, the Mutated and Warped Terrorbirds, an alpaca, a yak and, of course, a pet rock. Each one is
 sized and fitted with a saddle so you sit on its back.
 
+**The Fractured Archive**: Orion, the raid's pet (plain and robed), and the raid's bosses: Ocellus (both forms), the
+Archive Guardian, Bork, the Smorks' war cart, Dreadnoth the Jellied, Ezekiel, Moia, Xarth and the Dagon'hai Elder.
+You ride the two-legged ones on their shoulders, the cart on its roof, Dreadnoth on top of the jelly and the
+Archive Guardian on top of its skull.
+
 **Earned boss mounts** (optional, off by default): switch it on and boss creatures in the list (Araxxor, Vorkath,
 the Alchemical Hydra, the Shellbane gryphon, the Manticore, the King Black Dragon and more) stay locked until you've
 killed that boss at least once. They show as locked in the Mount list, with what it takes to unlock them, and the
 plugin congratulates you on the kill that unlocks one. Kill counts the Chat Commands plugin has already recorded for
-you count too. Elvarg unlocks with Dragon Slayer I. Your own pets are never locked.
+you count too. Elvarg unlocks with Dragon Slayer I, and the Fractured Archive bosses unlock together when you
+finish the raid once. Your own pets are never locked.
 
 Two-legged pets carry you on their shoulders instead of under a saddle: General Graardor Jr., Kree'arra Jr.,
 K'ril Tsutsaroth Jr., Zilyana Jr., Noon and Midnight, Skotos, Lil' Bloat, the Dagannoth kings, Vet'ion Jr., Olmlet,

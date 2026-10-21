@@ -24,12 +24,26 @@ final class EarnedMounts
 	/** Where the Chat Commands plugin keeps kill counts, per account, by lower-case boss name. */
 	private static final String CHAT_COMMANDS_GROUP = "killcount";
 
-	private static final Pattern KILL_COUNT = Pattern.compile("Your (.+?) kill count is: ([\\d,]+)\\.?",
+	/** "Your Vorkath kill count is: 5." and, for raids, "Your completed Fractured Archive count is: 1." */
+	private static final Pattern KILL_COUNT = Pattern.compile("Your (?:completed )?(?:the )?(.+?) (?:kill )?count is: ([\\d,]+)\\.?",
 		Pattern.CASE_INSENSITIVE);
+
+	/** Raids: their bosses unlock together, by finishing the raid once. */
+	private static final String FRACTURED_ARCHIVE = "Fractured Archive";
 
 	/** Boss mounts, by name in the Mount list, and the boss whose kill count unlocks each. */
 	private static final Map<String, String> BOSSES = ImmutableMap.<String, String>builder()
 		.put("Alchemical Hydra", "Alchemical Hydra")
+		.put("Archive Guardian", FRACTURED_ARCHIVE)
+		.put("Bork (Fractured Archive)", FRACTURED_ARCHIVE)
+		.put("Dagon'hai Elder", FRACTURED_ARCHIVE)
+		.put("Dreadnoth the Jellied", FRACTURED_ARCHIVE)
+		.put("Ezekiel", FRACTURED_ARCHIVE)
+		.put("Moia", FRACTURED_ARCHIVE)
+		.put("Ocellus", FRACTURED_ARCHIVE)
+		.put("Ocellus (second form)", FRACTURED_ARCHIVE)
+		.put("The Smorks", FRACTURED_ARCHIVE)
+		.put("Xarth", FRACTURED_ARCHIVE)
 		.put("Araxxor", "Araxxor")
 		.put("Artio", "Artio")
 		.put("Callisto", "Callisto")
@@ -78,7 +92,12 @@ final class EarnedMounts
 		String boss = BOSSES.get(mountName);
 		if (boss != null)
 		{
-			return killCount(boss) > 0 ? null : "Kill " + boss + " once to unlock this mount.";
+			if (killCount(boss) > 0)
+			{
+				return null;
+			}
+			return FRACTURED_ARCHIVE.equals(boss) ? "Complete the Fractured Archive once to unlock this mount."
+				: "Kill " + boss + " once to unlock this mount.";
 		}
 		Quest quest = QUESTS.get(mountName);
 		if (quest != null && quest.getState(client) != QuestState.FINISHED)
@@ -117,9 +136,14 @@ final class EarnedMounts
 		{
 			return null;
 		}
+		String boss = m.group(1).trim();
+		if (FRACTURED_ARCHIVE.equalsIgnoreCase(boss))
+		{
+			return "the Fractured Archive bosses";
+		}
 		for (Map.Entry<String, String> e : BOSSES.entrySet())
 		{
-			if (e.getValue().equalsIgnoreCase(m.group(1).trim()))
+			if (e.getValue().equalsIgnoreCase(boss))
 			{
 				return e.getKey();
 			}

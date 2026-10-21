@@ -17,6 +17,16 @@ public class EarnedMountsTest
 	}
 
 	@Test
+	public void finishingTheFracturedArchiveUnlocksItsBosses()
+	{
+		assertEquals("the Fractured Archive bosses",
+			EarnedMounts.unlockedBy("Your completed Fractured Archive count is: <col=ff0000>1</col>."));
+		assertEquals("the Fractured Archive bosses",
+			EarnedMounts.unlockedBy("Your completed The Fractured Archive count is: 1."));
+		assertNull(EarnedMounts.unlockedBy("Your completed Fractured Archive count is: 2."));
+	}
+
+	@Test
 	public void laterKillsAndOtherMessagesUnlockNothing()
 	{
 		assertNull(EarnedMounts.unlockedBy("Your Vorkath kill count is: <col=ff0000>1,204</col>."));

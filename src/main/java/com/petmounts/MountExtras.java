@@ -133,6 +133,29 @@ final class MountExtras
 		// terror dogs look around
 		put(m, new int[]{5623},
 			6473);
+		// The Fractured Archive: each boss's own moves. Orion and Ocellus raise their claws, and in robes swing the
+		// blade; Bork bashes with his shield; the Smorks' cart rocks; the Elder punches and casts; Ezekiel raises his
+		// sword; the Archive Guardian lunges; Dreadnoth wobbles; Moia leaps and casts; Xarth's flames flare.
+		put(m, new int[]{14810},
+			16632, 16674, 16764);
+		put(m, new int[]{14842, 14845},
+			16677, 16763);
+		put(m, new int[]{14543},
+			16640);
+		put(m, new int[]{14554, 14555},
+			16641);
+		put(m, new int[]{14603, 14599},
+			16643);
+		put(m, new int[]{14685, 14686},
+			16652);
+		put(m, new int[]{14750},
+			16659);
+		put(m, new int[]{14777, 14779},
+			16665);
+		put(m, new int[]{14786, 14787},
+			16667);
+		put(m, new int[]{14984, 14985},
+			16684);
 		return m;
 	}
 

@@ -21,6 +21,7 @@ public class RaidMountsTest
 			assertNotNull(name, fit);
 			assertTrue(name + " rides with no saddle", fit.shoulders);
 			assertNotNull(name, MountFits.animations(id));
+			assertNotNull(name + " has tricks", MountExtras.tricks(id));
 		}
 	}
 

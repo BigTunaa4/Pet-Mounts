@@ -32,7 +32,9 @@ sized and fitted with a saddle so you sit on its back.
 **The Fractured Archive**: Orion, the raid's pet (plain and robed), and the raid's bosses: Ocellus (both forms), the
 Archive Guardian, Bork, the Smorks' war cart, Dreadnoth the Jellied, Ezekiel, Moia, Xarth and the Dagon'hai Elder.
 You ride the two-legged ones on their shoulders, the cart on its roof, Dreadnoth on top of the jelly and the
-Archive Guardian on top of its skull.
+Archive Guardian on top of its skull. They stand and walk in their own animations, and now and then show off
+one of their own moves while you stand still: Bork bashes with his shield, Ezekiel raises his sword, Xarth's
+flames flare.
 
 **Earned boss mounts** (optional, off by default): switch it on and boss creatures in the list (Araxxor, Vorkath,
 the Alchemical Hydra, the Shellbane gryphon, the Manticore, the King Black Dragon and more) stay locked until you've
